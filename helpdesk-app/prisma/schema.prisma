@@ -1,0 +1,98 @@
+// Prisma schema for HelpDesk application
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User roles: senior, junior, it, admin
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("junior") // senior, junior, it, admin
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  assignedTickets Ticket[]   @relation("AssignedTo")
+  createdTickets  Ticket[]   @relation("CreatedBy")
+  sentMessages    Message[]  @relation("Sender")
+  receivedMessages Message[] @relation("Receiver")
+  activities      Activity[]
+}
+
+// Ticket priorities: HIGH, MEDIUM, LOW
+// Ticket statuses: OPEN, TRIAGE, IN_PROGRESS, RESOLVED, CLOSED, PENDING_REVIEW, WITH_IT
+model Ticket {
+  id          String   @id @default(cuid())
+  number      String   @unique
+  subject     String
+  description String?
+  priority    String   @default("MEDIUM") // HIGH, MEDIUM, LOW
+  status      String   @default("OPEN") // OPEN, TRIAGE, IN_PROGRESS, RESOLVED, CLOSED, PENDING_REVIEW, WITH_IT
+  source      String   @default("Freshchat") // Freshchat, WhatsApp, Email, Phone
+
+  // Customer info
+  customerName  String
+  customerEmail String?
+  customerPhone String?
+
+  // Relations
+  assignedToId String?
+  assignedTo   User?   @relation("AssignedTo", fields: [assignedToId], references: [id])
+  
+  createdById  String?
+  createdBy    User?   @relation("CreatedBy", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  closedAt  DateTime?
+
+  // Related data
+  messages   Message[]
+  activities Activity[]
+}
+
+// Chat messages between users
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+
+  // Sender
+  senderId String
+  sender   User   @relation("Sender", fields: [senderId], references: [id])
+
+  // Receiver (optional for group messages)
+  receiverId String?
+  receiver   User?   @relation("Receiver", fields: [receiverId], references: [id])
+
+  // Optional ticket context
+  ticketId String?
+  ticket   Ticket? @relation(fields: [ticketId], references: [id])
+}
+
+// Activity/Audit log
+model Activity {
+  id        String   @id @default(cuid())
+  action    String   // CREATED, ASSIGNED, STATUS_CHANGED, RESOLVED, CLOSED, COMMENTED, ESCALATED
+  details   String?
+  createdAt DateTime @default(now())
+
+  // Who performed the action
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Which ticket (optional)
+  ticketId String?
+  ticket   Ticket? @relation(fields: [ticketId], references: [id])
+}
