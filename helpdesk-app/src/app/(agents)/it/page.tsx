@@ -155,12 +155,12 @@ export default function ITDashboardPage() {
                         <StatCard value={stats.resolved} label="Fixed This Month" color="green" />
                     </div>
 
-                    <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="flex-1 flex flex-col min-h-0">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-bold text-slate-900">Technical Tickets</h2>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar">
+                        <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar p-1">
                             {isLoadingData ? (
                                 <div className="flex items-center justify-center py-8">
                                     <span className="size-6 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
@@ -172,22 +172,20 @@ export default function ITDashboardPage() {
                                 </div>
                             ) : (
                                 tickets.map((ticket) => (
-                                    <div
+                                    <TicketCard
                                         key={ticket.id}
+                                        ticketNumber={ticket.number}
+                                        subject={ticket.subject}
+                                        description={ticket.description || ''}
+                                        priority={ticket.priority}
+                                        status={ticket.status as 'WITH_IT' | 'IN_PROGRESS'}
+                                        customerName={ticket.customer_name}
+                                        customerInitials={ticket.customer_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                        timeAgo={formatTimeAgo(ticket.created_at)}
+                                        selected={selectedTicket?.id === ticket.id}
+                                        accentColor="#3B82F6"
                                         onClick={() => setSelectedTicket(ticket)}
-                                        className={`cursor-pointer ${selectedTicket?.id === ticket.id ? 'ring-2 ring-blue-500' : ''} rounded-2xl`}
-                                    >
-                                        <TicketCard
-                                            ticketNumber={ticket.number}
-                                            subject={ticket.subject}
-                                            description={ticket.description || ''}
-                                            priority={ticket.priority}
-                                            status={ticket.status as 'WITH_IT' | 'IN_PROGRESS'}
-                                            customerName={ticket.customer_name}
-                                            customerInitials={ticket.customer_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                                            timeAgo={formatTimeAgo(ticket.created_at)}
-                                        />
-                                    </div>
+                                    />
                                 ))
                             )}
                         </div>

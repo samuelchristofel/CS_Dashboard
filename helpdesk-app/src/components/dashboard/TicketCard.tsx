@@ -11,6 +11,8 @@ interface TicketCardProps {
     timeAgo: string;
     assignedBy?: string;
     onClick?: () => void;
+    selected?: boolean;
+    accentColor?: string;
 }
 
 const priorityColors: Record<Priority, string> = {
@@ -40,10 +42,14 @@ export default function TicketCard({
     timeAgo,
     assignedBy,
     onClick,
+    selected = false,
+    accentColor = '#EB4C36',
 }: TicketCardProps) {
     return (
         <div
-            className="p-5 rounded-3xl bg-white border border-slate-100 shadow-card cursor-pointer transition-all hover:shadow-lg"
+            className={`p-5 rounded-3xl bg-white border border-slate-100 cursor-pointer transition-all hover:shadow-lg
+                ${selected ? 'ring-2' : ''}`}
+            style={selected ? { '--tw-ring-color': accentColor } as React.CSSProperties : undefined}
             onClick={onClick}
         >
             <div className="flex justify-between items-start mb-2">

@@ -281,7 +281,7 @@ export default function SeniorDashboardPage() {
                     </div>
 
                     {/* Active Tickets */}
-                    <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="flex-1 flex flex-col min-h-0">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-bold text-slate-900">Active Tickets</h2>
                             <button className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
@@ -289,7 +289,7 @@ export default function SeniorDashboardPage() {
                             </button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar">
+                        <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar p-1">
                             {isLoadingData ? (
                                 <div className="flex items-center justify-center py-8">
                                     <span className="size-6 border-2 border-slate-200 border-t-[#EB4C36] rounded-full animate-spin" />
@@ -301,22 +301,20 @@ export default function SeniorDashboardPage() {
                                 </div>
                             ) : (
                                 tickets.map((ticket) => (
-                                    <div
+                                    <TicketCard
                                         key={ticket.id}
+                                        ticketNumber={ticket.number}
+                                        subject={ticket.subject}
+                                        description={ticket.description || ''}
+                                        priority={ticket.priority}
+                                        status={ticket.status as 'OPEN' | 'IN_PROGRESS' | 'WITH_IT'}
+                                        customerName={ticket.customer_name}
+                                        customerInitials={ticket.customer_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                        timeAgo={formatTimeAgo(ticket.created_at)}
+                                        selected={selectedTicket?.id === ticket.id}
+                                        accentColor="#EB4C36"
                                         onClick={() => setSelectedTicket(ticket)}
-                                        className={`cursor-pointer ${selectedTicket?.id === ticket.id ? 'ring-2 ring-[#EB4C36]' : ''} rounded-2xl`}
-                                    >
-                                        <TicketCard
-                                            ticketNumber={ticket.number}
-                                            subject={ticket.subject}
-                                            description={ticket.description || ''}
-                                            priority={ticket.priority}
-                                            status={ticket.status as 'OPEN' | 'IN_PROGRESS' | 'WITH_IT'}
-                                            customerName={ticket.customer_name}
-                                            customerInitials={ticket.customer_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                                            timeAgo={formatTimeAgo(ticket.created_at)}
-                                        />
-                                    </div>
+                                    />
                                 ))
                             )}
                         </div>

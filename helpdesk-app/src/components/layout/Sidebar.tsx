@@ -113,20 +113,20 @@ export default function Sidebar({ role, userName, userTitle, userAvatar }: Sideb
                 <div className="flex items-center gap-3 p-2 pr-4 bg-white rounded-full shadow-soft cursor-pointer">
                     {userAvatar ? (
                         <div
-                            className="size-10 rounded-full bg-cover bg-center"
+                            className="size-10 rounded-full bg-cover bg-center flex-shrink-0"
                             style={{ backgroundImage: `url('${userAvatar}')` }}
                         />
                     ) : (
-                        <div className={`size-10 rounded-full ${logoColor} flex items-center justify-center text-white font-bold text-sm`}>
+                        <div className={`size-10 rounded-full ${logoColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
                             {userName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </div>
                     )}
-                    <div className="flex flex-col">
-                        <p className="text-sm font-bold text-slate-900 leading-tight">{userName}</p>
-                        <p className="text-[10px] text-slate-500 font-medium">{userTitle}</p>
+                    <div className="flex flex-col flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-900 leading-tight truncate">{userName}</p>
+                        <p className="text-[10px] text-slate-500 font-medium truncate">{userTitle}</p>
                     </div>
-                    <Link href="/login" className="ml-auto">
-                        <span className="material-symbols-outlined text-slate-400 text-lg cursor-pointer hover:text-[#EB4C36]">
+                    <Link href="/login" className="flex items-center justify-center flex-shrink-0">
+                        <span className="material-symbols-outlined text-slate-400 text-lg cursor-pointer hover:text-[#EB4C36] leading-none">
                             logout
                         </span>
                     </Link>
