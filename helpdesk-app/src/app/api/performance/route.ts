@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         // Get all tickets for performance calculation
         const { data: tickets, error: ticketsError } = await supabaseAdmin
             .from('tickets')
-            .select('id, status, priority, assigned_to_id, created_at, assigned_at, closed_at');
+            .select('*');
 
         if (ticketsError) {
             console.error('Error fetching tickets:', ticketsError);

@@ -1,17 +1,83 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
-const mockHistory = [
-    { id: '1', ticketNumber: '8817', subject: 'Password reset request', status: 'CLOSED', resolvedBy: 'Himari', closedAt: 'Dec 24, 2024 16:30' },
-    { id: '2', ticketNumber: '8816', subject: 'Vehicle not moving on map display', status: 'CLOSED', resolvedBy: 'Jay Won', closedAt: 'Dec 24, 2024 14:30' },
-    { id: '3', ticketNumber: '8814', subject: 'Cannot access dashboard', status: 'CLOSED', resolvedBy: 'Budi Santoso', closedAt: 'Dec 23, 2024 16:00' },
-    { id: '4', ticketNumber: '8812', subject: 'Billing inquiry', status: 'CLOSED', resolvedBy: 'Himari', closedAt: 'Dec 23, 2024 11:20' },
-    { id: '5', ticketNumber: '8810', subject: 'GPS device setup help', status: 'CLOSED', resolvedBy: 'Jay Won', closedAt: 'Dec 22, 2024 15:45' },
-];
+interface HistoryItem {
+    id: string;
+    ticketNumber: string;
+    subject: string;
+    status: string;
+    resolvedBy: string;
+    closedAt: string;
+}
 
 export default function HistoryContent() {
+    const [history, setHistory] = useState<HistoryItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    useEffect(() => {
+        fetchHistory();
+    }, [filter]);
+
+    const fetchHistory = async () => {
+        setIsLoading(true);
+        try {
+            // Fetch closed/resolved tickets
+            const res = await fetch('/api/tickets?status=CLOSED&limit=100');
+            const data = await res.json();
+
+            if (data.tickets) {
+                // Filter by date if needed
+                let filtered = data.tickets;
+                const now = new Date();
+
+                if (filter === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    filtered = filtered.filter((t: any) => new Date(t.closed_at || t.updated_at) >= weekAgo);
+                } else if (filter === 'month') {
+                    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                    filtered = filtered.filter((t: any) => new Date(t.closed_at || t.updated_at) >= monthStart);
+                }
+
+                const historyItems: HistoryItem[] = filtered.map((ticket: any) => ({
+                    id: ticket.id,
+                    ticketNumber: ticket.number,
+                    subject: ticket.subject,
+                    status: ticket.status,
+                    resolvedBy: ticket.assigned_to?.name || 'Unknown',
+                    closedAt: ticket.closed_at
+                        ? new Date(ticket.closed_at).toLocaleString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                        })
+                        : '-',
+                }));
+
+                setHistory(historyItems);
+            }
+        } catch (error) {
+            console.error('Error fetching history:', error);
+            toast.error('Failed to load history');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Client-side search filtering
+    const filteredHistory = history.filter(item => {
+        const query = searchQuery.toLowerCase();
+        return (
+            item.ticketNumber.toLowerCase().includes(query) ||
+            item.subject.toLowerCase().includes(query) ||
+            item.resolvedBy.toLowerCase().includes(query)
+        );
+    });
 
     return (
         <>
@@ -27,6 +93,8 @@ export default function HistoryContent() {
                         <input
                             type="text"
                             placeholder="Search history..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-10 pr-4 py-2.5 bg-white rounded-full shadow-soft text-sm w-64 focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none"
                         />
                     </div>
@@ -56,39 +124,41 @@ export default function HistoryContent() {
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-slate-50">
-                    {mockHistory.map((item) => (
-                        <div key={item.id} className="px-6 py-4 flex items-center gap-4 hover:bg-slate-50">
-                            <div className="w-24 text-xs font-mono font-bold text-slate-400">#{item.ticketNumber}</div>
-                            <div className="flex-1 text-sm font-semibold text-slate-900">{item.subject}</div>
-                            <div className="w-28">
-                                <span className="px-2 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
-                                    {item.status}
-                                </span>
-                            </div>
-                            <div className="w-32 text-sm text-slate-600">{item.resolvedBy}</div>
-                            <div className="w-40 text-xs text-slate-500">{item.closedAt}</div>
-                            <div className="w-20 flex justify-end">
-                                <button className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                                    <span className="material-symbols-outlined text-base">visibility</span>
-                                </button>
-                            </div>
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <span className="size-8 border-2 border-slate-200 border-t-[#EB4C36] rounded-full animate-spin" />
                         </div>
-                    ))}
+                    ) : filteredHistory.length === 0 ? (
+                        <div className="flex items-center justify-center py-12 text-slate-400">
+                            No closed tickets found
+                        </div>
+                    ) : (
+                        filteredHistory.map((item) => (
+                            <div key={item.id} className="px-6 py-4 flex items-center gap-4 hover:bg-slate-50">
+                                <div className="w-24 text-xs font-mono font-bold text-slate-400">#{item.ticketNumber}</div>
+                                <div className="flex-1 text-sm font-semibold text-slate-900">{item.subject}</div>
+                                <div className="w-28">
+                                    <span className="px-2 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
+                                        {item.status}
+                                    </span>
+                                </div>
+                                <div className="w-32 text-sm text-slate-600">{item.resolvedBy}</div>
+                                <div className="w-40 text-xs text-slate-500">{item.closedAt}</div>
+                                <div className="w-20 flex justify-end">
+                                    <button className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                                        <span className="material-symbols-outlined text-base">visibility</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
 
-                {/* Pagination */}
+                {/* Footer */}
                 <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-                    <p className="text-sm text-slate-500">Showing 1-5 of 1,089 closed tickets</p>
-                    <div className="flex items-center gap-2">
-                        <button className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span className="material-symbols-outlined text-lg">chevron_left</span>
-                        </button>
-                        <button className="size-8 rounded-full bg-[#EB4C36] text-white flex items-center justify-center font-bold text-sm">1</button>
-                        <button className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">2</button>
-                        <button className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span className="material-symbols-outlined text-lg">chevron_right</span>
-                        </button>
-                    </div>
+                    <p className="text-sm text-slate-500">
+                        Showing {filteredHistory.length} closed ticket{filteredHistory.length !== 1 ? 's' : ''}
+                    </p>
                 </div>
             </div>
         </>

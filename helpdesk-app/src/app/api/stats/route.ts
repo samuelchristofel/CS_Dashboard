@@ -41,7 +41,7 @@ export async function GET(request: Request) {
             // Need to fetch timestamps for accurate scoring
             const { data: userTicketData } = await supabaseAdmin
                 .from('tickets')
-                .select('id, status, assigned_at, closed_at')
+                .select('*')
                 .eq('assigned_to_id', userId);
 
             const userTickets = userTicketData || [];

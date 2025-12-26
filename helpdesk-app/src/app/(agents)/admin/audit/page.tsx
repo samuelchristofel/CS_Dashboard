@@ -1,22 +1,123 @@
-const mockLogs = [
-    { id: '1', action: 'User Login', user: 'Jay Won', role: 'Senior CS', timestamp: 'Dec 25, 2024 14:30:22', ip: '192.168.1.***' },
-    { id: '2', action: 'Ticket Closed', user: 'Jay Won', role: 'Senior CS', timestamp: 'Dec 25, 2024 14:25:10', ip: '192.168.1.***', details: 'Ticket #8817' },
-    { id: '3', action: 'Ticket Assigned', user: 'Jay Won', role: 'Senior CS', timestamp: 'Dec 25, 2024 14:20:45', ip: '192.168.1.***', details: '#8821 → IT Support' },
-    { id: '4', action: 'User Login', user: 'Himari', role: 'Junior CS', timestamp: 'Dec 25, 2024 14:15:30', ip: '192.168.1.***' },
-    { id: '5', action: 'Ticket Created', user: 'System', role: 'API', timestamp: 'Dec 25, 2024 13:45:00', ip: 'Freshchat', details: 'Ticket #8821' },
-    { id: '6', action: 'User Login', user: 'Budi Santoso', role: 'IT Support', timestamp: 'Dec 25, 2024 13:30:00', ip: '192.168.1.***' },
-    { id: '7', action: 'Password Reset', user: 'Admin', role: 'Super Admin', timestamp: 'Dec 25, 2024 10:00:00', ip: '192.168.1.***', details: 'For user: andi@helpdesk.com' },
-];
+'use client';
+
+import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
+
+interface Activity {
+    id: string;
+    action: string;
+    details: string | null;
+    created_at: string;
+    user: {
+        id: string;
+        name: string;
+        role: string;
+        avatar?: string;
+    } | null;
+    ticket: {
+        id: string;
+        number: string;
+        subject: string;
+    } | null;
+}
 
 const actionColors: Record<string, string> = {
-    'User Login': 'bg-green-50 text-green-600',
-    'Ticket Closed': 'bg-slate-100 text-slate-600',
-    'Ticket Assigned': 'bg-blue-50 text-blue-600',
-    'Ticket Created': 'bg-purple-50 text-purple-600',
-    'Password Reset': 'bg-amber-50 text-amber-600',
+    'TICKET_CREATED': 'bg-purple-50 text-purple-600',
+    'TICKET_ASSIGNED': 'bg-blue-50 text-blue-600',
+    'TICKET_UPDATED': 'bg-slate-100 text-slate-600',
+    'TICKET_RESOLVED': 'bg-green-50 text-green-600',
+    'TICKET_CLOSED': 'bg-slate-100 text-slate-600',
+    'TICKET_ESCALATED': 'bg-amber-50 text-amber-600',
+    'NOTE_ADDED': 'bg-indigo-50 text-indigo-600',
+    'USER_LOGIN': 'bg-green-50 text-green-600',
+    'USER_LOGOUT': 'bg-slate-100 text-slate-600',
+};
+
+const actionLabels: Record<string, string> = {
+    'TICKET_CREATED': 'Ticket Created',
+    'TICKET_ASSIGNED': 'Ticket Assigned',
+    'TICKET_UPDATED': 'Ticket Updated',
+    'TICKET_RESOLVED': 'Ticket Resolved',
+    'TICKET_CLOSED': 'Ticket Closed',
+    'TICKET_ESCALATED': 'Ticket Escalated',
+    'NOTE_ADDED': 'Note Added',
+    'USER_LOGIN': 'User Login',
+    'USER_LOGOUT': 'User Logout',
+};
+
+const roleLabels: Record<string, string> = {
+    'admin': 'Admin',
+    'senior': 'Senior CS',
+    'junior': 'Junior CS',
+    'it': 'IT Support',
 };
 
 export default function AdminAuditPage() {
+    const [activities, setActivities] = useState<Activity[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [actionFilter, setActionFilter] = useState('all');
+    const [dateFilter, setDateFilter] = useState('today');
+
+    useEffect(() => {
+        fetchActivities();
+    }, [actionFilter, dateFilter]);
+
+    const fetchActivities = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/activities?limit=100');
+            const data = await res.json();
+
+            if (data.activities) {
+                let filtered = data.activities;
+                const now = new Date();
+
+                // Filter by date
+                if (dateFilter === 'today') {
+                    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    filtered = filtered.filter((a: Activity) => new Date(a.created_at) >= todayStart);
+                } else if (dateFilter === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    filtered = filtered.filter((a: Activity) => new Date(a.created_at) >= weekAgo);
+                } else if (dateFilter === 'month') {
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    filtered = filtered.filter((a: Activity) => new Date(a.created_at) >= monthAgo);
+                }
+
+                // Filter by action type
+                if (actionFilter !== 'all') {
+                    if (actionFilter === 'login') {
+                        filtered = filtered.filter((a: Activity) => a.action.includes('LOGIN') || a.action.includes('LOGOUT'));
+                    } else if (actionFilter === 'ticket') {
+                        filtered = filtered.filter((a: Activity) => a.action.includes('TICKET'));
+                    } else if (actionFilter === 'admin') {
+                        filtered = filtered.filter((a: Activity) =>
+                            a.action.includes('USER') || a.action.includes('PASSWORD') || a.action.includes('ADMIN')
+                        );
+                    }
+                }
+
+                setActivities(filtered);
+            }
+        } catch (error) {
+            console.error('Error fetching activities:', error);
+            toast.error('Failed to load audit logs');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const formatTimestamp = (timestamp: string) => {
+        return new Date(timestamp).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    };
+
     return (
         <>
             {/* Header */}
@@ -26,16 +127,25 @@ export default function AdminAuditPage() {
                     <p className="text-sm text-slate-500 mt-1">System activity and security logs</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <select className="px-4 py-2.5 bg-white rounded-full shadow-soft text-sm font-medium">
-                        <option>All Actions</option>
-                        <option>User Login</option>
-                        <option>Ticket Actions</option>
-                        <option>Admin Actions</option>
+                    <select
+                        value={actionFilter}
+                        onChange={(e) => setActionFilter(e.target.value)}
+                        className="px-4 py-2.5 bg-white rounded-full shadow-soft text-sm font-medium"
+                    >
+                        <option value="all">All Actions</option>
+                        <option value="login">User Login</option>
+                        <option value="ticket">Ticket Actions</option>
+                        <option value="admin">Admin Actions</option>
                     </select>
-                    <select className="px-4 py-2.5 bg-white rounded-full shadow-soft text-sm font-medium">
-                        <option>Today</option>
-                        <option>Last 7 days</option>
-                        <option>Last 30 days</option>
+                    <select
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value)}
+                        className="px-4 py-2.5 bg-white rounded-full shadow-soft text-sm font-medium"
+                    >
+                        <option value="today">Today</option>
+                        <option value="week">Last 7 days</option>
+                        <option value="month">Last 30 days</option>
+                        <option value="all">All Time</option>
                     </select>
                     <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-full font-bold text-sm shadow-lg">
                         <span className="material-symbols-outlined text-lg">download</span>
@@ -52,41 +162,49 @@ export default function AdminAuditPage() {
                     <div className="w-32">User</div>
                     <div className="w-24">Role</div>
                     <div className="flex-1">Details</div>
-                    <div className="w-40">Timestamp</div>
-                    <div className="w-28">IP Address</div>
+                    <div className="w-48">Timestamp</div>
                 </div>
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto no-scrollbar">
-                    {mockLogs.map((log) => (
-                        <div key={log.id} className="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50">
-                            <div className="w-32">
-                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${actionColors[log.action] || 'bg-slate-100 text-slate-600'}`}>
-                                    {log.action}
-                                </span>
-                            </div>
-                            <div className="w-32 text-sm font-semibold text-slate-900">{log.user}</div>
-                            <div className="w-24 text-xs text-slate-500">{log.role}</div>
-                            <div className="flex-1 text-sm text-slate-600">{log.details || '-'}</div>
-                            <div className="w-40 text-xs text-slate-500 font-mono">{log.timestamp}</div>
-                            <div className="w-28 text-xs text-slate-400 font-mono">{log.ip}</div>
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <span className="size-8 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
                         </div>
-                    ))}
+                    ) : activities.length === 0 ? (
+                        <div className="flex items-center justify-center py-12 text-slate-400">
+                            No activity logs found
+                        </div>
+                    ) : (
+                        activities.map((activity) => (
+                            <div key={activity.id} className="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50">
+                                <div className="w-32">
+                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${actionColors[activity.action] || 'bg-slate-100 text-slate-600'}`}>
+                                        {actionLabels[activity.action] || activity.action}
+                                    </span>
+                                </div>
+                                <div className="w-32 text-sm font-semibold text-slate-900">
+                                    {activity.user?.name || 'System'}
+                                </div>
+                                <div className="w-24 text-xs text-slate-500">
+                                    {activity.user ? roleLabels[activity.user.role] || activity.user.role : 'API'}
+                                </div>
+                                <div className="flex-1 text-sm text-slate-600">
+                                    {activity.details || (activity.ticket ? `Ticket #${activity.ticket.number}` : '-')}
+                                </div>
+                                <div className="w-48 text-xs text-slate-500 font-mono">
+                                    {formatTimestamp(activity.created_at)}
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
 
-                {/* Pagination */}
+                {/* Footer */}
                 <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-                    <p className="text-sm text-slate-500">Showing 1-7 of 1,234 logs</p>
-                    <div className="flex items-center gap-2">
-                        <button className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span className="material-symbols-outlined text-lg">chevron_left</span>
-                        </button>
-                        <button className="size-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-sm">1</button>
-                        <button className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">2</button>
-                        <button className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span className="material-symbols-outlined text-lg">chevron_right</span>
-                        </button>
-                    </div>
+                    <p className="text-sm text-slate-500">
+                        Showing {activities.length} log{activities.length !== 1 ? 's' : ''}
+                    </p>
                 </div>
             </div>
         </>

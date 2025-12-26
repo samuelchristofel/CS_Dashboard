@@ -136,17 +136,17 @@
 - [x] **IT Tickets** - Tabs filtering implemented
 - [x] **Admin/Senior Tickets** - Tabs filtering implemented
 
-### 6.5 History Pages (Still Mock Data)
-- [ ] `/senior/history` - Wire to real activities API
-- [ ] `/junior/history` - Wire to real activities API
-- [ ] `/it/history` - Wire to real activities API
-- [ ] `/admin/history` - Wire to real activities API
+### 6.5 History Pages ✅ DONE
+- [x] `/senior/history` - Wired to real tickets API (closed tickets)
+- [x] `/junior/history` - Wired to real tickets API (closed tickets)
+- [x] `/it/history` - Wired to real tickets API (closed tickets)
+- [x] `/admin/history` - Wired to real tickets API (closed tickets)
 
-### 6.6 Other Pages (Partially Done)
-- [ ] `/admin/analytics` - Placeholder or needs real charts
-- [x] `/admin/reports` - wired to `/api/performance`
-- [ ] `/admin/audit` - Wire to activities API
-- [ ] `/senior/reports` - Placeholder
+### 6.6 Other Pages ✅ DONE
+- [x] `/admin/analytics` - Wired to real stats/performance APIs with visual charts
+- [x] `/admin/reports` - Wired to `/api/performance`
+- [x] `/admin/audit` - Wired to activities API
+- [x] `/senior/reports` - Wired to personal performance/stats APIs
 
 ---
 
@@ -155,10 +155,10 @@
 - [ ] Real-time updates with Supabase Realtime
 - [ ] Email notifications
 - [ ] File attachments on tickets
-- [ ] Charts with real data (Recharts)
 - [ ] Export to CSV/PDF
 - [ ] SLA timers
 - [ ] Chat functionality
+- [ ] User online/offline status (last_seen_at)
 
 ---
 
@@ -170,8 +170,8 @@
 | Phase 2 - Database | ✅ Complete |
 | Phase 3 - APIs | ✅ Complete |
 | Phase 4 - Integration | ✅ Complete |
-| Phase 5 - Polish | 🟡 In Progress |
-| **Phase 6 - UI Audit** | 🔴 Not Started |
+| Phase 5 - Polish | ✅ Complete |
+| **Phase 6 - UI Audit** | ✅ Complete |
 
 ---
 
