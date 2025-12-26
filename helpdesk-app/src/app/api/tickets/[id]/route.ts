@@ -66,7 +66,13 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         if (description !== undefined) updates.description = description;
         if (priority) updates.priority = priority;
         if (status) updates.status = status;
-        if (assigned_to_id !== undefined) updates.assigned_to_id = assigned_to_id;
+        if (assigned_to_id !== undefined) {
+            updates.assigned_to_id = assigned_to_id;
+            // Set assigned_at timestamp for KPI tracking (only if assigning, not unassigning)
+            if (assigned_to_id && assigned_to_id !== currentTicket?.assigned_to_id) {
+                updates.assigned_at = new Date().toISOString();
+            }
+        }
 
         // Handle closing ticket
         if (status === 'CLOSED') {

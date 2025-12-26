@@ -1,132 +1,154 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TicketTable from '@/components/tickets/TicketTable';
 import TicketFilters from '@/components/tickets/TicketFilters';
-import CreateTicketModal from '@/components/modals/CreateTicketModal';
+import CreateTicketModal, { TicketFormData } from '@/components/modals/CreateTicketModal';
 import AssignTicketModal from '@/components/modals/AssignTicketModal';
-import type { TicketFormData } from '@/components/modals/CreateTicketModal';
-
-// Mock data - Admin sees all tickets with full details
-const mockTickets = [
-    {
-        id: '1',
-        ticketNumber: '8821',
-        subject: 'GPS device offline for 3 hours',
-        customerName: 'PT. Trans Logistics',
-        customerPhone: '0812****1234',
-        priority: 'HIGH' as const,
-        status: 'IN_PROGRESS' as const,
-        source: 'Freshchat' as const,
-        assignedTo: {
-            name: 'Jay Won',
-            initials: 'JW',
-        },
-        createdAt: 'Dec 25, 13:45',
-    },
-    {
-        id: '2',
-        ticketNumber: '8820',
-        subject: 'Invoice discrepancy for November',
-        customerName: 'CV. Maju Bersama',
-        customerPhone: '0821****5678',
-        priority: 'MEDIUM' as const,
-        status: 'PENDING_REVIEW' as const,
-        source: 'WhatsApp' as const,
-        assignedTo: {
-            name: 'Himari',
-            initials: 'HM',
-        },
-        createdAt: 'Dec 25, 11:20',
-    },
-    {
-        id: '3',
-        ticketNumber: '8819',
-        subject: 'Server authentication error 500',
-        customerName: 'PT. Digital Solusi',
-        customerPhone: '0815****9012',
-        priority: 'HIGH' as const,
-        status: 'WITH_IT' as const,
-        source: 'Freshchat' as const,
-        assignedTo: {
-            name: 'Budi',
-            initials: 'IT',
-            role: 'IT',
-        },
-        createdAt: 'Dec 25, 10:30',
-    },
-    {
-        id: '4',
-        ticketNumber: '8818',
-        subject: 'Request for fleet pricing quotation',
-        customerName: 'Sarah Williams',
-        customerPhone: '0856****3456',
-        priority: 'LOW' as const,
-        status: 'OPEN' as const,
-        source: 'WhatsApp' as const,
-        assignedTo: undefined,
-        createdAt: 'Dec 25, 09:15',
-    },
-    {
-        id: '5',
-        ticketNumber: '8817',
-        subject: 'Password reset request',
-        customerName: 'Ahmad Fauzi',
-        customerPhone: '0877****7890',
-        priority: 'LOW' as const,
-        status: 'CLOSED' as const,
-        source: 'Freshchat' as const,
-        assignedTo: {
-            name: 'Himari',
-            initials: 'HM',
-        },
-        createdAt: 'Dec 24, 16:30',
-    },
-    {
-        id: '6',
-        ticketNumber: '8816',
-        subject: 'Vehicle not moving on map display',
-        customerName: 'PT. Logistik Nusantara',
-        customerPhone: '0812****5678',
-        priority: 'HIGH' as const,
-        status: 'CLOSED' as const,
-        source: 'WhatsApp' as const,
-        assignedTo: {
-            name: 'Jay Won',
-            initials: 'JW',
-        },
-        createdAt: 'Dec 24, 14:30',
-    },
-];
-
-// Mock agents for assignment
-const mockAgents = [
-    { id: '1', name: 'Jay Won', role: 'Senior CS' },
-    { id: '2', name: 'Himari', role: 'Junior CS' },
-    { id: '3', name: 'Andi R.', role: 'Junior CS' },
-    { id: '4', name: 'Budi Santoso', role: 'IT Support' },
-];
+import { toast } from 'react-hot-toast';
 
 export default function AdminTicketsPage() {
+    const [tickets, setTickets] = useState<any[]>([]);
+    const [stats, setStats] = useState<any>({ total: 0, open: 0, high: 0, pendingReview: 0, withIT: 0, closed: 0 });
+    const [agents, setAgents] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showAssignModal, setShowAssignModal] = useState(false);
-    const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
+    const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
+    const [priorityFilter, setPriorityFilter] = useState('');
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            // Fetch tickets
+            const ticketsRes = await fetch('/api/tickets');
+            const ticketsData = await ticketsRes.json();
+
+            // Fetch stats
+            const statsRes = await fetch('/api/stats');
+            const statsData = await statsRes.json();
+
+            // Fetch users (agents) for assignment
+            const usersRes = await fetch('/api/users');
+            const usersData = await usersRes.json();
+
+            if (ticketsData.tickets) {
+                setTickets(ticketsData.tickets.map((ticket: any) => ({
+                    id: ticket.id,
+                    ticketNumber: ticket.number,
+                    subject: ticket.subject,
+                    customerName: ticket.customer_name,
+                    customerPhone: ticket.customer_phone,
+                    priority: ticket.priority,
+                    status: ticket.status,
+                    source: ticket.source,
+                    assignedTo: ticket.assigned_to ? {
+                        name: ticket.assigned_to.name,
+                        initials: ticket.assigned_to.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2),
+                        role: ticket.assigned_to.role === 'it' ? 'IT' : undefined,
+                        avatar: ticket.assigned_to.avatar
+                    } : undefined,
+                    createdAt: new Date(ticket.created_at).toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                    }),
+                })));
+            }
+
+            if (statsData.stats) {
+                setStats(statsData.stats);
+            }
+
+            if (usersData.users) {
+                setAgents(usersData.users.filter((u: any) => u.role !== 'admin').map((u: any) => ({
+                    id: u.id,
+                    name: u.name,
+                    role: u.role === 'senior' ? 'Senior CS' : u.role === 'junior' ? 'Junior CS' : 'IT Support'
+                })));
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            toast.error('Failed to load data');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleCreateTicket = async (data: TicketFormData) => {
-        // TODO: Connect to Supabase API
-        console.log('Create ticket:', data);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        alert('Ticket created! (Demo - will connect to database)');
+        const loadingToast = toast.loading('Creating ticket...');
+        try {
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+
+            const res = await fetch('/api/tickets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...data,
+                    created_by_id: user?.id,
+                }),
+            });
+
+            if (!res.ok) throw new Error('Failed to create ticket');
+
+            toast.success('Ticket created successfully', { id: loadingToast });
+            setShowCreateModal(false);
+            fetchData(); // Refresh list
+        } catch (error) {
+            console.error('Create ticket error:', error);
+            toast.error('Failed to create ticket', { id: loadingToast });
+        }
     };
 
     const handleAssignTicket = async (agentId: string) => {
-        // TODO: Connect to Supabase API
-        console.log('Assign ticket', selectedTicket, 'to agent', agentId);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        alert('Ticket assigned! (Demo - will connect to database)');
+        if (!selectedTicketId) return;
+
+        const loadingToast = toast.loading('Assigning ticket...');
+        try {
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+
+            const res = await fetch(`/api/tickets/${selectedTicketId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    assigned_to_id: agentId,
+                    user_id: user?.id,
+                }),
+            });
+
+            if (!res.ok) throw new Error('Failed to assign ticket');
+
+            toast.success('Ticket assigned successfully', { id: loadingToast });
+            setShowAssignModal(false);
+            setSelectedTicketId(null);
+            fetchData(); // Refresh list
+        } catch (error) {
+            console.error('Assign ticket error:', error);
+            toast.error('Failed to assign ticket', { id: loadingToast });
+        }
     };
 
-    const selectedTicketData = mockTickets.find(t => t.id === selectedTicket);
+    const selectedTicketData = tickets.find(t => t.id === selectedTicketId);
+
+    // Client-side filtering
+    const filteredTickets = tickets.filter(t => {
+        const matchesSearch = t.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            t.ticketNumber.includes(searchQuery) ||
+            t.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesStatus = statusFilter ? t.status === statusFilter : true;
+        const matchesPriority = priorityFilter ? t.priority === priorityFilter : true;
+
+        return matchesSearch && matchesStatus && matchesPriority;
+    });
 
     return (
         <>
@@ -139,47 +161,55 @@ export default function AdminTicketsPage() {
                 <TicketFilters
                     showCreateButton={true}
                     onCreateClick={() => setShowCreateModal(true)}
+                    onSearch={setSearchQuery}
+                    onStatusChange={setStatusFilter}
+                    onPriorityChange={setPriorityFilter}
                 />
             </div>
 
             {/* Stats Row */}
             <div className="flex gap-4">
                 <div className="flex-1 bg-white rounded-2xl p-4 shadow-soft">
-                    <p className="text-3xl font-extrabold text-slate-900">156</p>
+                    <p className="text-3xl font-extrabold text-slate-900">{stats.open || 0}</p>
                     <p className="text-xs text-slate-500 mt-1">Total Open</p>
                 </div>
                 <div className="flex-1 bg-white rounded-2xl p-4 shadow-soft">
-                    <p className="text-3xl font-extrabold text-red-500">12</p>
+                    <p className="text-3xl font-extrabold text-red-500">{stats.high || 0}</p>
                     <p className="text-xs text-slate-500 mt-1">High Priority</p>
                 </div>
                 <div className="flex-1 bg-white rounded-2xl p-4 shadow-soft">
-                    <p className="text-3xl font-extrabold text-amber-500">23</p>
+                    <p className="text-3xl font-extrabold text-amber-500">{stats.pendingReview || 0}</p>
                     <p className="text-xs text-slate-500 mt-1">Pending Review</p>
                 </div>
                 <div className="flex-1 bg-white rounded-2xl p-4 shadow-soft">
-                    <p className="text-3xl font-extrabold text-blue-500">8</p>
+                    <p className="text-3xl font-extrabold text-blue-500">{stats.withIT || 0}</p>
                     <p className="text-xs text-slate-500 mt-1">With IT</p>
                 </div>
                 <div className="flex-1 bg-white rounded-2xl p-4 shadow-soft">
-                    <p className="text-3xl font-extrabold text-green-500">1,089</p>
+                    <p className="text-3xl font-extrabold text-green-500">{stats.closed || 0}</p>
                     <p className="text-xs text-slate-500 mt-1">Closed</p>
                 </div>
             </div>
 
             {/* Ticket Table */}
-            <TicketTable
-                tickets={mockTickets}
-                showAssignedTo={true}
-                showSource={true}
-                onViewTicket={(id) => {
-                    setSelectedTicket(id);
-                    // TODO: Open detail modal
-                }}
-                onAssignTicket={(id) => {
-                    setSelectedTicket(id);
-                    setShowAssignModal(true);
-                }}
-            />
+            {isLoading ? (
+                <div className="flex-1 flex items-center justify-center">
+                    <span className="size-8 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+                </div>
+            ) : (
+                <TicketTable
+                    tickets={filteredTickets}
+                    showAssignedTo={true}
+                    showSource={true}
+                    onViewTicket={(id) => {
+                        console.log('View ticket', id);
+                    }}
+                    onAssignTicket={(id) => {
+                        setSelectedTicketId(id);
+                        setShowAssignModal(true);
+                    }}
+                />
+            )}
 
             {/* Create Ticket Modal */}
             <CreateTicketModal
@@ -193,12 +223,12 @@ export default function AdminTicketsPage() {
                 isOpen={showAssignModal}
                 onClose={() => {
                     setShowAssignModal(false);
-                    setSelectedTicket(null);
+                    setSelectedTicketId(null);
                 }}
                 onSubmit={handleAssignTicket}
                 ticketNumber={selectedTicketData?.ticketNumber || ''}
                 currentAssignee={selectedTicketData?.assignedTo?.name}
-                agents={mockAgents}
+                agents={agents}
             />
         </>
     );

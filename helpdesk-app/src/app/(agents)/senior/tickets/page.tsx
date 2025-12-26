@@ -50,6 +50,8 @@ export default function SeniorTicketsPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [priorityFilter, setPriorityFilter] = useState('');
 
     // Get current user
     useEffect(() => {
@@ -162,8 +164,23 @@ export default function SeniorTicketsPage() {
         }
     };
 
+    // Filter tickets locally
+    const filteredTickets = tickets.filter(t => {
+        // Search filter
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = !query ||
+            t.number.toLowerCase().includes(query) ||
+            t.subject.toLowerCase().includes(query) ||
+            t.customer_name.toLowerCase().includes(query);
+
+        // Priority filter
+        const matchesPriority = !priorityFilter || t.priority === priorityFilter;
+
+        return matchesSearch && matchesPriority;
+    });
+
     // Format ticket data for TicketTable
-    const formattedTickets = tickets.map(t => ({
+    const formattedTickets = filteredTickets.map(t => ({
         id: t.id,
         ticketNumber: t.number,
         subject: t.subject,
@@ -194,6 +211,9 @@ export default function SeniorTicketsPage() {
                 <TicketFilters
                     showCreateButton={true}
                     onCreateClick={() => setShowCreateModal(true)}
+                    onSearch={setSearchQuery}
+                    onPriorityChange={setPriorityFilter}
+                    showStatusFilter={false} // Tabs handle status
                 />
             </div>
 

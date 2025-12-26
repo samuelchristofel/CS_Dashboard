@@ -15,6 +15,7 @@ interface CustomSelectProps {
     label?: string;
     icon?: string;
     required?: boolean;
+    variant?: 'form' | 'filter';
 }
 
 export default function CustomSelect({
@@ -25,6 +26,7 @@ export default function CustomSelect({
     label,
     icon,
     required,
+    variant = 'form',
 }: CustomSelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -53,8 +55,13 @@ export default function CustomSelect({
         return () => document.removeEventListener('keydown', handleEscape);
     }, []);
 
+    const baseButtonStyles = "w-full text-left flex items-center justify-between transition-all";
+    const variantStyles = variant === 'filter'
+        ? `px-4 py-2.5 bg-white rounded-full shadow-soft ${isOpen ? 'ring-2 ring-[#EB4C36]/20' : ''}`
+        : `px-4 py-3 bg-slate-50 rounded-xl ${isOpen ? 'ring-2 ring-[#EB4C36]/20' : 'hover:bg-slate-100'}`;
+
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className={`relative ${variant === 'filter' ? 'min-w-[150px]' : ''}`} ref={dropdownRef}>
             {label && (
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
                     {icon && (
@@ -69,10 +76,7 @@ export default function CustomSelect({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full px-4 py-3 bg-slate-50 rounded-xl text-left flex items-center justify-between transition-all
-                    ${isOpen ? 'ring-2 ring-[#EB4C36]/20' : 'hover:bg-slate-100'}
-                    ${!selectedOption ? 'text-slate-400' : 'text-slate-900'}
-                `}
+                className={`${baseButtonStyles} ${variantStyles} ${!selectedOption ? 'text-slate-500' : 'text-slate-900'}`}
             >
                 <span className="text-sm font-medium">
                     {selectedOption?.label || placeholder}

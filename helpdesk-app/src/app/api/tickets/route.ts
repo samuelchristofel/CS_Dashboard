@@ -102,6 +102,7 @@ export async function POST(request: Request) {
                 customer_email: customer_email || null,
                 customer_phone: customer_phone || null,
                 assigned_to_id: assigned_to_id || null,
+                assigned_at: assigned_to_id ? new Date().toISOString() : null,
                 created_by_id: created_by_id || null,
             })
             .select(`

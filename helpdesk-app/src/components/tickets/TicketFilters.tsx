@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 interface TicketFiltersProps {
     onSearch?: (query: string) => void;
@@ -8,7 +9,26 @@ interface TicketFiltersProps {
     onPriorityChange?: (priority: string) => void;
     showCreateButton?: boolean;
     onCreateClick?: () => void;
+    showStatusFilter?: boolean;
+    showPriorityFilter?: boolean;
 }
+
+const statusOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'OPEN', label: 'Open' },
+    { value: 'IN_PROGRESS', label: 'In Progress' },
+    { value: 'PENDING_REVIEW', label: 'Pending Review' },
+    { value: 'WITH_IT', label: 'With IT' },
+    { value: 'RESOLVED', label: 'Resolved' },
+    { value: 'CLOSED', label: 'Closed' },
+];
+
+const priorityOptions = [
+    { value: '', label: 'All Priority' },
+    { value: 'HIGH', label: 'High' },
+    { value: 'MEDIUM', label: 'Medium' },
+    { value: 'LOW', label: 'Low' },
+];
 
 export default function TicketFilters({
     onSearch,
@@ -16,12 +36,26 @@ export default function TicketFilters({
     onPriorityChange,
     showCreateButton = false,
     onCreateClick,
+    showStatusFilter = true,
+    showPriorityFilter = true,
 }: TicketFiltersProps) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [status, setStatus] = useState('');
+    const [priority, setPriority] = useState('');
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
         onSearch?.(e.target.value);
+    };
+
+    const handleStatusChange = (value: string) => {
+        setStatus(value);
+        onStatusChange?.(value);
+    };
+
+    const handlePriorityChange = (value: string) => {
+        setPriority(value);
+        onPriorityChange?.(value);
     };
 
     return (
@@ -41,39 +75,26 @@ export default function TicketFilters({
             </div>
 
             {/* Status Filter */}
-            <div className="relative">
-                <select
-                    onChange={(e) => onStatusChange?.(e.target.value)}
-                    className="appearance-none px-4 py-2.5 pr-10 bg-white rounded-full border-none shadow-soft text-sm font-medium cursor-pointer focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none"
-                >
-                    <option value="">All Status</option>
-                    <option value="OPEN">Open</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="PENDING_REVIEW">Pending Review</option>
-                    <option value="WITH_IT">With IT</option>
-                    <option value="RESOLVED">Resolved</option>
-                    <option value="CLOSED">Closed</option>
-                </select>
-                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">
-                    expand_more
-                </span>
-            </div>
+            {showStatusFilter && (
+                <CustomSelect
+                    options={statusOptions}
+                    value={status}
+                    onChange={handleStatusChange}
+                    placeholder="All Status"
+                    variant="filter"
+                />
+            )}
 
             {/* Priority Filter */}
-            <div className="relative">
-                <select
-                    onChange={(e) => onPriorityChange?.(e.target.value)}
-                    className="appearance-none px-4 py-2.5 pr-10 bg-white rounded-full border-none shadow-soft text-sm font-medium cursor-pointer focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none"
-                >
-                    <option value="">All Priority</option>
-                    <option value="HIGH">High</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="LOW">Low</option>
-                </select>
-                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">
-                    expand_more
-                </span>
-            </div>
+            {showPriorityFilter && (
+                <CustomSelect
+                    options={priorityOptions}
+                    value={priority}
+                    onChange={handlePriorityChange}
+                    placeholder="All Priority"
+                    variant="filter"
+                />
+            )}
 
             {/* Create Button */}
             {showCreateButton && (

@@ -112,28 +112,29 @@
 
 ---
 
-## Phase 6: UI Audit & Missing Features 🔴 TODO
-
+## Phase 6: UI Audit & Missing Features 🟡 IN PROGRESS
+  
 ### 6.1 User Management (Admin)
 - [ ] **User online/offline status** - Currently hardcoded as "Active", need real login status tracking
 - [ ] **Last login timestamp** - Track when users last logged in
 
-### 6.2 Ticket Filters (TicketFilters.tsx)
-- [ ] **Replace native dropdowns** - Status & Priority filters still use native `<select>`
-- [ ] **Search functionality** - Wire up search to filter tickets (currently UI only)
-- [ ] **Pass filter values** to parent component for actual filtering
+### 6.2 Ticket Filters (TicketFilters.tsx) ✅ DONE
+- [x] **Replace native dropdowns** - Replaced with `CustomSelect`
+- [x] **Search functionality** - Wired up client-side search
+- [x] **Pass filter values** - Filters implemented in all ticket pages
 
-### 6.3 Tickets Pages (Still Using Mock Data!)
-| Page | Issue |
+### 6.3 Tickets Pages (Real API Connected) ✅ DONE
+| Page | Status |
 |------|-------|
-| `/junior/tickets` | ❌ Still using mock data array |
-| `/it/tickets` | ❌ Still using mock data array |
-| `/admin/tickets` | ❌ Still using mock data array |
+| `/junior/tickets` | ✅ Wired to real API |
+| `/it/tickets` | ✅ Wired to real API |
+| `/admin/tickets` | ✅ Wired to real API |
+| `/senior/tickets` | ✅ Wired to real API |
 
-### 6.4 Ticket Tabs (Not Functional)
-- [ ] **Junior Tickets** - "Assigned to Me" / "Completed" tabs don't filter
-- [ ] **IT Tickets** - "Assigned to Me" / "Pending CS Review" / "All Technical" tabs don't filter
-- [ ] **Admin/Senior Tickets** - Tab filtering needs real data
+### 6.4 Ticket Tabs (Functional) ✅ DONE
+- [x] **Junior Tickets** - Tabs filtering implemented
+- [x] **IT Tickets** - Tabs filtering implemented
+- [x] **Admin/Senior Tickets** - Tabs filtering implemented
 
 ### 6.5 History Pages (Still Mock Data)
 - [ ] `/senior/history` - Wire to real activities API
@@ -141,9 +142,9 @@
 - [ ] `/it/history` - Wire to real activities API
 - [ ] `/admin/history` - Wire to real activities API
 
-### 6.6 Other Pages (Placeholder/Mock)
+### 6.6 Other Pages (Partially Done)
 - [ ] `/admin/analytics` - Placeholder or needs real charts
-- [ ] `/admin/reports` - Placeholder or needs real data
+- [x] `/admin/reports` - wired to `/api/performance`
 - [ ] `/admin/audit` - Wire to activities API
 - [ ] `/senior/reports` - Placeholder
 
