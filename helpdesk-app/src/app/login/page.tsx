@@ -22,22 +22,31 @@ export default function LoginPage() {
         setError('');
         setIsLoading(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500));
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
 
-        const user = users.find(u => u.email === email && u.password === password);
+            const data = await response.json();
 
-        if (user) {
-            // In real app, this would set a cookie/session
-            localStorage.setItem('user', JSON.stringify(user));
+            if (!response.ok) {
+                setError(data.error || 'Login failed');
+                setIsLoading(false);
+                return;
+            }
 
-            // Redirect based on role - all roles use /{role} now
-            router.push(`/${user.role}`);
-        } else {
-            setError('Invalid email or password');
+            // Store user in localStorage
+            localStorage.setItem('user', JSON.stringify(data.user));
+
+            // Redirect based on role
+            router.push(`/${data.user.role}`);
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Something went wrong. Please try again.');
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
     };
 
     const quickLogin = (role: string) => {

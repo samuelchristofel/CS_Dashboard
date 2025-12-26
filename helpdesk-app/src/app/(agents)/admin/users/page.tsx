@@ -1,17 +1,140 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
+import AddUserModal from '@/components/modals/AddUserModal';
+import EditUserModal from '@/components/modals/EditUserModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import type { UserFormData } from '@/components/modals/AddUserModal';
+import type { EditUserFormData } from '@/components/modals/EditUserModal';
 
-const mockUsers = [
-    { id: '1', name: 'Jay Won', email: 'jay@helpdesk.com', role: 'Senior CS', status: 'Active', tickets: 423 },
-    { id: '2', name: 'Himari', email: 'himari@helpdesk.com', role: 'Junior CS', status: 'Active', tickets: 312 },
-    { id: '3', name: 'Andi R.', email: 'andi@helpdesk.com', role: 'Junior CS', status: 'Active', tickets: 245 },
-    { id: '4', name: 'Budi Santoso', email: 'budi@helpdesk.com', role: 'IT Support', status: 'Active', tickets: 89 },
-    { id: '5', name: 'Admin', email: 'admin@helpdesk.com', role: 'Super Admin', status: 'Active', tickets: 0 },
-];
+interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: 'senior' | 'junior' | 'it' | 'admin';
+    avatar?: string;
+    created_at: string;
+}
+
+const roleLabels: Record<string, string> = {
+    senior: 'Senior CS',
+    junior: 'Junior CS',
+    it: 'IT Support',
+    admin: 'Super Admin',
+};
+
+const roleColors: Record<string, string> = {
+    senior: 'bg-[#EB4C36]',
+    junior: 'bg-emerald-500',
+    it: 'bg-blue-500',
+    admin: 'bg-slate-800',
+};
+
+const roleBadgeColors: Record<string, string> = {
+    senior: 'bg-red-50 text-red-500',
+    junior: 'bg-green-50 text-green-600',
+    it: 'bg-blue-50 text-blue-600',
+    admin: 'bg-slate-100 text-slate-600',
+};
 
 export default function AdminUsersPage() {
+    const [users, setUsers] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Fetch users
+    const fetchUsers = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/users');
+            const data = await res.json();
+            setUsers(data.users || []);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    const handleAddUser = async (data: UserFormData) => {
+        try {
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            if (res.ok) {
+                toast.success('User created successfully!');
+            } else {
+                toast.error('Failed to create user');
+            }
+            fetchUsers();
+        } catch {
+            toast.error('Network error');
+        }
+    };
+
+    const handleEditUser = async (data: EditUserFormData) => {
+        if (!selectedUser) return;
+
+        try {
+            const res = await fetch(`/api/users/${selectedUser.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            if (res.ok) {
+                toast.success('User updated successfully!');
+            } else {
+                toast.error('Failed to update user');
+            }
+            setShowEditModal(false);
+            setSelectedUser(null);
+            fetchUsers();
+        } catch {
+            toast.error('Network error');
+        }
+    };
+
+    const handleDeleteUser = async () => {
+        if (!selectedUser) return;
+
+        setIsDeleting(true);
+        try {
+            const res = await fetch(`/api/users/${selectedUser.id}`, {
+                method: 'DELETE',
+            });
+            if (res.ok) {
+                toast.success('User deleted successfully!');
+            } else {
+                toast.error('Failed to delete user');
+            }
+        } catch {
+            toast.error('Network error');
+        }
+
+        setIsDeleting(false);
+        setShowDeleteModal(false);
+        setSelectedUser(null);
+        fetchUsers();
+    };
+
+    // Filter users by search
+    const filteredUsers = users.filter(user =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <>
@@ -27,6 +150,8 @@ export default function AdminUsersPage() {
                         <input
                             type="text"
                             placeholder="Search users..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-10 pr-4 py-2.5 bg-white rounded-full shadow-soft text-sm w-64 focus:ring-2 focus:ring-slate-800/20 focus:outline-none"
                         />
                     </div>
@@ -49,68 +174,111 @@ export default function AdminUsersPage() {
                     <div className="w-48">Email</div>
                     <div className="w-28">Role</div>
                     <div className="w-20">Status</div>
-                    <div className="w-24">Tickets</div>
+                    <div className="w-32">Joined</div>
                     <div className="w-24 text-right">Actions</div>
                 </div>
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto no-scrollbar">
-                    {mockUsers.map((user) => (
-                        <div key={user.id} className="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50">
-                            <div className="w-12">
-                                <div className={`size-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${user.role === 'Senior CS' ? 'bg-[#EB4C36]' :
-                                        user.role === 'Junior CS' ? 'bg-emerald-500' :
-                                            user.role === 'IT Support' ? 'bg-blue-500' : 'bg-slate-800'
-                                    }`}>
-                                    {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <span className="size-8 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+                        </div>
+                    ) : filteredUsers.length === 0 ? (
+                        <div className="text-center py-12 text-slate-400">
+                            <span className="material-symbols-outlined text-4xl mb-2">person_off</span>
+                            <p>No users found</p>
+                        </div>
+                    ) : (
+                        filteredUsers.map((user) => (
+                            <div key={user.id} className="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50">
+                                <div className="w-12">
+                                    {user.avatar ? (
+                                        <div
+                                            className="size-10 rounded-full bg-cover bg-center"
+                                            style={{ backgroundImage: `url('${user.avatar}')` }}
+                                        />
+                                    ) : (
+                                        <div className={`size-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${roleColors[user.role]}`}>
+                                            {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-semibold text-slate-900">{user.name}</p>
+                                </div>
+                                <div className="w-48 text-sm text-slate-500">{user.email}</div>
+                                <div className="w-28">
+                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${roleBadgeColors[user.role]}`}>
+                                        {roleLabels[user.role]}
+                                    </span>
+                                </div>
+                                <div className="w-20">
+                                    <span className="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">
+                                        Active
+                                    </span>
+                                </div>
+                                <div className="w-32 text-sm text-slate-500">
+                                    {new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </div>
+                                <div className="w-24 flex justify-end gap-1">
+                                    <button
+                                        onClick={() => {
+                                            setSelectedUser(user);
+                                            setShowEditModal(true);
+                                        }}
+                                        className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">edit</span>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setSelectedUser(user);
+                                            setShowDeleteModal(true);
+                                        }}
+                                        className="size-7 rounded-full bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">delete</span>
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex-1">
-                                <p className="text-sm font-semibold text-slate-900">{user.name}</p>
-                            </div>
-                            <div className="w-48 text-sm text-slate-500">{user.email}</div>
-                            <div className="w-28">
-                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${user.role === 'Senior CS' ? 'bg-red-50 text-red-500' :
-                                        user.role === 'Junior CS' ? 'bg-green-50 text-green-600' :
-                                            user.role === 'IT Support' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-600'
-                                    }`}>
-                                    {user.role}
-                                </span>
-                            </div>
-                            <div className="w-20">
-                                <span className="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">
-                                    {user.status}
-                                </span>
-                            </div>
-                            <div className="w-24 text-sm text-slate-900 font-semibold">{user.tickets}</div>
-                            <div className="w-24 flex justify-end gap-1">
-                                <button className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                                    <span className="material-symbols-outlined text-base">edit</span>
-                                </button>
-                                <button className="size-7 rounded-full bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100">
-                                    <span className="material-symbols-outlined text-base">delete</span>
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
 
             {/* Add User Modal */}
-            {showAddModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowAddModal(false)}>
-                    <div className="bg-white rounded-3xl p-8 w-full max-w-md" onClick={e => e.stopPropagation()}>
-                        <h2 className="text-xl font-bold text-slate-900 mb-6">Add New User</h2>
-                        <p className="text-slate-500">User creation will be implemented with database integration.</p>
-                        <button
-                            onClick={() => setShowAddModal(false)}
-                            className="mt-6 px-6 py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900"
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
+            <AddUserModal
+                isOpen={showAddModal}
+                onClose={() => setShowAddModal(false)}
+                onSubmit={handleAddUser}
+            />
+
+            {/* Edit User Modal */}
+            <EditUserModal
+                isOpen={showEditModal}
+                onClose={() => {
+                    setShowEditModal(false);
+                    setSelectedUser(null);
+                }}
+                onSubmit={handleEditUser}
+                user={selectedUser}
+            />
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmModal
+                isOpen={showDeleteModal}
+                onClose={() => {
+                    setShowDeleteModal(false);
+                    setSelectedUser(null);
+                }}
+                onConfirm={handleDeleteUser}
+                title="Delete User"
+                message={`Are you sure you want to delete "${selectedUser?.name}"? This action cannot be undone.`}
+                confirmText="Delete"
+                confirmColor="red"
+                isLoading={isDeleting}
+            />
         </>
     );
 }

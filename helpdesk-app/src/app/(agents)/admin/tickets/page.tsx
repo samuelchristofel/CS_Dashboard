@@ -1,7 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import TicketTable from '@/components/tickets/TicketTable';
 import TicketFilters from '@/components/tickets/TicketFilters';
+import CreateTicketModal from '@/components/modals/CreateTicketModal';
+import AssignTicketModal from '@/components/modals/AssignTicketModal';
+import type { TicketFormData } from '@/components/modals/CreateTicketModal';
 
 // Mock data - Admin sees all tickets with full details
 const mockTickets = [
@@ -95,7 +99,35 @@ const mockTickets = [
     },
 ];
 
+// Mock agents for assignment
+const mockAgents = [
+    { id: '1', name: 'Jay Won', role: 'Senior CS' },
+    { id: '2', name: 'Himari', role: 'Junior CS' },
+    { id: '3', name: 'Andi R.', role: 'Junior CS' },
+    { id: '4', name: 'Budi Santoso', role: 'IT Support' },
+];
+
 export default function AdminTicketsPage() {
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
+
+    const handleCreateTicket = async (data: TicketFormData) => {
+        // TODO: Connect to Supabase API
+        console.log('Create ticket:', data);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        alert('Ticket created! (Demo - will connect to database)');
+    };
+
+    const handleAssignTicket = async (agentId: string) => {
+        // TODO: Connect to Supabase API
+        console.log('Assign ticket', selectedTicket, 'to agent', agentId);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        alert('Ticket assigned! (Demo - will connect to database)');
+    };
+
+    const selectedTicketData = mockTickets.find(t => t.id === selectedTicket);
+
     return (
         <>
             {/* Header */}
@@ -106,6 +138,7 @@ export default function AdminTicketsPage() {
                 </div>
                 <TicketFilters
                     showCreateButton={true}
+                    onCreateClick={() => setShowCreateModal(true)}
                 />
             </div>
 
@@ -139,11 +172,33 @@ export default function AdminTicketsPage() {
                 showAssignedTo={true}
                 showSource={true}
                 onViewTicket={(id) => {
-                    console.log('View ticket', id);
+                    setSelectedTicket(id);
+                    // TODO: Open detail modal
                 }}
                 onAssignTicket={(id) => {
-                    console.log('Assign ticket', id);
+                    setSelectedTicket(id);
+                    setShowAssignModal(true);
                 }}
+            />
+
+            {/* Create Ticket Modal */}
+            <CreateTicketModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onSubmit={handleCreateTicket}
+            />
+
+            {/* Assign Ticket Modal */}
+            <AssignTicketModal
+                isOpen={showAssignModal}
+                onClose={() => {
+                    setShowAssignModal(false);
+                    setSelectedTicket(null);
+                }}
+                onSubmit={handleAssignTicket}
+                ticketNumber={selectedTicketData?.ticketNumber || ''}
+                currentAssignee={selectedTicketData?.assignedTo?.name}
+                agents={mockAgents}
             />
         </>
     );

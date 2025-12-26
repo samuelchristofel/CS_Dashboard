@@ -137,7 +137,7 @@ export default function TicketTable({
                                 className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200"
                                 title="View"
                             >
-                                <span className="material-symbols-outlined text-base">visibility</span>
+                                <span className="material-symbols-outlined text-sm">visibility</span>
                             </button>
                             {!ticket.assignedTo && onAssignTicket && (
                                 <button
@@ -145,7 +145,7 @@ export default function TicketTable({
                                     className="size-7 rounded-full bg-[#EB4C36]/10 flex items-center justify-center text-[#EB4C36] hover:bg-[#EB4C36]/20"
                                     title="Assign"
                                 >
-                                    <span className="material-symbols-outlined text-base">person_add</span>
+                                    <span className="material-symbols-outlined text-sm">person_add</span>
                                 </button>
                             )}
                         </div>
