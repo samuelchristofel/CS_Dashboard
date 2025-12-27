@@ -5,20 +5,26 @@ interface RouteParams {
     params: Promise<{ id: string }>;
 }
 
-// GET /api/tickets/[id]/notes - Get notes for a ticket
+// GET /api/tickets/[id]/notes - Get notes for a ticket (filtered by user)
 export async function GET(request: Request, { params }: RouteParams) {
     try {
         const { id } = await params;
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get('user_id');
 
+        if (!userId) {
+            return NextResponse.json(
+                { error: 'user_id is required' },
+                { status: 400 }
+            );
+        }
+
+        // Get notes for this ticket by this user only (private notes)
         const { data: notes, error } = await supabaseAdmin
             .from('notes')
-            .select(`
-                id,
-                content,
-                created_at,
-                user:users(id, name, role, avatar)
-            `)
+            .select('*')
             .eq('ticket_id', id)
+            .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -29,10 +35,9 @@ export async function GET(request: Request, { params }: RouteParams) {
             );
         }
 
-        return NextResponse.json({ notes });
-
+        return NextResponse.json({ notes: notes || [] });
     } catch (error) {
-        console.error('Notes API error:', error);
+        console.error('GET notes error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
@@ -40,17 +45,17 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 }
 
-// POST /api/tickets/[id]/notes - Add note to ticket
+// POST /api/tickets/[id]/notes - Add a note to ticket
 export async function POST(request: Request, { params }: RouteParams) {
     try {
         const { id } = await params;
         const body = await request.json();
-        const { content, user_id } = body;
+        const { title, content, checklist_items, user_id } = body;
 
         // Validation
-        if (!content || !user_id) {
+        if (!title || !user_id) {
             return NextResponse.json(
-                { error: 'Content and user_id are required' },
+                { error: 'Title and user_id are required' },
                 { status: 400 }
             );
         }
@@ -69,20 +74,22 @@ export async function POST(request: Request, { params }: RouteParams) {
             );
         }
 
+        // Store note with title in content as JSON structure
+        const noteContent = JSON.stringify({
+            title,
+            content: content || '',
+            checklist_items: checklist_items || []
+        });
+
         // Create note
         const { data: note, error } = await supabaseAdmin
             .from('notes')
             .insert({
-                content,
+                content: noteContent,
                 user_id,
                 ticket_id: id,
             })
-            .select(`
-                id,
-                content,
-                created_at,
-                user:users(id, name, role, avatar)
-            `)
+            .select()
             .single();
 
         if (error) {
@@ -93,18 +100,51 @@ export async function POST(request: Request, { params }: RouteParams) {
             );
         }
 
-        // Log activity
-        await supabaseAdmin.from('activities').insert({
-            action: 'NOTE_ADDED',
-            details: `Note added to ticket #${ticket.number}`,
-            user_id,
-            ticket_id: id,
-        });
-
         return NextResponse.json({ note }, { status: 201 });
-
     } catch (error) {
-        console.error('Create note error:', error);
+        console.error('POST note error:', error);
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
+    }
+}
+
+// PATCH /api/tickets/[id]/notes - Update a note (for checklist toggle)
+export async function PATCH(request: Request, { params }: RouteParams) {
+    try {
+        const { id } = await params;
+        const body = await request.json();
+        const { note_id, content, user_id } = body;
+
+        if (!note_id || !user_id) {
+            return NextResponse.json(
+                { error: 'note_id and user_id are required' },
+                { status: 400 }
+            );
+        }
+
+        // Update note content
+        const { data: note, error } = await supabaseAdmin
+            .from('notes')
+            .update({ content })
+            .eq('id', note_id)
+            .eq('user_id', user_id) // Ensure user owns the note
+            .eq('ticket_id', id)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error updating note:', error);
+            return NextResponse.json(
+                { error: 'Failed to update note' },
+                { status: 500 }
+            );
+        }
+
+        return NextResponse.json({ note });
+    } catch (error) {
+        console.error('PATCH note error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

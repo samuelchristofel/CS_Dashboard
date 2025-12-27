@@ -183,7 +183,7 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
         };
 
         loadConversation();
-    }, [currentUser, selectedContact]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [currentUser?.id, selectedContact?.id]); // Use stable IDs to prevent size changes
 
     // Presence Subscription
     useEffect(() => {
@@ -258,7 +258,7 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [currentUser, activeConversationId]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [currentUser?.id, activeConversationId]); // Use stable ID
 
     // Send Message
     const handleSendMessage = async () => {

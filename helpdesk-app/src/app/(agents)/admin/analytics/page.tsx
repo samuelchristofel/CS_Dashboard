@@ -183,27 +183,165 @@ export default function AdminAnalyticsPage() {
                             </div>
                         </div>
 
-                        {/* Priority Breakdown */}
+                        {/* Priority Breakdown - Pie Chart */}
                         <div className="bg-white rounded-[2rem] shadow-soft p-6 flex flex-col">
                             <h3 className="text-lg font-bold text-slate-900 mb-4">Active Tickets by Priority</h3>
                             <div className="flex-1 flex items-center justify-center gap-8">
-                                <div className="text-center">
-                                    <div className="size-24 rounded-full bg-red-100 flex items-center justify-center mb-3">
-                                        <span className="text-3xl font-extrabold text-red-500">{stats?.high || 0}</span>
+                                {/* Pie Chart */}
+                                <div className="relative">
+                                    <svg width="180" height="180" viewBox="0 0 180 180" className="transform -rotate-90">
+                                        {(() => {
+                                            const total = (stats?.high || 0) + (stats?.medium || 0) + (stats?.low || 0);
+                                            if (total === 0) return null;
+
+                                            const high = stats?.high || 0;
+                                            const medium = stats?.medium || 0;
+                                            const low = stats?.low || 0;
+
+                                            const highPercent = (high / total) * 100;
+                                            const mediumPercent = (medium / total) * 100;
+                                            const lowPercent = (low / total) * 100;
+
+                                            const radius = 70;
+                                            const circumference = 2 * Math.PI * radius;
+
+                                            // Calculate stroke dash offsets for each segment
+                                            const highDash = (highPercent / 100) * circumference;
+                                            const mediumDash = (mediumPercent / 100) * circumference;
+                                            const lowDash = (lowPercent / 100) * circumference;
+
+                                            return (
+                                                <>
+                                                    {/* High Priority - Red */}
+                                                    <circle
+                                                        cx="90"
+                                                        cy="90"
+                                                        r={radius}
+                                                        fill="none"
+                                                        stroke="#ef4444"
+                                                        strokeWidth="40"
+                                                        strokeDasharray={`${highDash} ${circumference - highDash}`}
+                                                        strokeDashoffset="0"
+                                                        className="transition-all duration-300"
+                                                    />
+                                                    {/* Medium Priority - Amber */}
+                                                    <circle
+                                                        cx="90"
+                                                        cy="90"
+                                                        r={radius}
+                                                        fill="none"
+                                                        stroke="#f59e0b"
+                                                        strokeWidth="40"
+                                                        strokeDasharray={`${mediumDash} ${circumference - mediumDash}`}
+                                                        strokeDashoffset={-highDash}
+                                                        className="transition-all duration-300"
+                                                    />
+                                                    {/* Low Priority - Green */}
+                                                    <circle
+                                                        cx="90"
+                                                        cy="90"
+                                                        r={radius}
+                                                        fill="none"
+                                                        stroke="#10b981"
+                                                        strokeWidth="40"
+                                                        strokeDasharray={`${lowDash} ${circumference - lowDash}`}
+                                                        strokeDashoffset={-(highDash + mediumDash)}
+                                                        className="transition-all duration-300"
+                                                    />
+                                                    {/* Center circle for donut effect */}
+                                                    <circle
+                                                        cx="90"
+                                                        cy="90"
+                                                        r="45"
+                                                        fill="white"
+                                                    />
+                                                </>
+                                            );
+                                        })()}
+                                    </svg>
+                                    {/* Center text */}
+                                    <div className="absolute inset-0 flex items-center justify-center flex-col">
+                                        <span className="text-3xl font-extrabold text-slate-900">
+                                            {(stats?.high || 0) + (stats?.medium || 0) + (stats?.low || 0)}
+                                        </span>
+                                        <span className="text-xs text-slate-500 font-medium">Total</span>
                                     </div>
-                                    <p className="text-sm font-semibold text-slate-700">High</p>
                                 </div>
-                                <div className="text-center">
-                                    <div className="size-24 rounded-full bg-amber-100 flex items-center justify-center mb-3">
-                                        <span className="text-3xl font-extrabold text-amber-500">{stats?.medium || 0}</span>
+
+                                {/* Legend */}
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-4 rounded-full bg-red-500"></div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-slate-700">High</p>
+                                            <p className="text-xs text-slate-500">{stats?.high || 0} tickets</p>
+                                        </div>
                                     </div>
-                                    <p className="text-sm font-semibold text-slate-700">Medium</p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-4 rounded-full bg-amber-500"></div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-slate-700">Medium</p>
+                                            <p className="text-xs text-slate-500">{stats?.medium || 0} tickets</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-4 rounded-full bg-green-500"></div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-slate-700">Low</p>
+                                            <p className="text-xs text-slate-500">{stats?.low || 0} tickets</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="text-center">
-                                    <div className="size-24 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                                        <span className="text-3xl font-extrabold text-green-500">{stats?.low || 0}</span>
+                            </div>
+                        </div>
+
+                        {/* Quick Stats - Horizontal Bar Chart Style */}
+                        <div className="bg-white rounded-[2rem] shadow-soft p-6 flex flex-col">
+                            <h3 className="text-lg font-bold text-slate-900 mb-4">Quick Stats</h3>
+                            <div className="flex-1 space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-24 text-sm text-slate-600">Total</div>
+                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-slate-800 rounded-full flex items-center justify-end pr-3"
+                                            style={{ width: `${Math.max(10, 100)}%` }}
+                                        >
+                                            <span className="text-xs font-bold text-white">{stats?.total || 0}</span>
+                                        </div>
                                     </div>
-                                    <p className="text-sm font-semibold text-slate-700">Low</p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-24 text-sm text-slate-600">Open</div>
+                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-amber-400 rounded-full flex items-center justify-end pr-3"
+                                            style={{ width: `${Math.max(5, (stats?.open || 0) / Math.max(1, stats?.total || 1) * 100)}%` }}
+                                        >
+                                            <span className="text-xs font-bold text-white">{stats?.open || 0}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-24 text-sm text-slate-600">Resolved</div>
+                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-green-400 rounded-full flex items-center justify-end pr-3"
+                                            style={{ width: `${Math.max(5, ((stats?.resolved || 0) + (stats?.closed || 0)) / Math.max(1, stats?.total || 1) * 100)}%` }}
+                                        >
+                                            <span className="text-xs font-bold text-white">{(stats?.resolved || 0) + (stats?.closed || 0)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-24 text-sm text-slate-600">High Priority</div>
+                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-red-400 rounded-full flex items-center justify-end pr-3"
+                                            style={{ width: `${Math.max(5, (stats?.high || 0) / Math.max(1, stats?.total || 1) * 100)}%` }}
+                                        >
+                                            <span className="text-xs font-bold text-white">{stats?.high || 0}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -223,29 +361,6 @@ export default function AdminAnalyticsPage() {
                                 <div className="bg-slate-50 rounded-2xl p-4 text-center col-span-2">
                                     <p className="text-3xl font-extrabold text-[#EB4C36]">{teamStats?.overallScore || 0}</p>
                                     <p className="text-sm text-slate-500 mt-1">Average Team Score</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Quick Stats */}
-                        <div className="bg-white rounded-[2rem] shadow-soft p-6 flex flex-col">
-                            <h3 className="text-lg font-bold text-slate-900 mb-4">Quick Stats</h3>
-                            <div className="flex-1 space-y-4">
-                                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                                    <span className="text-sm text-slate-600">Total Tickets</span>
-                                    <span className="text-lg font-bold text-slate-900">{stats?.total || 0}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                                    <span className="text-sm text-slate-600">Open Tickets</span>
-                                    <span className="text-lg font-bold text-amber-500">{stats?.open || 0}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                                    <span className="text-sm text-slate-600">Resolved</span>
-                                    <span className="text-lg font-bold text-green-500">{(stats?.resolved || 0) + (stats?.closed || 0)}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                                    <span className="text-sm text-slate-600">High Priority Active</span>
-                                    <span className="text-lg font-bold text-red-500">{stats?.high || 0}</span>
                                 </div>
                             </div>
                         </div>

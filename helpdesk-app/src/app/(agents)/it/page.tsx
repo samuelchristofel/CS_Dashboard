@@ -49,6 +49,12 @@ export default function ITDashboardPage() {
     const [showNoteModal, setShowNoteModal] = useState(false);
     const [showFixedModal, setShowFixedModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [priorityFilter, setPriorityFilter] = useState<string>('all');
+
+    // Filter tickets by priority
+    const filteredTickets = priorityFilter === 'all'
+        ? tickets
+        : tickets.filter(t => t.priority === priorityFilter);
 
     useEffect(() => {
         const userStr = localStorage.getItem('user');
@@ -228,7 +234,31 @@ export default function ITDashboardPage() {
 
                     <div className="flex-1 flex flex-col min-h-0">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-slate-900">Technical Tickets</h2>
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-lg font-bold text-slate-900">Technical Tickets</h2>
+                                {priorityFilter !== 'all' && (
+                                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${priorityFilter === 'HIGH' ? 'bg-red-50 text-red-600' :
+                                            priorityFilter === 'MEDIUM' ? 'bg-amber-50 text-amber-600' :
+                                                'bg-blue-50 text-blue-600'
+                                        }`}>
+                                        {priorityFilter}
+                                    </span>
+                                )}
+                            </div>
+                            <button
+                                onClick={() => {
+                                    const priorities = ['all', 'HIGH', 'MEDIUM', 'LOW'];
+                                    const currentIndex = priorities.indexOf(priorityFilter);
+                                    const nextIndex = (currentIndex + 1) % priorities.length;
+                                    setPriorityFilter(priorities[nextIndex]);
+                                }}
+                                className={`size-8 rounded-full flex items-center justify-center transition-colors ${priorityFilter !== 'all'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                    }`}
+                            >
+                                <span className="material-symbols-outlined text-lg">tune</span>
+                            </button>
                         </div>
 
                         <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar p-1">
@@ -236,13 +266,13 @@ export default function ITDashboardPage() {
                                 <div className="flex items-center justify-center py-8">
                                     <span className="size-6 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
                                 </div>
-                            ) : tickets.length === 0 ? (
+                            ) : filteredTickets.length === 0 ? (
                                 <div className="text-center py-8 text-slate-400">
                                     <span className="material-symbols-outlined text-4xl mb-2">engineering</span>
-                                    <p>No technical tickets</p>
+                                    <p>{priorityFilter !== 'all' ? `No ${priorityFilter.toLowerCase()} priority tickets` : 'No technical tickets'}</p>
                                 </div>
                             ) : (
-                                tickets.map((ticket) => (
+                                filteredTickets.map((ticket) => (
                                     <TicketCard
                                         key={ticket.id}
                                         ticketNumber={ticket.number}

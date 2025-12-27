@@ -77,16 +77,22 @@ export async function POST(request: Request) {
             );
         }
 
-        // Generate ticket number
-        const { data: lastTicket } = await supabaseAdmin
+        // Generate ticket number - get MAX to avoid duplicates
+        const { data: tickets } = await supabaseAdmin
             .from('tickets')
             .select('number')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
+            .order('number', { ascending: false })
+            .limit(1);
 
-        const lastNumber = lastTicket ? parseInt(lastTicket.number) : 8815;
-        const newNumber = (lastNumber + 1).toString();
+        // Parse the highest ticket number or use default
+        let maxNumber = 10000;
+        if (tickets && tickets.length > 0) {
+            const parsed = parseInt(tickets[0].number);
+            if (!isNaN(parsed)) {
+                maxNumber = parsed;
+            }
+        }
+        const newNumber = (maxNumber + 1).toString();
 
         // Create ticket
         const { data: ticket, error } = await supabaseAdmin
@@ -102,7 +108,6 @@ export async function POST(request: Request) {
                 customer_email: customer_email || null,
                 customer_phone: customer_phone || null,
                 assigned_to_id: assigned_to_id || null,
-                assigned_at: assigned_to_id ? new Date().toISOString() : null,
                 created_by_id: created_by_id || null,
             })
             .select(`
@@ -114,8 +119,9 @@ export async function POST(request: Request) {
 
         if (error) {
             console.error('Error creating ticket:', error);
+            console.error('Error details:', JSON.stringify(error, null, 2));
             return NextResponse.json(
-                { error: 'Failed to create ticket' },
+                { error: 'Failed to create ticket', details: error.message },
                 { status: 500 }
             );
         }

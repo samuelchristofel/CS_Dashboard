@@ -6,16 +6,16 @@ import TicketFilters from '@/components/tickets/TicketFilters';
 import { toast } from 'react-hot-toast';
 
 export default function JuniorTicketsPage() {
-    const [tickets, setTickets] = useState<any[]>([]);
+    const [allTickets, setAllTickets] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentTab, setCurrentTab] = useState<'assigned' | 'completed'>('assigned');
+    const [currentTab, setCurrentTab] = useState<'assigned' | 'pending' | 'completed'>('assigned');
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('');
 
     useEffect(() => {
         fetchTickets();
-    }, [currentTab]);
+    }, []);
 
     const fetchTickets = async () => {
         setIsLoading(true);
@@ -24,28 +24,16 @@ export default function JuniorTicketsPage() {
             if (!userStr) return;
             const user = JSON.parse(userStr);
 
-            // Build query params
+            // Fetch all tickets assigned to user
             const params = new URLSearchParams();
             params.append('assigned_to', user.id);
-
-            // Apply filtering logic based on tab
-            // Note: The API currently supports only exact match. 
-            // For complex "not equal" logic we might need to fetch more and filter client side 
-            // or update API. For now, let's fetch all assigned to user and filter client side.
 
             const res = await fetch(`/api/tickets?${params.toString()}`);
             const data = await res.json();
 
             if (data.tickets) {
-                // Transform and filter data
-                const filtered = data.tickets.filter((t: any) => {
-                    // Tab filter
-                    if (currentTab === 'assigned') {
-                        return t.status !== 'CLOSED' && t.status !== 'RESOLVED' && t.status !== 'PENDING_REVIEW';
-                    } else {
-                        return t.status === 'CLOSED' || t.status === 'RESOLVED' || t.status === 'PENDING_REVIEW';
-                    }
-                }).map((ticket: any) => ({
+                // Transform all data first
+                const formatted = data.tickets.map((ticket: any) => ({
                     id: ticket.id,
                     ticketNumber: ticket.number,
                     subject: ticket.subject,
@@ -67,7 +55,7 @@ export default function JuniorTicketsPage() {
                     }),
                 }));
 
-                setTickets(filtered);
+                setAllTickets(formatted);
             }
         } catch (error) {
             console.error('Error fetching tickets:', error);
@@ -77,15 +65,33 @@ export default function JuniorTicketsPage() {
         }
     };
 
-    // Client-side filtering for search and dropdowns
-    const filteredTickets = tickets.filter(t => {
+    // Calculate counts
+    const counts = {
+        assigned: allTickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS' || t.status === 'TRIAGE').length,
+        pending: allTickets.filter(t => t.status === 'PENDING_REVIEW').length,
+        completed: allTickets.filter(t => t.status === 'CLOSED' || t.status === 'RESOLVED').length
+    };
+
+    // Filter tickets for current view
+    const visibleTickets = allTickets.filter(t => {
+        // 1. Tab filter
+        let matchesTab = false;
+        if (currentTab === 'assigned') {
+            matchesTab = t.status === 'OPEN' || t.status === 'IN_PROGRESS' || t.status === 'TRIAGE';
+        } else if (currentTab === 'pending') {
+            matchesTab = t.status === 'PENDING_REVIEW';
+        } else {
+            matchesTab = t.status === 'CLOSED' || t.status === 'RESOLVED';
+        }
+
+        // 2. Search & Dropdown filters
         const matchesSearch = t.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
             t.ticketNumber.includes(searchQuery) ||
             t.customerName.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter ? t.status === statusFilter : true;
         const matchesPriority = priorityFilter ? t.priority === priorityFilter : true;
 
-        return matchesSearch && matchesStatus && matchesPriority;
+        return matchesTab && matchesSearch && matchesStatus && matchesPriority;
     });
 
     return (
@@ -109,25 +115,40 @@ export default function JuniorTicketsPage() {
                 <button
                     onClick={() => setCurrentTab('assigned')}
                     className={`px-5 py-2 rounded-full font-bold text-sm transition-all ${currentTab === 'assigned'
-                            ? 'bg-emerald-500 text-white'
-                            : 'text-slate-500 hover:bg-slate-100'
+                        ? 'bg-emerald-500 text-white'
+                        : 'text-slate-500 hover:bg-slate-100'
                         }`}
                 >
-                    Assigned to Me
-                    <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs box-content">
-                        {currentTab === 'assigned' ? tickets.length : ''}
+                    Active
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs box-content ${currentTab === 'assigned' ? 'bg-white/20' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                        {counts.assigned}
+                    </span>
+                </button>
+                <button
+                    onClick={() => setCurrentTab('pending')}
+                    className={`px-5 py-2 rounded-full font-bold text-sm transition-all ${currentTab === 'pending'
+                        ? 'bg-amber-500 text-white'
+                        : 'text-slate-500 hover:bg-slate-100'
+                        }`}
+                >
+                    Pending Review
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs box-content ${currentTab === 'pending' ? 'bg-white/20' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                        {counts.pending}
                     </span>
                 </button>
                 <button
                     onClick={() => setCurrentTab('completed')}
                     className={`px-5 py-2 rounded-full font-bold text-sm transition-all ${currentTab === 'completed'
-                            ? 'bg-green-100 text-green-600'
-                            : 'text-slate-500 hover:bg-slate-100'
+                        ? 'bg-green-100 text-green-600'
+                        : 'text-slate-500 hover:bg-slate-100'
                         }`}
                 >
                     Completed
-                    <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs border border-current box-content">
-                        {currentTab === 'completed' ? tickets.length : ''}
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs box-content ${currentTab === 'completed' ? 'bg-green-200/50' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                        {counts.completed}
                     </span>
                 </button>
             </div>
@@ -139,7 +160,7 @@ export default function JuniorTicketsPage() {
                 </div>
             ) : (
                 <TicketTable
-                    tickets={filteredTickets}
+                    tickets={visibleTickets}
                     showAssignedTo={false}
                     showSource={true}
                     onViewTicket={(id) => {

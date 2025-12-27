@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import ScoreCard from '@/components/dashboard/ScoreCard';
 import StatCard from '@/components/dashboard/StatCard';
 import TicketCard from '@/components/dashboard/TicketCard';
-import AddNoteModal from '@/components/modals/AddNoteModal';
+import NotesPanel from '@/components/dashboard/NotesPanel';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface Ticket {
@@ -23,14 +23,7 @@ interface Ticket {
     };
 }
 
-interface Activity {
-    id: string;
-    action: string;
-    details: string;
-    created_at: string;
-    user?: { name: string };
-    ticket?: { number: string };
-}
+// Activity interface removed - using NotesPanel instead
 
 interface Stats {
     high: number;
@@ -47,19 +40,25 @@ interface UserStats {
 
 export default function SeniorDashboardPage() {
     const [tickets, setTickets] = useState<Ticket[]>([]);
-    const [activities, setActivities] = useState<Activity[]>([]);
+    // activities state removed - using NotesPanel instead
     const [stats, setStats] = useState<Stats>({ high: 0, medium: 0, low: 0 });
     const [userStats, setUserStats] = useState<UserStats>({ score: 0, assigned: 0, active: 0, closed: 0 });
     const [userName, setUserName] = useState('');
     const [userId, setUserId] = useState('');
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-    const [showNoteModal, setShowNoteModal] = useState(false);
+    const [showAddNoteForm, setShowAddNoteForm] = useState(false);
     const [showAssignITModal, setShowAssignITModal] = useState(false);
     const [showResolveModal, setShowResolveModal] = useState(false);
     const [showCloseModal, setShowCloseModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Filter tickets by priority
+    const filteredTickets = priorityFilter === 'all'
+        ? tickets
+        : tickets.filter(t => t.priority === priorityFilter);
 
     // Get current user from localStorage
     useEffect(() => {
@@ -101,10 +100,7 @@ export default function SeniorDashboardPage() {
                 setUserStats(statsData.userStats);
             }
 
-            // Fetch recent activities
-            const activitiesRes = await fetch('/api/activities?limit=5');
-            const activitiesData = await activitiesRes.json();
-            setActivities(activitiesData.activities || []);
+            // Activities fetch removed - using NotesPanel instead
 
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -127,23 +123,7 @@ export default function SeniorDashboardPage() {
         }
     }, [tickets, selectedTicket]);
 
-    const handleAddNote = async (note: string) => {
-        if (!selectedTicket) return;
-
-        try {
-            const res = await fetch(`/api/tickets/${selectedTicket.id}/notes`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: note, user_id: userId }),
-            });
-            if (res.ok) {
-                toast.success('Note added!');
-            }
-            fetchData();
-        } catch {
-            toast.error('Failed to add note');
-        }
-    };
+    // handleAddNote removed - notes are now handled by NotesPanel
 
     const handleAssignIT = async () => {
         if (!selectedTicket) return;
@@ -241,13 +221,7 @@ export default function SeniorDashboardPage() {
         return `${diffDays}d ago`;
     };
 
-    // Get activity color
-    const getActivityColor = (action: string) => {
-        if (action.includes('CLOSED') || action.includes('RESOLVED')) return 'green';
-        if (action.includes('ESCALATED') || action.includes('IT')) return 'blue';
-        if (action.includes('ASSIGNED')) return 'amber';
-        return 'slate';
-    };
+    // getActivityColor removed - using NotesPanel instead
 
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -286,9 +260,30 @@ export default function SeniorDashboardPage() {
                     {/* Active Tickets */}
                     <div className="flex-1 flex flex-col min-h-0">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-slate-900">Active Tickets</h2>
-                            <button className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
-                                <span className="material-symbols-outlined text-lg">sort</span>
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-lg font-bold text-slate-900">Active Tickets</h2>
+                                {priorityFilter !== 'all' && (
+                                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${priorityFilter === 'HIGH' ? 'bg-red-50 text-red-600' :
+                                            priorityFilter === 'MEDIUM' ? 'bg-amber-50 text-amber-600' :
+                                                'bg-blue-50 text-blue-600'
+                                        }`}>
+                                        {priorityFilter}
+                                    </span>
+                                )}
+                            </div>
+                            <button
+                                onClick={() => {
+                                    const priorities = ['all', 'HIGH', 'MEDIUM', 'LOW'];
+                                    const currentIndex = priorities.indexOf(priorityFilter);
+                                    const nextIndex = (currentIndex + 1) % priorities.length;
+                                    setPriorityFilter(priorities[nextIndex]);
+                                }}
+                                className={`size-8 rounded-full flex items-center justify-center transition-colors ${priorityFilter !== 'all'
+                                        ? 'bg-[#EB4C36] text-white'
+                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                    }`}
+                            >
+                                <span className="material-symbols-outlined text-lg">tune</span>
                             </button>
                         </div>
 
@@ -297,13 +292,13 @@ export default function SeniorDashboardPage() {
                                 <div className="flex items-center justify-center py-8">
                                     <span className="size-6 border-2 border-slate-200 border-t-[#EB4C36] rounded-full animate-spin" />
                                 </div>
-                            ) : tickets.length === 0 ? (
+                            ) : filteredTickets.length === 0 ? (
                                 <div className="text-center py-8 text-slate-400">
                                     <span className="material-symbols-outlined text-4xl mb-2">inbox</span>
-                                    <p>No active tickets</p>
+                                    <p>{priorityFilter !== 'all' ? `No ${priorityFilter.toLowerCase()} priority tickets` : 'No active tickets'}</p>
                                 </div>
                             ) : (
-                                tickets.map((ticket) => (
+                                filteredTickets.map((ticket) => (
                                     <TicketCard
                                         key={ticket.id}
                                         ticketNumber={ticket.number}
@@ -334,7 +329,7 @@ export default function SeniorDashboardPage() {
                         </div>
                         <div className="bg-white p-6 rounded-[2rem] shadow-soft flex flex-col gap-3">
                             <button
-                                onClick={() => setShowNoteModal(true)}
+                                onClick={() => setShowAddNoteForm(true)}
                                 disabled={!selectedTicket}
                                 className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-4 px-4 rounded-2xl flex items-center justify-center gap-3 transition-colors disabled:opacity-50"
                             >
@@ -368,45 +363,19 @@ export default function SeniorDashboardPage() {
                         </div>
                     </div>
 
-                    {/* Audit Timeline */}
-                    <div className="flex-1 bg-white rounded-[2rem] shadow-soft flex flex-col overflow-hidden min-h-0">
-                        <div className="p-6 pb-4 bg-white sticky top-0 z-10">
-                            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                                <span className="material-symbols-outlined text-slate-400 text-lg">history</span>
-                                Audit Timeline
-                            </div>
-                        </div>
-                        <div className="flex-1 overflow-y-auto px-6 pb-6 no-scrollbar">
-                            <div className="relative pl-4 mt-2 space-y-8 before:absolute before:left-[5px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-                                {activities.map((activity) => (
-                                    <div key={activity.id} className="relative group">
-                                        <div className={`absolute -left-4 top-0 size-3 rounded-full bg-${getActivityColor(activity.action)}-500 border-2 border-white shadow-sm`} />
-                                        <div className="bg-slate-50 rounded-xl p-3">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <span className={`text-xs font-bold text-${getActivityColor(activity.action)}-600`}>
-                                                    {activity.action.replace(/_/g, ' ')}
-                                                </span>
-                                                <span className="text-[10px] text-slate-400">
-                                                    {new Date(activity.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                                                </span>
-                                            </div>
-                                            <p className="text-sm text-slate-600">{activity.details}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
+                    {/* Notes Panel */}
+                    <NotesPanel
+                        ticketId={selectedTicket?.id}
+                        ticketNumber={selectedTicket?.number}
+                        userId={userId}
+                        accentColor="#EB4C36"
+                        showAddForm={showAddNoteForm}
+                        onAddFormClose={() => setShowAddNoteForm(false)}
+                    />
                 </div>
             </div>
 
-            {/* Add Note Modal */}
-            <AddNoteModal
-                isOpen={showNoteModal}
-                onClose={() => setShowNoteModal(false)}
-                onSubmit={handleAddNote}
-                ticketNumber={selectedTicket?.number}
-            />
+            {/* Add Note Modal removed - notes are now added via NotesPanel */}
 
             {/* Assign to IT Confirmation */}
             <ConfirmModal

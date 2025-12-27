@@ -6,7 +6,7 @@ import TicketFilters from '@/components/tickets/TicketFilters';
 import { toast } from 'react-hot-toast';
 
 export default function ITTicketsPage() {
-    const [tickets, setTickets] = useState<any[]>([]);
+    const [allTickets, setAllTickets] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [currentTab, setCurrentTab] = useState<'assigned' | 'pending' | 'all'>('assigned');
     const [searchQuery, setSearchQuery] = useState('');
@@ -22,41 +22,28 @@ export default function ITTicketsPage() {
     }, []);
 
     useEffect(() => {
-        fetchTickets();
-    }, [currentTab, userId]);
+        if (userId) {
+            fetchTickets();
+        }
+    }, [userId]);
 
     const fetchTickets = async () => {
-        if (!userId && currentTab !== 'all') return;
-
         setIsLoading(true);
         try {
-            // Build query params
-            const params = new URLSearchParams();
+            // Fetch My Tickets (assigned to me)
+            const myRes = await fetch(`/api/tickets?assigned_to=${userId}`);
+            const myData = await myRes.json();
 
-            // For "All Technical", we fetch all tickets with WITH_IT status
-            // For others, we fetch tickets assigned to current user
-            if (currentTab === 'all') {
-                params.append('status', 'WITH_IT');
-            } else {
-                params.append('assigned_to', userId);
-            }
+            // Fetch All Technical Pool (status=WITH_IT)
+            const poolRes = await fetch(`/api/tickets?status=WITH_IT`);
+            const poolData = await poolRes.json();
 
-            const res = await fetch(`/api/tickets?${params.toString()}`);
-            const data = await res.json();
+            // Combine and deduplicate
+            const allRaw = [...(myData.tickets || []), ...(poolData.tickets || [])];
+            const uniqueTickets = Array.from(new Map(allRaw.map(item => [item.id, item])).values());
 
-            if (data.tickets) {
-                // Transform and filter data
-                const filtered = data.tickets.filter((t: any) => {
-                    // Tab filter
-                    if (currentTab === 'assigned') {
-                        // Tickets I am working on (e.g. WITH_IT or IN_PROGRESS)
-                        return t.status === 'WITH_IT' || t.status === 'IN_PROGRESS';
-                    } else if (currentTab === 'pending') {
-                        // Tickets I resolved, waiting for CS review
-                        return t.status === 'RESOLVED';
-                    }
-                    return true;
-                }).map((ticket: any) => ({
+            if (uniqueTickets.length > 0) {
+                const formatted = uniqueTickets.map((ticket: any) => ({
                     id: ticket.id,
                     ticketNumber: ticket.number,
                     subject: ticket.subject,
@@ -76,9 +63,11 @@ export default function ITTicketsPage() {
                         hour: 'numeric',
                         minute: 'numeric',
                     }),
+                    // Helper for filtering
+                    assignedToInt: ticket.assigned_to?.id
                 }));
 
-                setTickets(filtered);
+                setAllTickets(formatted);
             }
         } catch (error) {
             console.error('Error fetching tickets:', error);
@@ -88,23 +77,34 @@ export default function ITTicketsPage() {
         }
     };
 
-    // Client-side filtering for search and dropdowns
-    const filteredTickets = tickets.filter(t => {
+    // Calculate Counts
+    const counts = {
+        assigned: allTickets.filter(t => t.assignedToInt === userId && (t.status === 'WITH_IT' || t.status === 'IN_PROGRESS')).length,
+        pending: allTickets.filter(t => t.assignedToInt === userId && t.status === 'RESOLVED').length,
+        all: allTickets.filter(t => t.status === 'WITH_IT').length
+    };
+
+    // Filter tickets for current view
+    const visibleTickets = allTickets.filter(t => {
+        // 1. Tab filter
+        let matchesTab = false;
+        if (currentTab === 'assigned') {
+            matchesTab = t.assignedToInt === userId && (t.status === 'WITH_IT' || t.status === 'IN_PROGRESS');
+        } else if (currentTab === 'pending') {
+            matchesTab = t.assignedToInt === userId && t.status === 'RESOLVED';
+        } else if (currentTab === 'all') {
+            matchesTab = t.status === 'WITH_IT';
+        }
+
+        // 2. Search & Dropdown filters
         const matchesSearch = t.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
             t.ticketNumber.includes(searchQuery) ||
             t.customerName.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter ? t.status === statusFilter : true;
         const matchesPriority = priorityFilter ? t.priority === priorityFilter : true;
 
-        return matchesSearch && matchesStatus && matchesPriority;
+        return matchesTab && matchesSearch && matchesStatus && matchesPriority;
     });
-
-    const getTabCount = (tab: string) => {
-        // This is a simplified count since we're only loading one tab's data at a time usually
-        // Ideally we'd fetch counts separately. For now, rely on active tab length
-        if (tab === currentTab) return tickets.length;
-        return '';
-    };
 
     return (
         <>
@@ -127,37 +127,40 @@ export default function ITTicketsPage() {
                 <button
                     onClick={() => setCurrentTab('assigned')}
                     className={`px-5 py-2 rounded-full font-bold text-sm transition-all ${currentTab === 'assigned'
-                            ? 'bg-blue-500 text-white'
-                            : 'text-slate-500 hover:bg-slate-100'
+                        ? 'bg-blue-500 text-white'
+                        : 'text-slate-500 hover:bg-slate-100'
                         }`}
                 >
                     Assigned to Me
-                    <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs box-content">
-                        {currentTab === 'assigned' ? tickets.length : ''}
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs box-content ${currentTab === 'assigned' ? 'bg-white/20' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                        {counts.assigned}
                     </span>
                 </button>
                 <button
                     onClick={() => setCurrentTab('pending')}
                     className={`px-5 py-2 rounded-full font-bold text-sm transition-all ${currentTab === 'pending'
-                            ? 'bg-green-100 text-green-600'
-                            : 'text-slate-500 hover:bg-slate-100'
+                        ? 'bg-amber-500 text-white'
+                        : 'text-slate-500 hover:bg-slate-100'
                         }`}
                 >
                     Pending CS Review
-                    <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs box-content border border-current">
-                        {currentTab === 'pending' ? tickets.length : ''}
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs box-content ${currentTab === 'pending' ? 'bg-white/20' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                        {counts.pending}
                     </span>
                 </button>
                 <button
                     onClick={() => setCurrentTab('all')}
                     className={`px-5 py-2 rounded-full font-bold text-sm transition-all ${currentTab === 'all'
-                            ? 'bg-slate-800 text-white'
-                            : 'text-slate-500 hover:bg-slate-100'
+                        ? 'bg-slate-800 text-white'
+                        : 'text-slate-500 hover:bg-slate-100'
                         }`}
                 >
                     All Technical
-                    <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs box-content">
-                        {currentTab === 'all' ? tickets.length : ''}
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs box-content ${currentTab === 'all' ? 'bg-white/20' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                        {counts.all}
                     </span>
                 </button>
             </div>
@@ -169,7 +172,7 @@ export default function ITTicketsPage() {
                 </div>
             ) : (
                 <TicketTable
-                    tickets={filteredTickets}
+                    tickets={visibleTickets}
                     showAssignedTo={currentTab === 'all'}
                     showSource={false}
                     onViewTicket={(id) => {
