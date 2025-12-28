@@ -29,9 +29,10 @@ export async function GET(request: Request) {
         }
 
         // Get ticket counts by status
+        // Also fetch timestamps needed for trend analysis
         let query = supabaseAdmin
             .from('tickets')
-            .select('id, status, priority, assigned_to_id, created_at');
+            .select('id, status, priority, assigned_to_id, created_at, assigned_at, closed_at');
 
         // Apply date filter if period specified
         if (startDate) {
@@ -46,6 +47,48 @@ export async function GET(request: Request) {
                 { error: 'Failed to fetch stats' },
                 { status: 500 }
             );
+        }
+
+        // Calculate Average Resolution Time Trend (Last 6 Months)
+        const trends = [];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const today = new Date();
+
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            const monthIndex = date.getMonth();
+            const year = date.getFullYear();
+            const monthLabel = `${monthNames[monthIndex]}`;
+
+            // Filter tickets closed in this month
+            const ticketsInMonth = allTickets?.filter(t => {
+                if (!t.closed_at) return false;
+                const closeDate = new Date(t.closed_at);
+                return closeDate.getMonth() === monthIndex && closeDate.getFullYear() === year;
+            }) || [];
+
+            let totalHours = 0;
+            let count = 0;
+
+            ticketsInMonth.forEach(t => {
+                // Use assigned_at -> closed_at if available, otherwise created_at -> closed_at
+                const start = t.assigned_at ? new Date(t.assigned_at) : new Date(t.created_at);
+                const end = new Date(t.closed_at);
+                const diff = end.getTime() - start.getTime();
+                const hours = diff / (1000 * 60 * 60);
+
+                // Filter out unrealistic outliers (> 30 days) or negatives
+                if (hours > 0 && hours < 720) {
+                    totalHours += hours;
+                    count++;
+                }
+            });
+
+            trends.push({
+                name: monthLabel,
+                avgHours: count > 0 ? Math.round(totalHours / count) : 0,
+                tickets: count
+            });
         }
 
         // Calculate stats
@@ -122,8 +165,7 @@ export async function GET(request: Request) {
             };
         }
 
-        return NextResponse.json({ stats, userStats });
-
+        return NextResponse.json({ stats, userStats, trends });
     } catch (error) {
         console.error('Stats API error:', error);
         return NextResponse.json(

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import CustomSelect from '@/components/ui/CustomSelect';
+import ResolutionTrendChart from '@/components/charts/ResolutionTrendChart';
 
 // Dynamic import for PDF export (client-side only)
 const ExportReportButton = dynamic(
@@ -42,6 +43,7 @@ export default function SeniorReportsPage() {
     const [userStats, setUserStats] = useState<UserStats | null>(null);
     const [personalMetrics, setPersonalMetrics] = useState<AgentMetrics | null>(null);
     const [juniorAgents, setJuniorAgents] = useState<AgentMetrics[]>([]);
+    const [trends, setTrends] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [period, setPeriod] = useState('month');
     const [userName, setUserName] = useState('Senior CS');
@@ -63,6 +65,9 @@ export default function SeniorReportsPage() {
             const statsData = await statsRes.json();
             if (statsData.userStats) {
                 setUserStats(statsData.userStats);
+            }
+            if (statsData.trends) {
+                setTrends(statsData.trends);
             }
 
             // Fetch detailed performance metrics
@@ -217,8 +222,8 @@ export default function SeniorReportsPage() {
                         </div>
                     </div>
 
-                    {/* Row 2: Score Breakdown + Team Stats */}
-                    <div className="grid grid-cols-3 gap-6">
+                    {/* Row 2: Score Breakdown + Resolution Trend */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Score Breakdown - takes 1 column */}
                         <div className="bg-white rounded-[2rem] shadow-soft p-6">
                             <h3 className="text-lg font-bold text-slate-900 mb-4">Score Breakdown</h3>
@@ -263,88 +268,93 @@ export default function SeniorReportsPage() {
                             </div>
                         </div>
 
-                        {/* Team Overview - takes 2 columns */}
-                        {juniorAgents.length > 0 && (
-                            <div className="col-span-2 bg-white rounded-[2rem] shadow-soft p-6">
-                                <h3 className="text-lg font-bold text-slate-900 mb-4">Team Overview</h3>
-                                <div className="grid grid-cols-4 gap-3">
-                                    {/* Row 1 */}
-                                    <div className="bg-slate-50 rounded-xl p-4 text-center">
-                                        <p className="text-3xl font-extrabold text-slate-900">{juniorAgents.length}</p>
-                                        <p className="text-xs text-slate-500 mt-1">Juniors</p>
-                                    </div>
-                                    <div className="bg-emerald-50 rounded-xl p-4 text-center">
-                                        <p className="text-3xl font-extrabold text-emerald-600">
-                                            {juniorAgents.reduce((sum, a) => sum + (a.metrics.completed || 0), 0)}
-                                        </p>
-                                        <p className="text-xs text-slate-500 mt-1">Team Done</p>
-                                    </div>
-                                    <div className="bg-blue-50 rounded-xl p-4 text-center">
-                                        <p className="text-3xl font-extrabold text-blue-600">
-                                            {(() => {
-                                                const times = juniorAgents
-                                                    .map(a => a.metrics.avgHandlingTime)
-                                                    .filter(t => t && t !== '-')
-                                                    .map(t => parseFloat(t) || 0);
-                                                if (times.length === 0) return '-';
-                                                return (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) + 'h';
-                                            })()}
-                                        </p>
-                                        <p className="text-xs text-slate-500 mt-1">Avg Time</p>
-                                    </div>
-                                    <div className="bg-amber-50 rounded-xl p-4 text-center">
-                                        <p className="text-3xl font-extrabold text-amber-600">
-                                            {(() => {
-                                                const scores = juniorAgents
-                                                    .map(a => a.metrics.score)
-                                                    .filter(s => s !== null) as number[];
-                                                if (scores.length === 0) return '-';
-                                                return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-                                            })()}
-                                        </p>
-                                        <p className="text-xs text-slate-500 mt-1">Avg Score</p>
-                                    </div>
-
-                                    {/* Row 2 - Additional Stats */}
-                                    <div className="bg-orange-50 rounded-xl p-4 text-center">
-                                        <p className="text-3xl font-extrabold text-orange-600">
-                                            {juniorAgents.reduce((sum, a) => sum + ((a.metrics.assigned || 0) - (a.metrics.completed || 0)), 0)}
-                                        </p>
-                                        <p className="text-xs text-slate-500 mt-1">Active</p>
-                                    </div>
-                                    <div className="bg-purple-50 rounded-xl p-4 text-center">
-                                        <p className="text-3xl font-extrabold text-purple-600">
-                                            {(() => {
-                                                const totalAssigned = juniorAgents.reduce((sum, a) => sum + (a.metrics.assigned || 0), 0);
-                                                const totalCompleted = juniorAgents.reduce((sum, a) => sum + (a.metrics.completed || 0), 0);
-                                                if (totalAssigned === 0) return '-';
-                                                return Math.round((totalCompleted / totalAssigned) * 100) + '%';
-                                            })()}
-                                        </p>
-                                        <p className="text-xs text-slate-500 mt-1">Res Rate</p>
-                                    </div>
-                                    <div className="bg-red-50 rounded-xl p-4 text-center">
-                                        <p className="text-3xl font-extrabold text-red-600">
-                                            {juniorAgents.reduce((sum, a) => sum + (a.metrics.assigned || 0), 0)}
-                                        </p>
-                                        <p className="text-xs text-slate-500 mt-1">Assigned</p>
-                                    </div>
-                                    <div className="bg-cyan-50 rounded-xl p-4 text-center">
-                                        <p className="text-3xl font-extrabold text-cyan-600">
-                                            {(() => {
-                                                const best = juniorAgents.reduce((max, a) =>
-                                                    (a.metrics.score || 0) > (max.metrics.score || 0) ? a : max, juniorAgents[0]);
-                                                return best?.metrics.score || '-';
-                                            })()}
-                                        </p>
-                                        <p className="text-xs text-slate-500 mt-1">Top Score</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        {/* Resolution Trend Chart - takes 2 columns */}
+                        <div className="lg:col-span-2">
+                            <ResolutionTrendChart data={trends} isLoading={isLoading} />
+                        </div>
                     </div>
 
-                    {/* Row 3: Junior Performance Cards */}
+                    {/* Row 3: Team Overview */}
+                    {juniorAgents.length > 0 && (
+                        <div className="bg-white rounded-[2rem] shadow-soft p-6">
+                            <h3 className="text-lg font-bold text-slate-900 mb-4">Team Overview</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {/* Row 1 */}
+                                <div className="bg-slate-50 rounded-xl p-4 text-center">
+                                    <p className="text-3xl font-extrabold text-slate-900">{juniorAgents.length}</p>
+                                    <p className="text-xs text-slate-500 mt-1">Juniors</p>
+                                </div>
+                                <div className="bg-emerald-50 rounded-xl p-4 text-center">
+                                    <p className="text-3xl font-extrabold text-emerald-600">
+                                        {juniorAgents.reduce((sum, a) => sum + (a.metrics.completed || 0), 0)}
+                                    </p>
+                                    <p className="text-xs text-slate-500 mt-1">Team Done</p>
+                                </div>
+                                <div className="bg-blue-50 rounded-xl p-4 text-center">
+                                    <p className="text-3xl font-extrabold text-blue-600">
+                                        {(() => {
+                                            const times = juniorAgents
+                                                .map(a => a.metrics.avgHandlingTime)
+                                                .filter(t => t && t !== '-')
+                                                .map(t => parseFloat(t) || 0);
+                                            if (times.length === 0) return '-';
+                                            return (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) + 'h';
+                                        })()}
+                                    </p>
+                                    <p className="text-xs text-slate-500 mt-1">Avg Time</p>
+                                </div>
+                                <div className="bg-amber-50 rounded-xl p-4 text-center">
+                                    <p className="text-3xl font-extrabold text-amber-600">
+                                        {(() => {
+                                            const scores = juniorAgents
+                                                .map(a => a.metrics.score)
+                                                .filter(s => s !== null) as number[];
+                                            if (scores.length === 0) return '-';
+                                            return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+                                        })()}
+                                    </p>
+                                    <p className="text-xs text-slate-500 mt-1">Avg Score</p>
+                                </div>
+
+                                {/* Row 2 - Additional Stats */}
+                                <div className="bg-orange-50 rounded-xl p-4 text-center">
+                                    <p className="text-3xl font-extrabold text-orange-600">
+                                        {juniorAgents.reduce((sum, a) => sum + ((a.metrics.assigned || 0) - (a.metrics.completed || 0)), 0)}
+                                    </p>
+                                    <p className="text-xs text-slate-500 mt-1">Active</p>
+                                </div>
+                                <div className="bg-purple-50 rounded-xl p-4 text-center">
+                                    <p className="text-3xl font-extrabold text-purple-600">
+                                        {(() => {
+                                            const totalAssigned = juniorAgents.reduce((sum, a) => sum + (a.metrics.assigned || 0), 0);
+                                            const totalCompleted = juniorAgents.reduce((sum, a) => sum + (a.metrics.completed || 0), 0);
+                                            if (totalAssigned === 0) return '-';
+                                            return Math.round((totalCompleted / totalAssigned) * 100) + '%';
+                                        })()}
+                                    </p>
+                                    <p className="text-xs text-slate-500 mt-1">Res Rate</p>
+                                </div>
+                                <div className="bg-red-50 rounded-xl p-4 text-center">
+                                    <p className="text-3xl font-extrabold text-red-600">
+                                        {juniorAgents.reduce((sum, a) => sum + (a.metrics.assigned || 0), 0)}
+                                    </p>
+                                    <p className="text-xs text-slate-500 mt-1">Assigned</p>
+                                </div>
+                                <div className="bg-cyan-50 rounded-xl p-4 text-center">
+                                    <p className="text-3xl font-extrabold text-cyan-600">
+                                        {(() => {
+                                            const best = juniorAgents.reduce((max, a) =>
+                                                (a.metrics.score || 0) > (max.metrics.score || 0) ? a : max, juniorAgents[0]);
+                                            return best?.metrics.score || '-';
+                                        })()}
+                                    </p>
+                                    <p className="text-xs text-slate-500 mt-1">Top Score</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Row 4: Junior Performance Cards */}
                     {juniorAgents.length > 0 && (
                         <div>
                             <h3 className="text-lg font-bold text-slate-900 mb-4">Junior Performance</h3>
