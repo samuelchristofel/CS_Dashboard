@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import CustomSelect from '@/components/ui/CustomSelect';
+import TicketDetailModal from '@/components/modals/TicketDetailModal';
 
 interface HistoryItem {
     id: string;
@@ -18,6 +19,7 @@ export default function HistoryContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchHistory();
@@ -175,7 +177,10 @@ export default function HistoryContent() {
                                 <div className="w-32 text-sm text-slate-600">{item.resolvedBy}</div>
                                 <div className="w-40 text-xs text-slate-500">{item.closedAt}</div>
                                 <div className="w-20 flex justify-end">
-                                    <button className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                                    <button
+                                        onClick={() => setSelectedTicketId(item.id)}
+                                        className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200"
+                                    >
                                         <span className="material-symbols-outlined text-base">visibility</span>
                                     </button>
                                 </div>
@@ -191,6 +196,13 @@ export default function HistoryContent() {
                     </p>
                 </div>
             </div>
+
+            {/* Ticket Detail Modal */}
+            <TicketDetailModal
+                isOpen={!!selectedTicketId}
+                onClose={() => setSelectedTicketId(null)}
+                ticketId={selectedTicketId}
+            />
         </>
     );
 }

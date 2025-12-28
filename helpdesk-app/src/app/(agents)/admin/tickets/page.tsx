@@ -5,6 +5,7 @@ import TicketTable from '@/components/tickets/TicketTable';
 import TicketFilters from '@/components/tickets/TicketFilters';
 import CreateTicketModal, { TicketFormData } from '@/components/modals/CreateTicketModal';
 import AssignTicketModal from '@/components/modals/AssignTicketModal';
+import TicketDetailModal from '@/components/modals/TicketDetailModal';
 import { toast } from 'react-hot-toast';
 
 export default function AdminTicketsPage() {
@@ -15,6 +16,7 @@ export default function AdminTicketsPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+    const [viewingTicketId, setViewingTicketId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('');
@@ -264,9 +266,7 @@ export default function AdminTicketsPage() {
                     tickets={filteredTickets}
                     showAssignedTo={true}
                     showSource={true}
-                    onViewTicket={(id) => {
-                        console.log('View ticket', id);
-                    }}
+                    onViewTicket={(id) => setViewingTicketId(id)}
                     onEditTicket={handleEditTicket}
                     onAssignTicket={(id) => {
                         setSelectedTicketId(id);
@@ -299,6 +299,13 @@ export default function AdminTicketsPage() {
                 ticketNumber={selectedTicketData?.ticketNumber || ''}
                 currentAssignee={selectedTicketData?.assignedTo?.name}
                 agents={agents}
+            />
+
+            {/* Ticket Detail Modal */}
+            <TicketDetailModal
+                isOpen={!!viewingTicketId}
+                onClose={() => setViewingTicketId(null)}
+                ticketId={viewingTicketId}
             />
         </>
     );

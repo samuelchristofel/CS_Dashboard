@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import TicketTable from '@/components/tickets/TicketTable';
 import TicketFilters from '@/components/tickets/TicketFilters';
+import TicketDetailModal from '@/components/modals/TicketDetailModal';
 import { toast } from 'react-hot-toast';
 
 export default function ITTicketsPage() {
@@ -13,6 +14,7 @@ export default function ITTicketsPage() {
     const [statusFilter, setStatusFilter] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('');
     const [userId, setUserId] = useState<string>('');
+    const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 
     useEffect(() => {
         const userStr = localStorage.getItem('user');
@@ -175,11 +177,16 @@ export default function ITTicketsPage() {
                     tickets={visibleTickets}
                     showAssignedTo={currentTab === 'all'}
                     showSource={false}
-                    onViewTicket={(id) => {
-                        console.log('View ticket', id);
-                    }}
+                    onViewTicket={(id) => setSelectedTicketId(id)}
                 />
             )}
+
+            {/* Ticket Detail Modal */}
+            <TicketDetailModal
+                isOpen={!!selectedTicketId}
+                onClose={() => setSelectedTicketId(null)}
+                ticketId={selectedTicketId}
+            />
         </>
     );
 }
