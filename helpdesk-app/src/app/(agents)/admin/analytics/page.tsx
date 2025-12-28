@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import CustomSelect from '@/components/ui/CustomSelect';
+import { TicketDistributionChart, QuickStatsChart } from '@/components/charts/TicketStatusChart';
 
 interface Stats {
     total: number;
@@ -119,71 +120,18 @@ export default function AdminAnalyticsPage() {
                         </div>
                     </div>
 
-                    {/* Charts Section */}
-                    <div className="flex-1 grid grid-cols-2 gap-6 overflow-hidden">
-                        {/* Ticket Status Distribution */}
-                        <div className="bg-white rounded-[2rem] shadow-soft p-6 flex flex-col">
-                            <h3 className="text-lg font-bold text-slate-900 mb-4">Ticket Status Distribution</h3>
-                            <div className="flex-1 space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-24 text-sm text-slate-600">Open</div>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-amber-400 rounded-full flex items-center justify-end pr-3"
-                                            style={{ width: `${Math.max(5, (stats?.open || 0) / Math.max(1, stats?.total || 1) * 100)}%` }}
-                                        >
-                                            <span className="text-xs font-bold text-white">{stats?.open || 0}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-24 text-sm text-slate-600">In Progress</div>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-blue-400 rounded-full flex items-center justify-end pr-3"
-                                            style={{ width: `${Math.max(5, (stats?.inProgress || 0) / Math.max(1, stats?.total || 1) * 100)}%` }}
-                                        >
-                                            <span className="text-xs font-bold text-white">{stats?.inProgress || 0}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-24 text-sm text-slate-600">With IT</div>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-purple-400 rounded-full flex items-center justify-end pr-3"
-                                            style={{ width: `${Math.max(5, (stats?.withIT || 0) / Math.max(1, stats?.total || 1) * 100)}%` }}
-                                        >
-                                            <span className="text-xs font-bold text-white">{stats?.withIT || 0}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-24 text-sm text-slate-600">Pending</div>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-orange-400 rounded-full flex items-center justify-end pr-3"
-                                            style={{ width: `${Math.max(5, (stats?.pendingReview || 0) / Math.max(1, stats?.total || 1) * 100)}%` }}
-                                        >
-                                            <span className="text-xs font-bold text-white">{stats?.pendingReview || 0}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-24 text-sm text-slate-600">Closed</div>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-green-400 rounded-full flex items-center justify-end pr-3"
-                                            style={{ width: `${Math.max(5, (stats?.closed || 0) / Math.max(1, stats?.total || 1) * 100)}%` }}
-                                        >
-                                            <span className="text-xs font-bold text-white">{stats?.closed || 0}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    {/* Charts Section - 2x2 Bento Grid */}
+                    <div className="flex-1 grid grid-cols-2 gap-6">
+                        {/* Top Left: Ticket Status Distribution */}
+                        <TicketDistributionChart
+                            open={stats?.open || 0}
+                            inProgress={stats?.inProgress || 0}
+                            withIT={stats?.withIT || 0}
+                            pending={stats?.pendingReview || 0}
+                            closed={stats?.closed || 0}
+                        />
 
-                        {/* Priority Breakdown - Pie Chart */}
+                        {/* Top Right: Priority Breakdown - Pie Chart */}
                         <div className="bg-white rounded-[2rem] shadow-soft p-6 flex flex-col">
                             <h3 className="text-lg font-bold text-slate-900 mb-4">Active Tickets by Priority</h3>
                             <div className="flex-1 flex items-center justify-center gap-8">
@@ -295,60 +243,17 @@ export default function AdminAnalyticsPage() {
                             </div>
                         </div>
 
-                        {/* Quick Stats - Horizontal Bar Chart Style */}
-                        <div className="bg-white rounded-[2rem] shadow-soft p-6 flex flex-col">
-                            <h3 className="text-lg font-bold text-slate-900 mb-4">Quick Stats</h3>
-                            <div className="flex-1 space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-24 text-sm text-slate-600">Total</div>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-slate-800 rounded-full flex items-center justify-end pr-3"
-                                            style={{ width: `${Math.max(10, 100)}%` }}
-                                        >
-                                            <span className="text-xs font-bold text-white">{stats?.total || 0}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-24 text-sm text-slate-600">Open</div>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-amber-400 rounded-full flex items-center justify-end pr-3"
-                                            style={{ width: `${Math.max(5, (stats?.open || 0) / Math.max(1, stats?.total || 1) * 100)}%` }}
-                                        >
-                                            <span className="text-xs font-bold text-white">{stats?.open || 0}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-24 text-sm text-slate-600">Resolved</div>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-green-400 rounded-full flex items-center justify-end pr-3"
-                                            style={{ width: `${Math.max(5, ((stats?.resolved || 0) + (stats?.closed || 0)) / Math.max(1, stats?.total || 1) * 100)}%` }}
-                                        >
-                                            <span className="text-xs font-bold text-white">{(stats?.resolved || 0) + (stats?.closed || 0)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-24 text-sm text-slate-600">High Priority</div>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-red-400 rounded-full flex items-center justify-end pr-3"
-                                            style={{ width: `${Math.max(5, (stats?.high || 0) / Math.max(1, stats?.total || 1) * 100)}%` }}
-                                        >
-                                            <span className="text-xs font-bold text-white">{stats?.high || 0}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {/* Bottom Left: Quick Stats */}
+                        <QuickStatsChart
+                            total={stats?.total || 0}
+                            open={stats?.open || 0}
+                            resolved={(stats?.resolved || 0) + (stats?.closed || 0)}
+                            high={stats?.high || 0}
+                        />
 
-                        {/* Team Overview */}
-                        <div className="bg-white rounded-[2rem] shadow-soft p-6 flex flex-col">
-                            <h3 className="text-lg font-bold text-slate-900 mb-4">Team Overview</h3>
+                        {/* Bottom Right: Team Overview */}
+                        <div className="bg-white rounded-[2rem] shadow-soft p-5 flex flex-col">
+                            <h3 className="text-base font-bold text-slate-900 mb-3">Team Overview</h3>
                             <div className="flex-1 grid grid-cols-2 gap-4">
                                 <div className="bg-slate-50 rounded-2xl p-4 text-center">
                                     <p className="text-3xl font-extrabold text-slate-900">{teamStats?.totalAgents || 0}</p>

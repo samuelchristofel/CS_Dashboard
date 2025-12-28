@@ -107,7 +107,7 @@ BEGIN
         random_priority := (ARRAY['HIGH', 'MEDIUM', 'LOW'])[floor(random() * 3 + 1)];
         random_source := (ARRAY['WhatsApp', 'Email', 'Phone', 'Freshchat'])[floor(random() * 4 + 1)];
         random_status := (ARRAY['IN_PROGRESS', 'RESOLVED', 'CLOSED', 'PENDING_REVIEW'])[floor(random() * 4 + 1)];
-        days_ago := floor(random() * 25 + 1); -- 1-25 days ago
+        days_ago := floor(random() * 180 + 1); -- 1-180 days ago (6 months)
         
         INSERT INTO tickets (
             number, subject, description, customer_name, customer_email, customer_phone,
@@ -208,7 +208,7 @@ BEGIN
         random_priority := (ARRAY['HIGH', 'MEDIUM', 'LOW'])[floor(random() * 3 + 1)];
         random_source := (ARRAY['WhatsApp', 'Email', 'Phone', 'Freshchat'])[floor(random() * 4 + 1)];
         random_status := (ARRAY['RESOLVED', 'CLOSED', 'CLOSED', 'RESOLVED'])[floor(random() * 4 + 1)]; -- Mostly completed
-        days_ago := floor(random() * 28 + 1); -- 1-28 days ago
+        days_ago := floor(random() * 180 + 1); -- 1-180 days ago (6 months)
         
         INSERT INTO tickets (
             number, subject, description, customer_name, customer_email, customer_phone,
@@ -260,7 +260,7 @@ BEGIN
         random_priority := (ARRAY['HIGH', 'MEDIUM', 'LOW'])[floor(random() * 3 + 1)];
         random_source := (ARRAY['WhatsApp', 'Email', 'Phone', 'Freshchat'])[floor(random() * 4 + 1)];
         random_status := (ARRAY['RESOLVED', 'CLOSED', 'IN_PROGRESS', 'PENDING_REVIEW'])[floor(random() * 4 + 1)];
-        days_ago := floor(random() * 28 + 1);
+        days_ago := floor(random() * 180 + 1); -- 1-180 days ago (6 months)
         
         INSERT INTO tickets (
             number, subject, description, customer_name, customer_email, customer_phone,
@@ -315,7 +315,7 @@ BEGIN
         random_priority := (ARRAY['HIGH', 'MEDIUM', 'LOW'])[floor(random() * 3 + 1)];
         random_source := (ARRAY['WhatsApp', 'Email', 'Phone', 'Freshchat'])[floor(random() * 4 + 1)];
         random_status := (ARRAY['IN_PROGRESS', 'PENDING_REVIEW', 'RESOLVED', 'CLOSED'])[floor(random() * 4 + 1)];
-        days_ago := floor(random() * 28 + 1);
+        days_ago := floor(random() * 180 + 1); -- 1-180 days ago (6 months)
         
         INSERT INTO tickets (
             number, subject, description, customer_name, customer_email, customer_phone,

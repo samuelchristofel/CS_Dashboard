@@ -7,29 +7,36 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('user_id');
         const role = searchParams.get('role');
-        const period = searchParams.get('period') || 'all'; // week, month, quarter, all
+        const period = searchParams.get('period') || 'month'; // today, week, month, year
 
         // Calculate date range for period filter
         const now = new Date();
         let startDate: Date | null = null;
+        let trendConfig: { months: number; label: string } = { months: 6, label: 'Last 6 months' };
 
         switch (period) {
+            case 'today':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                trendConfig = { months: 1, label: 'Today' }; // Show last 7 days for "today"
+                break;
             case 'week':
                 startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                trendConfig = { months: 1, label: 'Last 7 days' }; // Show last 4 weeks
                 break;
             case 'month':
-                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                trendConfig = { months: 4, label: 'Last 4 weeks' }; // Show last 4 weeks
                 break;
-            case 'quarter':
-                const quarter = Math.floor(now.getMonth() / 3);
-                startDate = new Date(now.getFullYear(), quarter * 3, 1);
+            case 'year':
+                startDate = new Date(now.getFullYear(), 0, 1); // Jan 1 of this year
+                trendConfig = { months: 12, label: 'This Year' }; // Show all 12 months
                 break;
             default:
-                startDate = null; // All time
+                startDate = null;
+                trendConfig = { months: 6, label: 'Last 6 months' };
         }
 
         // Get ticket counts by status
-        // Also fetch timestamps needed for trend analysis
         let query = supabaseAdmin
             .from('tickets')
             .select('id, status, priority, assigned_to_id, created_at, assigned_at, closed_at');
@@ -49,46 +56,85 @@ export async function GET(request: Request) {
             );
         }
 
-        // Calculate Average Resolution Time Trend (Last 6 Months)
+        // Fetch tickets for trend calculation based on period
+        const trendStartDate = new Date();
+        trendStartDate.setMonth(trendStartDate.getMonth() - trendConfig.months);
+
+        const { data: trendTickets } = await supabaseAdmin
+            .from('tickets')
+            .select('id, status, created_at, assigned_at, closed_at')
+            .gte('closed_at', trendStartDate.toISOString());
+
+        // Calculate trend data based on period
         const trends = [];
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const today = new Date();
 
-        for (let i = 5; i >= 0; i--) {
-            const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            const monthIndex = date.getMonth();
-            const year = date.getFullYear();
-            const monthLabel = `${monthNames[monthIndex]}`;
+        if (period === 'today' || period === 'week') {
+            // For today/week: show last 7 days
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dayLabel = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : date.toLocaleDateString('en', { weekday: 'short' });
 
-            // Filter tickets closed in this month
-            const ticketsInMonth = allTickets?.filter(t => {
-                if (!t.closed_at) return false;
-                const closeDate = new Date(t.closed_at);
-                return closeDate.getMonth() === monthIndex && closeDate.getFullYear() === year;
-            }) || [];
+                const ticketsOnDay = trendTickets?.filter(t => {
+                    if (!t.closed_at) return false;
+                    const closeDate = new Date(t.closed_at);
+                    return closeDate.toDateString() === date.toDateString();
+                }) || [];
 
-            let totalHours = 0;
-            let count = 0;
+                let totalHours = 0;
+                let count = 0;
 
-            ticketsInMonth.forEach(t => {
-                // Use assigned_at -> closed_at if available, otherwise created_at -> closed_at
-                const start = t.assigned_at ? new Date(t.assigned_at) : new Date(t.created_at);
-                const end = new Date(t.closed_at);
-                const diff = end.getTime() - start.getTime();
-                const hours = diff / (1000 * 60 * 60);
+                ticketsOnDay.forEach(t => {
+                    const start = t.assigned_at ? new Date(t.assigned_at) : new Date(t.created_at);
+                    const end = new Date(t.closed_at);
+                    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                    if (hours > 0 && hours < 720) {
+                        totalHours += hours;
+                        count++;
+                    }
+                });
 
-                // Filter out unrealistic outliers (> 30 days) or negatives
-                if (hours > 0 && hours < 720) {
-                    totalHours += hours;
-                    count++;
-                }
-            });
+                trends.push({
+                    name: dayLabel,
+                    avgHours: count > 0 ? Math.round(totalHours / count) : 0,
+                    tickets: count
+                });
+            }
+        } else {
+            // For month/year: show months
+            for (let i = trendConfig.months - 1; i >= 0; i--) {
+                const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                const monthIndex = date.getMonth();
+                const year = date.getFullYear();
+                const monthLabel = `${monthNames[monthIndex]}`;
 
-            trends.push({
-                name: monthLabel,
-                avgHours: count > 0 ? Math.round(totalHours / count) : 0,
-                tickets: count
-            });
+                const ticketsInMonth = trendTickets?.filter(t => {
+                    if (!t.closed_at) return false;
+                    const closeDate = new Date(t.closed_at);
+                    return closeDate.getMonth() === monthIndex && closeDate.getFullYear() === year;
+                }) || [];
+
+                let totalHours = 0;
+                let count = 0;
+
+                ticketsInMonth.forEach(t => {
+                    const start = t.assigned_at ? new Date(t.assigned_at) : new Date(t.created_at);
+                    const end = new Date(t.closed_at);
+                    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                    if (hours > 0 && hours < 720) {
+                        totalHours += hours;
+                        count++;
+                    }
+                });
+
+                trends.push({
+                    name: monthLabel,
+                    avgHours: count > 0 ? Math.round(totalHours / count) : 0,
+                    tickets: count
+                });
+            }
         }
 
         // Calculate stats

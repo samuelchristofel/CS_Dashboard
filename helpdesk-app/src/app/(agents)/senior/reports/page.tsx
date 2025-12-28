@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import CustomSelect from '@/components/ui/CustomSelect';
 import ResolutionTrendChart from '@/components/charts/ResolutionTrendChart';
+import ScoreBreakdownChart from '@/components/charts/ScoreBreakdownChart';
 
 // Dynamic import for PDF export (client-side only)
 const ExportReportButton = dynamic(
@@ -60,8 +61,8 @@ export default function SeniorReportsPage() {
             const user = JSON.parse(userStr);
             setUserName(user.name || 'Senior CS');
 
-            // Fetch personal stats
-            const statsRes = await fetch(`/api/stats?user_id=${user.id}&role=${user.role}`);
+            // Fetch personal stats with period
+            const statsRes = await fetch(`/api/stats?user_id=${user.id}&role=${user.role}&period=${period}`);
             const statsData = await statsRes.json();
             if (statsData.userStats) {
                 setUserStats(statsData.userStats);
@@ -119,10 +120,10 @@ export default function SeniorReportsPage() {
                         value={period}
                         onChange={setPeriod}
                         options={[
-                            { value: 'week', label: 'This Week' },
-                            { value: 'month', label: 'This Month' },
-                            { value: 'quarter', label: 'This Quarter' },
-                            { value: 'all', label: 'All Time' },
+                            { value: 'today', label: 'Today' },
+                            { value: 'week', label: 'Last Week' },
+                            { value: 'month', label: 'Last Month' },
+                            { value: 'year', label: 'This Year' },
                         ]}
                         variant="filter"
                     />
@@ -185,7 +186,7 @@ export default function SeniorReportsPage() {
                     <span className="size-8 border-2 border-slate-200 border-t-[#EB4C36] rounded-full animate-spin" />
                 </div>
             ) : (
-                <div className="flex-1 flex flex-col gap-6 overflow-auto">
+                <div className="flex-1 flex flex-col gap-6 overflow-auto no-scrollbar">
                     {/* Row 1: Your Stats */}
                     <div className="grid grid-cols-4 gap-4">
                         <div className="bg-white rounded-2xl p-6 shadow-soft">
@@ -224,53 +225,20 @@ export default function SeniorReportsPage() {
 
                     {/* Row 2: Score Breakdown + Resolution Trend */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Score Breakdown - takes 1 column */}
-                        <div className="bg-white rounded-[2rem] shadow-soft p-6">
-                            <h3 className="text-lg font-bold text-slate-900 mb-4">Score Breakdown</h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-slate-600">Base Score (Volume)</span>
-                                        <span className="font-bold text-slate-900">60%</span>
-                                    </div>
-                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-[#EB4C36] rounded-full"
-                                            style={{ width: `${Math.min(100, ((personalMetrics?.metrics.completed || 0) / 40) * 100)}%` }}
-                                        />
-                                    </div>
-                                    <p className="text-xs text-slate-400 mt-1">
-                                        {personalMetrics?.metrics.completed || 0} of 40 target tickets
-                                    </p>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-slate-600">Speed Bonus</span>
-                                        <span className="font-bold text-slate-900">25%</span>
-                                    </div>
-                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500 rounded-full" style={{ width: '100%' }} />
-                                    </div>
-                                    <p className="text-xs text-slate-400 mt-1">
-                                        Avg time: {personalMetrics?.metrics.avgHandlingTime || '-'}
-                                    </p>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-slate-600">Quality Bonus</span>
-                                        <span className="font-bold text-slate-900">15%</span>
-                                    </div>
-                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-green-500 rounded-full" style={{ width: '100%' }} />
-                                    </div>
-                                    <p className="text-xs text-slate-400 mt-1">Low rejection rate</p>
-                                </div>
-                            </div>
-                        </div>
+                        {/* Score Breakdown Chart - takes 1 column */}
+                        <ScoreBreakdownChart
+                            baseScore={Math.min(60, Math.round(((personalMetrics?.metrics.completed || 0) / 40) * 60))}
+                            speedBonus={personalMetrics?.metrics.avgHandlingTime && personalMetrics.metrics.avgHandlingTime !== '-' ? (parseFloat(personalMetrics.metrics.avgHandlingTime) <= 24 ? 25 : parseFloat(personalMetrics.metrics.avgHandlingTime) <= 48 ? 15 : 5) : 0}
+                            qualityBonus={15}
+                            totalScore={personalMetrics?.metrics.score || userStats?.score || 0}
+                            ticketsCompleted={personalMetrics?.metrics.completed || 0}
+                            targetTickets={40}
+                            avgTime={personalMetrics?.metrics.avgHandlingTime || '-'}
+                        />
 
                         {/* Resolution Trend Chart - takes 2 columns */}
                         <div className="lg:col-span-2">
-                            <ResolutionTrendChart data={trends} isLoading={isLoading} />
+                            <ResolutionTrendChart data={trends} isLoading={isLoading} period={period} />
                         </div>
                     </div>
 
