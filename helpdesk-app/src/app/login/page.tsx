@@ -182,6 +182,55 @@ export default function LoginPage() {
                                 >
                                     Putri
                                 </button>
+                                {/* New Agents */}
+                                <button
+                                    type="button"
+                                    onClick={() => quickLogin('budi@vastel.co.id', 'junior123')}
+                                    disabled={isLoading}
+                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    Budi
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => quickLogin('dewi.k@vastel.co.id', 'junior123')}
+                                    disabled={isLoading}
+                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    Dewi K.
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => quickLogin('rizky@vastel.co.id', 'junior123')}
+                                    disabled={isLoading}
+                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    Rizky
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => quickLogin('rina@vastel.co.id', 'junior123')}
+                                    disabled={isLoading}
+                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    Rina
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => quickLogin('bayu@vastel.co.id', 'junior123')}
+                                    disabled={isLoading}
+                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    Bayu
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => quickLogin('fara@vastel.co.id', 'junior123')}
+                                    disabled={isLoading}
+                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    Fara
+                                </button>
                             </div>
                         </div>
 

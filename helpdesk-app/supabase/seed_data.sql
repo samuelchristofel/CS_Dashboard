@@ -65,7 +65,7 @@ BEGIN
         days_ago := floor(random() * 3); -- 0-2 days ago
         
         INSERT INTO tickets (
-            ticket_number, subject, description, customer_name, customer_email, customer_phone,
+            number, subject, description, customer_name, customer_email, customer_phone,
             priority, status, source, created_at, updated_at
         ) VALUES (
             ticket_num,
@@ -110,8 +110,8 @@ BEGIN
         days_ago := floor(random() * 25 + 1); -- 1-25 days ago
         
         INSERT INTO tickets (
-            ticket_number, subject, description, customer_name, customer_email, customer_phone,
-            priority, status, source, assigned_to, created_at, updated_at, closed_at
+            number, subject, description, customer_name, customer_email, customer_phone,
+            priority, status, source, assigned_to_id, created_at, updated_at, closed_at
         ) VALUES (
             ticket_num,
             (ARRAY[
@@ -165,8 +165,8 @@ BEGIN
         days_ago := floor(random() * 20 + 1); -- 1-20 days ago
         
         INSERT INTO tickets (
-            ticket_number, subject, description, customer_name, customer_email, customer_phone,
-            priority, status, source, assigned_to, created_at, updated_at
+            number, subject, description, customer_name, customer_email, customer_phone,
+            priority, status, source, assigned_to_id, created_at, updated_at
         ) VALUES (
             ticket_num,
             (ARRAY[
@@ -211,8 +211,8 @@ BEGIN
         days_ago := floor(random() * 28 + 1); -- 1-28 days ago
         
         INSERT INTO tickets (
-            ticket_number, subject, description, customer_name, customer_email, customer_phone,
-            priority, status, source, assigned_to, created_at, updated_at, closed_at
+            number, subject, description, customer_name, customer_email, customer_phone,
+            priority, status, source, assigned_to_id, created_at, updated_at, closed_at
         ) VALUES (
             ticket_num,
             (ARRAY[
@@ -263,8 +263,8 @@ BEGIN
         days_ago := floor(random() * 28 + 1);
         
         INSERT INTO tickets (
-            ticket_number, subject, description, customer_name, customer_email, customer_phone,
-            priority, status, source, assigned_to, created_at, updated_at, closed_at
+            number, subject, description, customer_name, customer_email, customer_phone,
+            priority, status, source, assigned_to_id, created_at, updated_at, closed_at
         ) VALUES (
             ticket_num,
             (ARRAY[
@@ -318,8 +318,8 @@ BEGIN
         days_ago := floor(random() * 28 + 1);
         
         INSERT INTO tickets (
-            ticket_number, subject, description, customer_name, customer_email, customer_phone,
-            priority, status, source, assigned_to, created_at, updated_at, closed_at
+            number, subject, description, customer_name, customer_email, customer_phone,
+            priority, status, source, assigned_to_id, created_at, updated_at, closed_at
         ) VALUES (
             ticket_num,
             (ARRAY[
@@ -381,7 +381,7 @@ LIMIT 30;
 SELECT 
     'Summary' as info,
     COUNT(*) as total_tickets,
-    COUNT(*) FILTER (WHERE assigned_to IS NULL) as unassigned,
+    COUNT(*) FILTER (WHERE assigned_to_id IS NULL) as unassigned,
     COUNT(*) FILTER (WHERE status = 'OPEN') as open,
     COUNT(*) FILTER (WHERE status = 'IN_PROGRESS') as in_progress,
     COUNT(*) FILTER (WHERE status = 'RESOLVED') as resolved,
