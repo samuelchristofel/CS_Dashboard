@@ -7,11 +7,38 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('user_id');
         const role = searchParams.get('role');
+        const period = searchParams.get('period') || 'all'; // week, month, quarter, all
+
+        // Calculate date range for period filter
+        const now = new Date();
+        let startDate: Date | null = null;
+
+        switch (period) {
+            case 'week':
+                startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                break;
+            case 'quarter':
+                const quarter = Math.floor(now.getMonth() / 3);
+                startDate = new Date(now.getFullYear(), quarter * 3, 1);
+                break;
+            default:
+                startDate = null; // All time
+        }
 
         // Get ticket counts by status
-        const { data: allTickets, error: ticketsError } = await supabaseAdmin
+        let query = supabaseAdmin
             .from('tickets')
-            .select('id, status, priority, assigned_to_id');
+            .select('id, status, priority, assigned_to_id, created_at');
+
+        // Apply date filter if period specified
+        if (startDate) {
+            query = query.gte('created_at', startDate.toISOString());
+        }
+
+        const { data: allTickets, error: ticketsError } = await query;
 
         if (ticketsError) {
             console.error('Error fetching tickets:', ticketsError);

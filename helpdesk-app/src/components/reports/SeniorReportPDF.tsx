@@ -1,0 +1,341 @@
+'use client';
+
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+
+// Formal document styles - black & white, minimal design
+const styles = StyleSheet.create({
+    page: {
+        padding: 50,
+        fontFamily: 'Helvetica',
+        fontSize: 10,
+        color: '#000000',
+    },
+    // Header
+    header: {
+        marginBottom: 30,
+        textAlign: 'center',
+        borderBottom: '2px solid #000000',
+        paddingBottom: 15,
+    },
+    companyName: {
+        fontSize: 18,
+        fontFamily: 'Helvetica-Bold',
+        letterSpacing: 2,
+        marginBottom: 5,
+    },
+    reportTitle: {
+        fontSize: 14,
+        fontFamily: 'Helvetica-Bold',
+        marginTop: 10,
+    },
+    reportSubtitle: {
+        fontSize: 10,
+        color: '#444444',
+        marginTop: 5,
+    },
+    // Section
+    section: {
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 11,
+        fontFamily: 'Helvetica-Bold',
+        marginBottom: 10,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    // Info Row (key: value pairs)
+    infoRow: {
+        flexDirection: 'row',
+        marginBottom: 4,
+    },
+    infoLabel: {
+        width: 150,
+        fontFamily: 'Helvetica-Bold',
+    },
+    infoValue: {
+        flex: 1,
+    },
+    // Table styles
+    table: {
+        width: '100%',
+        border: '1px solid #000000',
+    },
+    tableRow: {
+        flexDirection: 'row',
+        borderBottom: '1px solid #000000',
+    },
+    tableRowLast: {
+        flexDirection: 'row',
+    },
+    tableHeader: {
+        flexDirection: 'row',
+        backgroundColor: '#e5e5e5',
+        borderBottom: '1px solid #000000',
+    },
+    tableCell: {
+        flex: 1,
+        padding: 6,
+        fontSize: 9,
+        borderRight: '1px solid #000000',
+    },
+    tableCellLast: {
+        flex: 1,
+        padding: 6,
+        fontSize: 9,
+    },
+    tableCellHeader: {
+        flex: 1,
+        padding: 6,
+        fontSize: 9,
+        fontFamily: 'Helvetica-Bold',
+        borderRight: '1px solid #000000',
+    },
+    tableCellHeaderLast: {
+        flex: 1,
+        padding: 6,
+        fontSize: 9,
+        fontFamily: 'Helvetica-Bold',
+    },
+    tableCellName: {
+        flex: 2,
+        padding: 6,
+        fontSize: 9,
+        borderRight: '1px solid #000000',
+    },
+    tableCellNameHeader: {
+        flex: 2,
+        padding: 6,
+        fontSize: 9,
+        fontFamily: 'Helvetica-Bold',
+        borderRight: '1px solid #000000',
+    },
+    // Footer
+    footer: {
+        position: 'absolute',
+        bottom: 30,
+        left: 50,
+        right: 50,
+        borderTop: '1px solid #000000',
+        paddingTop: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    footerText: {
+        fontSize: 8,
+        color: '#666666',
+    },
+    // Signature area
+    signatureArea: {
+        marginTop: 40,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+    },
+    signatureBox: {
+        width: 200,
+        textAlign: 'center',
+    },
+    signatureLine: {
+        borderTop: '1px solid #000000',
+        marginTop: 40,
+        marginBottom: 5,
+    },
+    signatureLabel: {
+        fontSize: 9,
+    },
+});
+
+interface JuniorData {
+    name: string;
+    completed: number;
+    avgTime: string;
+    score: number | null;
+    rating: string | null;
+}
+
+interface PersonalStats {
+    ticketsHandled: number;
+    avgResolutionTime: string;
+    activeTickets: number;
+    performanceScore: number;
+}
+
+interface TeamStats {
+    totalJuniors: number;
+    teamDone: number;
+    avgTime: string;
+    avgScore: number;
+    active: number;
+    resRate: string;
+    assigned: number;
+    topScore: number;
+}
+
+interface SeniorReportPDFProps {
+    userName: string;
+    period: string;
+    personalStats: PersonalStats;
+    teamStats: TeamStats;
+    juniors: JuniorData[];
+}
+
+export default function SeniorReportPDF({
+    userName,
+    period,
+    personalStats,
+    teamStats,
+    juniors,
+}: SeniorReportPDFProps) {
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
+    return (
+        <Document>
+            <Page size="A4" style={styles.page}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.companyName}>VASTEL COMPANY</Text>
+                    <Text style={styles.reportTitle}>SENIOR CS PERFORMANCE REPORT</Text>
+                    <Text style={styles.reportSubtitle}>
+                        Period: {period} | Report Date: {currentDate}
+                    </Text>
+                </View>
+
+                {/* Report Information */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Report Information</Text>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Generated By:</Text>
+                        <Text style={styles.infoValue}>{userName}</Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Role:</Text>
+                        <Text style={styles.infoValue}>Senior Customer Service</Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Department:</Text>
+                        <Text style={styles.infoValue}>Customer Service Division</Text>
+                    </View>
+                </View>
+
+                {/* Personal Performance */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Personal Performance Summary</Text>
+                    <View style={styles.table}>
+                        <View style={styles.tableHeader}>
+                            <Text style={styles.tableCellHeader}>Metric</Text>
+                            <Text style={styles.tableCellHeaderLast}>Value</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Tickets Handled</Text>
+                            <Text style={styles.tableCellLast}>{personalStats.ticketsHandled}</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Average Resolution Time</Text>
+                            <Text style={styles.tableCellLast}>{personalStats.avgResolutionTime}</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Active Tickets</Text>
+                            <Text style={styles.tableCellLast}>{personalStats.activeTickets}</Text>
+                        </View>
+                        <View style={styles.tableRowLast}>
+                            <Text style={styles.tableCell}>Performance Score</Text>
+                            <Text style={styles.tableCellLast}>{personalStats.performanceScore}/100</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Team Overview */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Team Overview</Text>
+                    <View style={styles.table}>
+                        <View style={styles.tableHeader}>
+                            <Text style={styles.tableCellHeader}>Metric</Text>
+                            <Text style={styles.tableCellHeaderLast}>Value</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Total Junior Agents</Text>
+                            <Text style={styles.tableCellLast}>{teamStats.totalJuniors}</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Team Tickets Completed</Text>
+                            <Text style={styles.tableCellLast}>{teamStats.teamDone}</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Team Average Time</Text>
+                            <Text style={styles.tableCellLast}>{teamStats.avgTime}</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Team Average Score</Text>
+                            <Text style={styles.tableCellLast}>{teamStats.avgScore}/100</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Active Tickets</Text>
+                            <Text style={styles.tableCellLast}>{teamStats.active}</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Resolution Rate</Text>
+                            <Text style={styles.tableCellLast}>{teamStats.resRate}</Text>
+                        </View>
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCell}>Total Assigned</Text>
+                            <Text style={styles.tableCellLast}>{teamStats.assigned}</Text>
+                        </View>
+                        <View style={styles.tableRowLast}>
+                            <Text style={styles.tableCell}>Top Score</Text>
+                            <Text style={styles.tableCellLast}>{teamStats.topScore}/100</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Junior Performance Details */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Junior Agent Performance Details</Text>
+                    <View style={styles.table}>
+                        <View style={styles.tableHeader}>
+                            <Text style={styles.tableCellNameHeader}>Agent Name</Text>
+                            <Text style={styles.tableCellHeader}>Completed</Text>
+                            <Text style={styles.tableCellHeader}>Avg Time</Text>
+                            <Text style={styles.tableCellHeader}>Score</Text>
+                            <Text style={styles.tableCellHeaderLast}>Rating</Text>
+                        </View>
+                        {juniors.map((junior, index) => (
+                            <View key={index} style={index === juniors.length - 1 ? styles.tableRowLast : styles.tableRow}>
+                                <Text style={styles.tableCellName}>{junior.name}</Text>
+                                <Text style={styles.tableCell}>{junior.completed}</Text>
+                                <Text style={styles.tableCell}>{junior.avgTime}</Text>
+                                <Text style={styles.tableCell}>{junior.score ?? '-'}</Text>
+                                <Text style={styles.tableCellLast}>{junior.rating || 'N/A'}</Text>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+
+                {/* Signature Area */}
+                <View style={styles.signatureArea}>
+                    <View style={styles.signatureBox}>
+                        <View style={styles.signatureLine} />
+                        <Text style={styles.signatureLabel}>{userName}</Text>
+                        <Text style={styles.signatureLabel}>Senior CS</Text>
+                    </View>
+                </View>
+
+                {/* Footer */}
+                <View style={styles.footer} fixed>
+                    <Text style={styles.footerText}>
+                        Generated: {currentDate}
+                    </Text>
+                    <Text style={styles.footerText}>
+                        Vastel Company - Customer Service Department
+                    </Text>
+                    <Text style={styles.footerText}>
+                        Page 1 of 1
+                    </Text>
+                </View>
+            </Page>
+        </Document>
+    );
+}

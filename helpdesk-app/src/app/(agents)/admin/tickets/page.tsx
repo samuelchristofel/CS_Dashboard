@@ -245,6 +245,10 @@ export default function AdminTicketsPage() {
                     <p className="text-xs text-slate-500 mt-1">With IT</p>
                 </div>
                 <div className="flex-1 bg-white rounded-2xl p-4 shadow-soft">
+                    <p className="text-3xl font-extrabold text-emerald-500">{stats.resolved || 0}</p>
+                    <p className="text-xs text-slate-500 mt-1">Resolved</p>
+                </div>
+                <div className="flex-1 bg-white rounded-2xl p-4 shadow-soft">
                     <p className="text-3xl font-extrabold text-green-500">{stats.closed || 0}</p>
                     <p className="text-xs text-slate-500 mt-1">Closed</p>
                 </div>

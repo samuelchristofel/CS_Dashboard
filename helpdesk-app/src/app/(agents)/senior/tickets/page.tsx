@@ -6,6 +6,7 @@ import TicketTable from '@/components/tickets/TicketTable';
 import TicketFilters from '@/components/tickets/TicketFilters';
 import CreateTicketModal from '@/components/modals/CreateTicketModal';
 import AssignTicketModal from '@/components/modals/AssignTicketModal';
+import TicketDetailModal from '@/components/modals/TicketDetailModal';
 import type { TicketFormData } from '@/components/modals/CreateTicketModal';
 
 interface Ticket {
@@ -36,13 +37,14 @@ interface Stats {
     total: number;
     pendingReview: number;
     withIT: number;
+    resolved: number;
     closed: number;
 }
 
 export default function SeniorTicketsPage() {
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [agents, setAgents] = useState<Agent[]>([]);
-    const [stats, setStats] = useState<Stats>({ total: 0, pendingReview: 0, withIT: 0, closed: 0 });
+    const [stats, setStats] = useState<Stats>({ total: 0, pendingReview: 0, withIT: 0, resolved: 0, closed: 0 });
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('all');
     const [userId, setUserId] = useState('');
@@ -50,6 +52,7 @@ export default function SeniorTicketsPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
+    const [viewingTicketId, setViewingTicketId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('');
 
@@ -73,6 +76,7 @@ export default function SeniorTicketsPage() {
             let url = '/api/tickets';
             if (activeTab === 'pending') url += '?status=PENDING_REVIEW';
             else if (activeTab === 'it') url += '?status=WITH_IT';
+            else if (activeTab === 'resolved') url += '?status=RESOLVED';
             else if (activeTab === 'closed') url += '?status=CLOSED';
 
             const ticketsRes = await fetch(url);
@@ -84,9 +88,10 @@ export default function SeniorTicketsPage() {
             const statsData = await statsRes.json();
             if (statsData.stats) {
                 setStats({
-                    total: statsData.stats.total - statsData.stats.closed,
+                    total: statsData.stats.total - statsData.stats.closed - statsData.stats.resolved,
                     pendingReview: statsData.stats.pendingReview,
                     withIT: statsData.stats.withIT,
+                    resolved: statsData.stats.resolved,
                     closed: statsData.stats.closed,
                 });
             }
@@ -300,6 +305,13 @@ export default function SeniorTicketsPage() {
                     <span className={`ml-2 px-2 py-0.5 rounded-full text-xs box-content ${activeTab === 'it' ? 'bg-white/20' : 'bg-slate-100 text-slate-600'}`}>{stats.withIT}</span>
                 </button>
                 <button
+                    onClick={() => setActiveTab('resolved')}
+                    className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${activeTab === 'resolved' ? 'bg-emerald-500 text-white' : 'text-slate-500 hover:bg-slate-100'}`}
+                >
+                    Resolved
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs box-content ${activeTab === 'resolved' ? 'bg-white/20' : 'bg-slate-100 text-slate-600'}`}>{stats.resolved}</span>
+                </button>
+                <button
                     onClick={() => setActiveTab('closed')}
                     className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${activeTab === 'closed' ? 'bg-green-100 text-green-600' : 'text-slate-500 hover:bg-slate-100'}`}
                 >
@@ -318,10 +330,7 @@ export default function SeniorTicketsPage() {
                     tickets={formattedTickets}
                     showAssignedTo={true}
                     showSource={true}
-                    onViewTicket={(id) => {
-                        setSelectedTicket(id);
-                        // TODO: Open detail modal
-                    }}
+                    onViewTicket={(id) => setViewingTicketId(id)}
                     onEditTicket={handleEditTicket}
                     onAssignTicket={(id) => {
                         setSelectedTicket(id);
@@ -354,6 +363,13 @@ export default function SeniorTicketsPage() {
                 ticketNumber={selectedTicketData?.ticketNumber || ''}
                 currentAssignee={selectedTicketData?.assignedTo?.name}
                 agents={agents}
+            />
+
+            {/* Ticket Detail Modal */}
+            <TicketDetailModal
+                isOpen={!!viewingTicketId}
+                onClose={() => setViewingTicketId(null)}
+                ticketId={viewingTicketId}
             />
         </>
     );

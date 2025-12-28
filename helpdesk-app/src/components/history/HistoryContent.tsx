@@ -26,13 +26,24 @@ export default function HistoryContent() {
     const fetchHistory = async () => {
         setIsLoading(true);
         try {
-            // Fetch closed/resolved tickets
-            const res = await fetch('/api/tickets?status=CLOSED&limit=100');
-            const data = await res.json();
+            // Fetch both closed and resolved tickets
+            const [closedRes, resolvedRes] = await Promise.all([
+                fetch('/api/tickets?status=CLOSED&limit=100'),
+                fetch('/api/tickets?status=RESOLVED&limit=100')
+            ]);
 
-            if (data.tickets) {
+            const closedData = await closedRes.json();
+            const resolvedData = await resolvedRes.json();
+
+            // Combine both arrays
+            const allTickets = [
+                ...(closedData.tickets || []),
+                ...(resolvedData.tickets || [])
+            ];
+
+            if (allTickets.length > 0) {
                 // Filter by date if needed
-                let filtered = data.tickets;
+                let filtered = allTickets;
                 const now = new Date();
 
                 if (filter === 'week') {
@@ -42,6 +53,13 @@ export default function HistoryContent() {
                     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
                     filtered = filtered.filter((t: any) => new Date(t.closed_at || t.updated_at) >= monthStart);
                 }
+
+                // Sort by date descending
+                filtered.sort((a: any, b: any) => {
+                    const dateA = new Date(a.closed_at || a.updated_at).getTime();
+                    const dateB = new Date(b.closed_at || b.updated_at).getTime();
+                    return dateB - dateA;
+                });
 
                 const historyItems: HistoryItem[] = filtered.map((ticket: any) => ({
                     id: ticket.id,
@@ -57,10 +75,20 @@ export default function HistoryContent() {
                             hour: 'numeric',
                             minute: '2-digit',
                         })
-                        : '-',
+                        : ticket.updated_at
+                            ? new Date(ticket.updated_at).toLocaleString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                            })
+                            : '-',
                 }));
 
                 setHistory(historyItems);
+            } else {
+                setHistory([]);
             }
         } catch (error) {
             console.error('Error fetching history:', error);

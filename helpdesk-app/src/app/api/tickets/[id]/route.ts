@@ -68,9 +68,16 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         if (status) updates.status = status;
         if (assigned_to_id !== undefined) {
             updates.assigned_to_id = assigned_to_id;
+            // Track when ticket gets assigned for resolution time calculation
+            if (assigned_to_id !== currentTicket?.assigned_to_id) {
+                updates.assigned_at = new Date().toISOString();
+            }
         }
 
-        // Handle closing ticket - removed closed_at as column may not exist
+        // Track closing time for resolution metrics
+        if (status === 'CLOSED' || status === 'RESOLVED') {
+            updates.closed_at = new Date().toISOString();
+        }
 
         const { data: ticket, error } = await supabaseAdmin
             .from('tickets')

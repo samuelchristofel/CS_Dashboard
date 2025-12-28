@@ -21,7 +21,9 @@ interface ChatWidgetProps {
 
 interface Contact extends UserData {
     isOnline: boolean;
-    unreadCount?: number;
+    unreadCount: number;
+    lastMessage?: string;
+    lastMessageTime?: string;
     lastSeen?: string;
     roleCategory: string; // Helper for grouping
 }
@@ -77,15 +79,16 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
         audioRef.current = new Audio('/sounds/notification.mp3'); // Optional: Add sound file later
     }, []);
 
-    // Fetch Contacts (Users)
+    // Fetch Contacts (Users) with unread counts and last messages
     useEffect(() => {
         const fetchContacts = async () => {
             if (!currentUser) return;
 
+            // 1. Fetch all users except self
             const { data: users, error } = await supabase
                 .from('users')
                 .select('*')
-                .neq('id', currentUser.id) // Exclude self
+                .neq('id', currentUser.id)
                 .order('name');
 
             if (error) {
@@ -93,13 +96,85 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
                 return;
             }
 
+            // 2. Get my conversation IDs
+            const { data: myConvos } = await supabase
+                .from('conversation_participants')
+                .select('conversation_id')
+                .eq('user_id', currentUser.id);
+
+            const myConvoIds = myConvos?.map(c => c.conversation_id) || [];
+
+            // 3. Get all participants in my conversations
+            const { data: allParticipants } = await supabase
+                .from('conversation_participants')
+                .select('conversation_id, user_id')
+                .in('conversation_id', myConvoIds);
+
+            // 4. Get last message for each conversation
+            const { data: allMessages } = await supabase
+                .from('messages')
+                .select('*')
+                .in('conversation_id', myConvoIds)
+                .order('created_at', { ascending: false });
+
+            // Build a map of contact_id -> conversation data
+            const contactDataMap = new Map<string, { unreadCount: number; lastMessage?: string; lastMessageTime?: string }>();
+
+            if (allParticipants && allMessages) {
+                for (const user of users) {
+                    // Find shared conversation with this user
+                    let sharedConvoId: string | null = null;
+                    for (const convoId of myConvoIds) {
+                        const participantIds = allParticipants
+                            .filter(p => p.conversation_id === convoId)
+                            .map(p => p.user_id);
+                        if (participantIds.includes(currentUser.id) && participantIds.includes(user.id)) {
+                            sharedConvoId = convoId;
+                            break;
+                        }
+                    }
+
+                    if (sharedConvoId) {
+                        // Get messages for this conversation
+                        const convoMessages = allMessages.filter(m => m.conversation_id === sharedConvoId);
+                        const lastMsg = convoMessages[0]; // Already sorted descending
+
+                        // Count unread (messages from this user that I haven't read)
+                        // For now, count messages from them that are newer than last time I sent
+                        const myLastMsg = convoMessages.find(m => m.sender_id === currentUser.id);
+                        const unreadCount = convoMessages.filter(m =>
+                            m.sender_id === user.id &&
+                            (!myLastMsg || new Date(m.created_at) > new Date(myLastMsg.created_at))
+                        ).length;
+
+                        contactDataMap.set(user.id, {
+                            unreadCount,
+                            lastMessage: lastMsg?.content,
+                            lastMessageTime: lastMsg ? new Date(lastMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined
+                        });
+                    }
+                }
+            }
+
             // Transform to Contact type
-            const formattedContacts: Contact[] = users.map(u => ({
-                ...u,
-                roleCategory: getRoleCategory(u.role),
-                isOnline: false, // Will implement presence later
-                unreadCount: 0
-            }));
+            const formattedContacts: Contact[] = users.map(u => {
+                const data = contactDataMap.get(u.id);
+                return {
+                    ...u,
+                    roleCategory: getRoleCategory(u.role),
+                    isOnline: false,
+                    unreadCount: data?.unreadCount || 0,
+                    lastMessage: data?.lastMessage,
+                    lastMessageTime: data?.lastMessageTime
+                };
+            });
+
+            // Sort: contacts with messages first, then by unread count
+            formattedContacts.sort((a, b) => {
+                if (a.lastMessage && !b.lastMessage) return -1;
+                if (!a.lastMessage && b.lastMessage) return 1;
+                return b.unreadCount - a.unreadCount;
+            });
 
             setContacts(formattedContacts);
         };
@@ -436,7 +511,13 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
                                             {contacts.map((contact) => (
                                                 <div
                                                     key={contact.id}
-                                                    onClick={() => setSelectedContact(contact)}
+                                                    onClick={() => {
+                                                        // Clear unread count for this contact
+                                                        setContacts(prev => prev.map(c =>
+                                                            c.id === contact.id ? { ...c, unreadCount: 0 } : c
+                                                        ));
+                                                        setSelectedContact(contact);
+                                                    }}
                                                     className="p-3 mx-1 rounded-2xl flex items-center gap-3 hover:bg-slate-100 cursor-pointer transition-all group"
                                                 >
                                                     <div className="relative flex-shrink-0">
@@ -458,18 +539,25 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center justify-between mb-0.5">
                                                             <p className="text-sm font-bold text-slate-800 truncate group-hover:text-slate-900 transition-colors">{contact.name}</p>
-                                                            {contact.unreadCount ? (
-                                                                <span className="min-w-[18px] h-[18px] bg-[#EB4C36] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm shadow-red-500/30">
-                                                                    {contact.unreadCount}
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-[10px] text-slate-400 font-medium">Click to chat</span>
-                                                            )}
+                                                            <div className="flex items-center gap-2 flex-shrink-0">
+                                                                {contact.lastMessageTime && (
+                                                                    <span className="text-[10px] text-slate-400 font-medium">{contact.lastMessageTime}</span>
+                                                                )}
+                                                                {contact.unreadCount > 0 && (
+                                                                    <span className="min-w-[18px] h-[18px] bg-[#EB4C36] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm shadow-red-500/30">
+                                                                        {contact.unreadCount}
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <p className="text-xs text-slate-500 font-medium truncate group-hover:text-slate-600 flex-1">
-                                                                {contact.role}
-                                                            </p>
+                                                            {contact.lastMessage ? (
+                                                                <p className="text-xs text-slate-500 font-medium truncate group-hover:text-slate-600 flex-1">
+                                                                    {contact.lastMessage.length > 30 ? contact.lastMessage.substring(0, 30) + '...' : contact.lastMessage}
+                                                                </p>
+                                                            ) : (
+                                                                <p className="text-xs text-slate-400 italic flex-1">No messages yet</p>
+                                                            )}
                                                             {contact.isOnline && (
                                                                 <span className="text-[10px] text-emerald-600 font-medium px-1.5 py-0.5 bg-emerald-50 rounded-full">
                                                                     Online

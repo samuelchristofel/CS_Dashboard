@@ -16,13 +16,16 @@ const gradients: Record<UserRole, string> = {
     admin: 'from-slate-800 to-slate-900',
 };
 
+// Generate current month/year dynamically
+const currentPeriod = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
 export default function ScoreCard({
     role,
     userName,
     score,
     maxScore = 100,
     message,
-    period = 'December 2024'
+    period = currentPeriod
 }: ScoreCardProps) {
     const gradient = gradients[role];
     const isAdminOrIT = role === 'admin' || role === 'it';

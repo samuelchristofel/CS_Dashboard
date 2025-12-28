@@ -37,8 +37,8 @@ export default function AdminAnalyticsPage() {
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            // Fetch overall stats
-            const statsRes = await fetch('/api/stats');
+            // Fetch overall stats with period filter
+            const statsRes = await fetch(`/api/stats?period=${period}`);
             const statsData = await statsRes.json();
             if (statsData.stats) {
                 setStats(statsData.stats);
