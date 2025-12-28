@@ -158,6 +158,7 @@ export default function LoginPage() {
                         <div className="mb-3">
                             <p className="text-xs font-medium text-slate-500 mb-2">Junior CS</p>
                             <div className="grid grid-cols-3 gap-2">
+                                {/* Original Juniors */}
                                 <button
                                     type="button"
                                     onClick={() => quickLogin('siti@vastel.co.id', 'junior123')}
@@ -182,10 +183,11 @@ export default function LoginPage() {
                                 >
                                     Putri
                                 </button>
-                                {/* New Agents */}
+
+                                {/* New Juniors (Row 1) */}
                                 <button
                                     type="button"
-                                    onClick={() => quickLogin('budi@vastel.co.id', 'junior123')}
+                                    onClick={() => quickLogin('budi.santoso@vastel.id', 'password123')}
                                     disabled={isLoading}
                                     className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
                                 >
@@ -193,43 +195,45 @@ export default function LoginPage() {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => quickLogin('dewi.k@vastel.co.id', 'junior123')}
+                                    onClick={() => quickLogin('dewi.kartika@vastel.id', 'password123')}
                                     disabled={isLoading}
                                     className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
                                 >
-                                    Dewi K.
+                                    Dewi K
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => quickLogin('rizky@vastel.co.id', 'junior123')}
+                                    onClick={() => quickLogin('rizky.pratama@vastel.id', 'password123')}
                                     disabled={isLoading}
                                     className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
                                 >
                                     Rizky
                                 </button>
+
+                                {/* New Juniors (Row 2) */}
                                 <button
                                     type="button"
-                                    onClick={() => quickLogin('rina@vastel.co.id', 'junior123')}
+                                    onClick={() => quickLogin('andi.wijaya@vastel.id', 'password123')}
                                     disabled={isLoading}
                                     className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
                                 >
-                                    Rina
+                                    Andi
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => quickLogin('bayu@vastel.co.id', 'junior123')}
+                                    onClick={() => quickLogin('maya.sari@vastel.id', 'password123')}
                                     disabled={isLoading}
                                     className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
                                 >
-                                    Bayu
+                                    Maya
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => quickLogin('fara@vastel.co.id', 'junior123')}
+                                    onClick={() => quickLogin('fajar.rahman@vastel.id', 'password123')}
                                     disabled={isLoading}
                                     className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
                                 >
-                                    Fara
+                                    Fajar
                                 </button>
                             </div>
                         </div>
