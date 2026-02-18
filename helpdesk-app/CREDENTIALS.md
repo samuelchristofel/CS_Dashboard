@@ -1,56 +1,26 @@
-# Vastel HelpDesk - User Credentials
+# System Login Credentials
+> **Note:** These accounts are pre-seeded in the database. All passwords are case-sensitive.
 
-## Login Information
+## 🛡️ Admin
+| Name | Email | Password | Role |
+|------|-------|----------|------|
+| Samuel T. Owen | `samuel@vastel.co.id` | `admin123` | Admin (Full Access) |
 
-Use these credentials to access the Vastel HelpDesk system at `/login`.
+## 👨‍💼 Senior Customer Service
+| Name | Email | Password | Role |
+|------|-------|----------|------|
+| Dewi Kartika | `dewi@vastel.co.id` | `senior123` | Senior CS (Escalations) |
+| Reza Pratama | `reza@vastel.co.id` | `senior123` | Senior CS (Escalations) |
 
----
+## 🎧 Junior Customer Service
+| Name | Email | Password | Role |
+|------|-------|----------|------|
+| Siti Nurhaliza | `siti@vastel.co.id` | `junior123` | Junior CS (First Response) |
+| Agus Setiawan | `agus@vastel.co.id` | `junior123` | Junior CS (First Response) |
+| Putri Wulandari | `putri@vastel.co.id` | `junior123` | Junior CS (First Response) |
 
-## Senior CS Agents
-
-| Name | Email | Password |
-|------|-------|----------|
-| Dewi Kartika | dewi@vastel.co.id | senior123 |
-| Reza Pratama | reza@vastel.co.id | senior123 |
-
----
-
-## Junior CS Agents
-
-| Name | Email | Password |
-|------|-------|----------|
-| Siti Nurhaliza | siti@vastel.co.id | junior123 |
-| Agus Setiawan | agus@vastel.co.id | junior123 |
-| Putri Wulandari | putri@vastel.co.id | junior123 |
-
----
-
-## IT Support
-
-| Name | Email | Password |
-|------|-------|----------|
-| Bambang Susilo | bambang@vastel.co.id | it123 |
-| Eko Prasetyo | eko@vastel.co.id | it123 |
-
----
-
-## Administrator
-
-| Name | Email | Password |
-|------|-------|----------|
-| Samuel T. Owen | samuel@vastel.co.id | admin123 |
-
----
-
-## Role Permissions
-
-| Role | Dashboard | Tickets | Reports | Analytics | Users | Audit |
-|------|-----------|---------|---------|-----------|-------|-------|
-| **Senior CS** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Junior CS** | ✅ | ✅ (own) | ❌ | ❌ | ❌ | ❌ |
-| **IT Support** | ✅ | ✅ (technical) | ❌ | ❌ | ❌ | ❌ |
-| **Admin** | ✅ | ✅ (all) | ✅ | ✅ | ✅ | ✅ |
-
----
-
-> **Note:** All passwords are for development/demo purposes only. Do not use these in production.
+## 🔧 IT Support
+| Name | Email | Password | Role |
+|------|-------|----------|------|
+| Bambang Susilo | `bambang@vastel.co.id` | `it123` | IT Support (Technical) |
+| Eko Prasetyo | `eko@vastel.co.id` | `it123` | IT Support (Technical) |

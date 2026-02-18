@@ -158,7 +158,7 @@ export default function LoginPage() {
                         <div className="mb-3">
                             <p className="text-xs font-medium text-slate-500 mb-2">Junior CS</p>
                             <div className="grid grid-cols-3 gap-2">
-                                {/* Original Juniors */}
+                                {/* Only displaying users that exist in the database seed */}
                                 <button
                                     type="button"
                                     onClick={() => quickLogin('siti@vastel.co.id', 'junior123')}
@@ -182,58 +182,6 @@ export default function LoginPage() {
                                     className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
                                 >
                                     Putri
-                                </button>
-
-                                {/* New Juniors (Row 1) */}
-                                <button
-                                    type="button"
-                                    onClick={() => quickLogin('budi.santoso@vastel.id', 'password123')}
-                                    disabled={isLoading}
-                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                    Budi
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => quickLogin('dewi.kartika@vastel.id', 'password123')}
-                                    disabled={isLoading}
-                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                    Dewi K
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => quickLogin('rizky.pratama@vastel.id', 'password123')}
-                                    disabled={isLoading}
-                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                    Rizky
-                                </button>
-
-                                {/* New Juniors (Row 2) */}
-                                <button
-                                    type="button"
-                                    onClick={() => quickLogin('andi.wijaya@vastel.id', 'password123')}
-                                    disabled={isLoading}
-                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                    Andi
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => quickLogin('maya.sari@vastel.id', 'password123')}
-                                    disabled={isLoading}
-                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                    Maya
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => quickLogin('fajar.rahman@vastel.id', 'password123')}
-                                    disabled={isLoading}
-                                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                    Fajar
                                 </button>
                             </div>
                         </div>
