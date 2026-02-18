@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import prisma from '@/lib/db';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -20,22 +20,24 @@ export async function GET(request: Request, { params }: RouteParams) {
         }
 
         // Get notes for this ticket by this user only (private notes)
-        const { data: notes, error } = await supabaseAdmin
-            .from('notes')
-            .select('*')
-            .eq('ticket_id', id)
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
+        const notes = await prisma.note.findMany({
+            where: {
+                ticketId: id,
+                userId: userId,
+            },
+            orderBy: { createdAt: 'desc' },
+        });
 
-        if (error) {
-            console.error('Error fetching notes:', error);
-            return NextResponse.json(
-                { error: 'Failed to fetch notes' },
-                { status: 500 }
-            );
-        }
+        // Transform to snake_case
+        const transformedNotes = notes.map(n => ({
+            id: n.id,
+            content: n.content,
+            user_id: n.userId,
+            ticket_id: n.ticketId,
+            created_at: n.createdAt.toISOString(),
+        }));
 
-        return NextResponse.json({ notes: notes || [] });
+        return NextResponse.json({ notes: transformedNotes });
     } catch (error) {
         console.error('GET notes error:', error);
         return NextResponse.json(
@@ -61,11 +63,10 @@ export async function POST(request: Request, { params }: RouteParams) {
         }
 
         // Verify ticket exists
-        const { data: ticket } = await supabaseAdmin
-            .from('tickets')
-            .select('id, number')
-            .eq('id', id)
-            .single();
+        const ticket = await prisma.ticket.findUnique({
+            where: { id },
+            select: { id: true, number: true },
+        });
 
         if (!ticket) {
             return NextResponse.json(
@@ -82,25 +83,24 @@ export async function POST(request: Request, { params }: RouteParams) {
         });
 
         // Create note
-        const { data: note, error } = await supabaseAdmin
-            .from('notes')
-            .insert({
+        const note = await prisma.note.create({
+            data: {
                 content: noteContent,
-                user_id,
-                ticket_id: id,
-            })
-            .select()
-            .single();
+                userId: user_id,
+                ticketId: id,
+            },
+        });
 
-        if (error) {
-            console.error('Error creating note:', error);
-            return NextResponse.json(
-                { error: 'Failed to create note' },
-                { status: 500 }
-            );
-        }
+        // Transform to snake_case
+        const transformedNote = {
+            id: note.id,
+            content: note.content,
+            user_id: note.userId,
+            ticket_id: note.ticketId,
+            created_at: note.createdAt.toISOString(),
+        };
 
-        return NextResponse.json({ note }, { status: 201 });
+        return NextResponse.json({ note: transformedNote }, { status: 201 });
     } catch (error) {
         console.error('POST note error:', error);
         return NextResponse.json(
@@ -124,25 +124,38 @@ export async function PATCH(request: Request, { params }: RouteParams) {
             );
         }
 
-        // Update note content
-        const { data: note, error } = await supabaseAdmin
-            .from('notes')
-            .update({ content })
-            .eq('id', note_id)
-            .eq('user_id', user_id) // Ensure user owns the note
-            .eq('ticket_id', id)
-            .select()
-            .single();
+        // Update note content - ensure user owns the note
+        const note = await prisma.note.updateMany({
+            where: {
+                id: note_id,
+                userId: user_id,
+                ticketId: id,
+            },
+            data: { content },
+        });
 
-        if (error) {
-            console.error('Error updating note:', error);
+        if (note.count === 0) {
             return NextResponse.json(
-                { error: 'Failed to update note' },
-                { status: 500 }
+                { error: 'Note not found or unauthorized' },
+                { status: 404 }
             );
         }
 
-        return NextResponse.json({ note });
+        // Fetch the updated note
+        const updatedNote = await prisma.note.findUnique({
+            where: { id: note_id },
+        });
+
+        // Transform to snake_case
+        const transformedNote = updatedNote ? {
+            id: updatedNote.id,
+            content: updatedNote.content,
+            user_id: updatedNote.userId,
+            ticket_id: updatedNote.ticketId,
+            created_at: updatedNote.createdAt.toISOString(),
+        } : null;
+
+        return NextResponse.json({ note: transformedNote });
     } catch (error) {
         console.error('PATCH note error:', error);
         return NextResponse.json(

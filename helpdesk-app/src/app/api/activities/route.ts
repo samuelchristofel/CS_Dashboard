@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import prisma from '@/lib/db';
 
 // GET /api/activities - Get activity log
 export async function GET(request: Request) {
@@ -10,38 +10,38 @@ export async function GET(request: Request) {
         const ticketId = searchParams.get('ticket_id');
         const userId = searchParams.get('user_id');
 
-        let query = supabaseAdmin
-            .from('activities')
-            .select(`
-                id,
-                action,
-                details,
-                created_at,
-                user:users(id, name, role, avatar),
-                ticket:tickets(id, number, subject)
-            `)
-            .order('created_at', { ascending: false })
-            .range(offset, offset + limit - 1);
+        const activities = await prisma.activity.findMany({
+            where: {
+                ...(ticketId && { ticketId }),
+                ...(userId && { userId }),
+            },
+            include: {
+                user: {
+                    select: { id: true, name: true, role: true, avatar: true }
+                },
+                ticket: {
+                    select: { id: true, number: true, subject: true }
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+            skip: offset,
+            take: limit,
+        });
 
-        // Apply filters
-        if (ticketId) {
-            query = query.eq('ticket_id', ticketId);
-        }
-        if (userId) {
-            query = query.eq('user_id', userId);
-        }
+        // Transform to snake_case for frontend compatibility
+        const transformedActivities = activities.map(a => ({
+            id: a.id,
+            action: a.action,
+            details: a.details,
+            user_id: a.userId,
+            ticket_id: a.ticketId,
+            created_at: a.createdAt.toISOString(),
+            user: a.user,
+            ticket: a.ticket,
+        }));
 
-        const { data: activities, error } = await query;
+        return NextResponse.json({ activities: transformedActivities });
 
-        if (error) {
-            console.error('Error fetching activities:', error);
-            return NextResponse.json(
-                { error: 'Failed to fetch activities' },
-                { status: 500 }
-            );
-        }
-
-        return NextResponse.json({ activities });
 
     } catch (error) {
         console.error('Activities API error:', error);

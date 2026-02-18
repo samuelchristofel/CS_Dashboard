@@ -1,0 +1,188 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ===========================================
+// ENUMS
+// ===========================================
+
+enum Role {
+  senior
+  junior
+  it
+  admin
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum TicketStatus {
+  OPEN
+  TRIAGE
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  PENDING_REVIEW
+  WITH_IT
+}
+
+enum ConversationType {
+  direct
+  group
+}
+
+enum MessageType {
+  text
+  image
+  file
+}
+
+// ===========================================
+// CORE MODELS
+// ===========================================
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(junior)
+  avatar    String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  assignedTickets  Ticket[]                  @relation("AssignedTo")
+  createdTickets   Ticket[]                  @relation("CreatedBy")
+  notes            Note[]
+  activities       Activity[]
+  sentMessages     Message[]
+  conversations    ConversationParticipant[]
+
+  @@map("users")
+}
+
+model Ticket {
+  id            String       @id @default(uuid())
+  number        String       @unique
+  subject       String
+  description   String?      @db.Text
+  priority      Priority     @default(MEDIUM)
+  status        TicketStatus @default(OPEN)
+  source        String       @default("Freshchat")
+  customerName  String       @map("customer_name")
+  customerEmail String?      @map("customer_email")
+  customerPhone String?      @map("customer_phone")
+  assignedToId  String?      @map("assigned_to_id")
+  createdById   String?      @map("created_by_id")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  assignedAt    DateTime?    @map("assigned_at")
+  closedAt      DateTime?    @map("closed_at")
+
+  // Relations
+  assignedTo User?      @relation("AssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdBy  User?      @relation("CreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  notes      Note[]
+  activities Activity[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([assignedToId])
+  @@map("tickets")
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  userId    String   @map("user_id")
+  ticketId  String   @map("ticket_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("notes")
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  action    String
+  details   String?  @db.Text
+  userId    String   @map("user_id")
+  ticketId  String?  @map("ticket_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticket Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([ticketId])
+  @@map("activities")
+}
+
+// ===========================================
+// CHAT MODELS
+// ===========================================
+
+model Conversation {
+  id            String           @id @default(uuid())
+  type          ConversationType @default(direct)
+  name          String?
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  lastMessage   String?          @map("last_message") @db.Text
+  lastMessageAt DateTime?        @map("last_message_at")
+
+  // Relations
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  conversationId String   @map("conversation_id")
+  userId         String   @map("user_id")
+  joinedAt       DateTime @default(now()) @map("joined_at")
+  lastReadAt     DateTime @default(now()) @map("last_read_at")
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String      @id @default(uuid())
+  conversationId String      @map("conversation_id")
+  senderId       String      @map("sender_id")
+  content        String      @db.Text
+  type           MessageType @default(text)
+  fileUrl        String?     @map("file_url")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  readBy         Json        @default("[]") @map("read_by")
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([createdAt])
+  @@map("messages")
+}

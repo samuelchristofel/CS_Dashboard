@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import prisma from '@/lib/db';
+import { TicketStatus } from '@prisma/client';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -10,25 +11,50 @@ export async function GET(request: Request, { params }: RouteParams) {
     try {
         const { id } = await params;
 
-        const { data: ticket, error } = await supabaseAdmin
-            .from('tickets')
-            .select(`
-                *,
-                assigned_to:users!tickets_assigned_to_id_fkey(id, name, email, role, avatar),
-                created_by:users!tickets_created_by_id_fkey(id, name, email, role),
-                notes(id, content, created_at, user:users(id, name, role))
-            `)
-            .eq('id', id)
-            .single();
+        const ticket = await prisma.ticket.findUnique({
+            where: { id },
+            include: {
+                assignedTo: {
+                    select: { id: true, name: true, email: true, role: true, avatar: true }
+                },
+                createdBy: {
+                    select: { id: true, name: true, email: true, role: true }
+                },
+                notes: {
+                    include: {
+                        user: {
+                            select: { id: true, name: true, role: true }
+                        }
+                    },
+                    orderBy: { createdAt: 'desc' }
+                },
+            },
+        });
 
-        if (error || !ticket) {
+        if (!ticket) {
             return NextResponse.json(
                 { error: 'Ticket not found' },
                 { status: 404 }
             );
         }
 
-        return NextResponse.json({ ticket });
+        // Transform to match previous API response format
+        const transformedTicket = {
+            ...ticket,
+            assigned_to: ticket.assignedTo,
+            created_by: ticket.createdBy,
+            customer_name: ticket.customerName,
+            customer_email: ticket.customerEmail,
+            customer_phone: ticket.customerPhone,
+            assigned_to_id: ticket.assignedToId,
+            created_by_id: ticket.createdById,
+            created_at: ticket.createdAt,
+            updated_at: ticket.updatedAt,
+            assigned_at: ticket.assignedAt,
+            closed_at: ticket.closedAt,
+        };
+
+        return NextResponse.json({ ticket: transformedTicket });
 
     } catch (error) {
         console.error('Get ticket error:', error);
@@ -54,49 +80,49 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         } = body;
 
         // Get current ticket state for activity logging
-        const { data: currentTicket } = await supabaseAdmin
-            .from('tickets')
-            .select('number, status, assigned_to_id')
-            .eq('id', id)
-            .single();
+        const currentTicket = await prisma.ticket.findUnique({
+            where: { id },
+            select: { number: true, status: true, assignedToId: true },
+        });
+
+        if (!currentTicket) {
+            return NextResponse.json(
+                { error: 'Ticket not found' },
+                { status: 404 }
+            );
+        }
 
         // Build update object
-        const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+        const updates: Record<string, unknown> = { updatedAt: new Date() };
         if (subject) updates.subject = subject;
         if (description !== undefined) updates.description = description;
         if (priority) updates.priority = priority;
-        if (status) updates.status = status;
+        if (status) updates.status = status as TicketStatus;
         if (assigned_to_id !== undefined) {
-            updates.assigned_to_id = assigned_to_id;
+            updates.assignedToId = assigned_to_id;
             // Track when ticket gets assigned for resolution time calculation
-            if (assigned_to_id !== currentTicket?.assigned_to_id) {
-                updates.assigned_at = new Date().toISOString();
+            if (assigned_to_id !== currentTicket.assignedToId) {
+                updates.assignedAt = new Date();
             }
         }
 
         // Track closing time for resolution metrics
         if (status === 'CLOSED' || status === 'RESOLVED') {
-            updates.closed_at = new Date().toISOString();
+            updates.closedAt = new Date();
         }
 
-        const { data: ticket, error } = await supabaseAdmin
-            .from('tickets')
-            .update(updates)
-            .eq('id', id)
-            .select(`
-                *,
-                assigned_to:users!tickets_assigned_to_id_fkey(id, name, email, role, avatar),
-                created_by:users!tickets_created_by_id_fkey(id, name, email, role)
-            `)
-            .single();
-
-        if (error) {
-            console.error('Error updating ticket:', error);
-            return NextResponse.json(
-                { error: 'Failed to update ticket' },
-                { status: 500 }
-            );
-        }
+        const ticket = await prisma.ticket.update({
+            where: { id },
+            data: updates,
+            include: {
+                assignedTo: {
+                    select: { id: true, name: true, email: true, role: true, avatar: true }
+                },
+                createdBy: {
+                    select: { id: true, name: true, email: true, role: true }
+                },
+            },
+        });
 
         // Log activity
         if (user_id && currentTicket) {
@@ -116,20 +142,38 @@ export async function PATCH(request: Request, { params }: RouteParams) {
                 }
             }
 
-            if (assigned_to_id !== undefined && assigned_to_id !== currentTicket.assigned_to_id) {
+            if (assigned_to_id !== undefined && assigned_to_id !== currentTicket.assignedToId) {
                 action = 'TICKET_ASSIGNED';
                 details = `Ticket #${currentTicket.number} assigned`;
             }
 
-            await supabaseAdmin.from('activities').insert({
-                action,
-                details,
-                user_id,
-                ticket_id: id,
+            await prisma.activity.create({
+                data: {
+                    action,
+                    details,
+                    userId: user_id,
+                    ticketId: id,
+                },
             });
         }
 
-        return NextResponse.json({ ticket });
+        // Transform response
+        const transformedTicket = {
+            ...ticket,
+            assigned_to: ticket.assignedTo,
+            created_by: ticket.createdBy,
+            customer_name: ticket.customerName,
+            customer_email: ticket.customerEmail,
+            customer_phone: ticket.customerPhone,
+            assigned_to_id: ticket.assignedToId,
+            created_by_id: ticket.createdById,
+            created_at: ticket.createdAt,
+            updated_at: ticket.updatedAt,
+            assigned_at: ticket.assignedAt,
+            closed_at: ticket.closedAt,
+        };
+
+        return NextResponse.json({ ticket: transformedTicket });
 
     } catch (error) {
         console.error('Update ticket error:', error);
@@ -145,18 +189,9 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     try {
         const { id } = await params;
 
-        const { error } = await supabaseAdmin
-            .from('tickets')
-            .delete()
-            .eq('id', id);
-
-        if (error) {
-            console.error('Error deleting ticket:', error);
-            return NextResponse.json(
-                { error: 'Failed to delete ticket' },
-                { status: 500 }
-            );
-        }
+        await prisma.ticket.delete({
+            where: { id },
+        });
 
         return NextResponse.json({ message: 'Ticket deleted' });
 

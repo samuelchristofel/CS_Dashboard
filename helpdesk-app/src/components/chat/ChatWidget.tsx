@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Rnd } from 'react-rnd';
-import { supabase } from '@/lib/supabase';
-import type { Message } from '@/lib/supabase';
 import type { UserRole } from '@/types';
 
 // Types
@@ -25,7 +23,17 @@ interface Contact extends UserData {
     lastMessage?: string;
     lastMessageTime?: string;
     lastSeen?: string;
-    roleCategory: string; // Helper for grouping
+    roleCategory: string;
+}
+
+interface Message {
+    id: string;
+    conversationId: string;
+    senderId: string;
+    content: string;
+    type: 'text' | 'image' | 'file';
+    createdAt: string;
+    sender?: UserData;
 }
 
 const roleGradients: Record<UserRole | string, string> = {
@@ -76,311 +84,141 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
     // Initial Mount
     useEffect(() => {
         setIsMounted(true);
-        audioRef.current = new Audio('/sounds/notification.mp3'); // Optional: Add sound file later
+        audioRef.current = new Audio('/sounds/notification.mp3');
     }, []);
 
-    // Fetch Contacts (Users) with unread counts and last messages
-    useEffect(() => {
-        const fetchContacts = async () => {
-            if (!currentUser) return;
+    // Fetch Contacts via API
+    const fetchContacts = useCallback(async () => {
+        if (!currentUser) return;
 
-            // 1. Fetch all users except self
-            const { data: users, error } = await supabase
-                .from('users')
-                .select('*')
-                .neq('id', currentUser.id)
-                .order('name');
+        try {
+            const res = await fetch(`/api/chat/users?exclude_id=${currentUser.id}`);
+            const data = await res.json();
 
-            if (error) {
-                console.error('Error fetching contacts:', error);
-                return;
-            }
-
-            // 2. Get my conversation IDs
-            const { data: myConvos } = await supabase
-                .from('conversation_participants')
-                .select('conversation_id')
-                .eq('user_id', currentUser.id);
-
-            const myConvoIds = myConvos?.map(c => c.conversation_id) || [];
-
-            // 3. Get all participants in my conversations
-            const { data: allParticipants } = await supabase
-                .from('conversation_participants')
-                .select('conversation_id, user_id')
-                .in('conversation_id', myConvoIds);
-
-            // 4. Get last message for each conversation
-            const { data: allMessages } = await supabase
-                .from('messages')
-                .select('*')
-                .in('conversation_id', myConvoIds)
-                .order('created_at', { ascending: false });
-
-            // Build a map of contact_id -> conversation data
-            const contactDataMap = new Map<string, { unreadCount: number; lastMessage?: string; lastMessageTime?: string }>();
-
-            if (allParticipants && allMessages) {
-                for (const user of users) {
-                    // Find shared conversation with this user
-                    let sharedConvoId: string | null = null;
-                    for (const convoId of myConvoIds) {
-                        const participantIds = allParticipants
-                            .filter(p => p.conversation_id === convoId)
-                            .map(p => p.user_id);
-                        if (participantIds.includes(currentUser.id) && participantIds.includes(user.id)) {
-                            sharedConvoId = convoId;
-                            break;
-                        }
-                    }
-
-                    if (sharedConvoId) {
-                        // Get messages for this conversation
-                        const convoMessages = allMessages.filter(m => m.conversation_id === sharedConvoId);
-                        const lastMsg = convoMessages[0]; // Already sorted descending
-
-                        // Count unread (messages from this user that I haven't read)
-                        // For now, count messages from them that are newer than last time I sent
-                        const myLastMsg = convoMessages.find(m => m.sender_id === currentUser.id);
-                        const unreadCount = convoMessages.filter(m =>
-                            m.sender_id === user.id &&
-                            (!myLastMsg || new Date(m.created_at) > new Date(myLastMsg.created_at))
-                        ).length;
-
-                        contactDataMap.set(user.id, {
-                            unreadCount,
-                            lastMessage: lastMsg?.content,
-                            lastMessageTime: lastMsg ? new Date(lastMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined
-                        });
-                    }
-                }
-            }
-
-            // Transform to Contact type
-            const formattedContacts: Contact[] = users.map(u => {
-                const data = contactDataMap.get(u.id);
-                return {
+            if (data.users) {
+                const formattedContacts: Contact[] = data.users.map((u: UserData) => ({
                     ...u,
                     roleCategory: getRoleCategory(u.role),
-                    isOnline: false,
-                    unreadCount: data?.unreadCount || 0,
-                    lastMessage: data?.lastMessage,
-                    lastMessageTime: data?.lastMessageTime
-                };
-            });
+                    isOnline: false, // No real-time presence without Supabase
+                    unreadCount: 0,
+                    lastMessage: undefined,
+                    lastMessageTime: undefined,
+                }));
 
-            // Sort: contacts with messages first, then by unread count
-            formattedContacts.sort((a, b) => {
-                if (a.lastMessage && !b.lastMessage) return -1;
-                if (!a.lastMessage && b.lastMessage) return 1;
-                return b.unreadCount - a.unreadCount;
-            });
-
-            setContacts(formattedContacts);
-        };
-
-        fetchContacts();
+                // Sort by name
+                formattedContacts.sort((a, b) => a.name.localeCompare(b.name));
+                setContacts(formattedContacts);
+            }
+        } catch (error) {
+            console.error('Error fetching contacts:', error);
+        }
     }, [currentUser]);
 
-    // Handle Conversation Selection + Refresh on chat open
+    useEffect(() => {
+        fetchContacts();
+    }, [fetchContacts]);
+
+    // Fetch or Create Conversation when selecting a contact
     useEffect(() => {
         const loadConversation = async () => {
             if (!currentUser || !selectedContact) return;
 
-            console.log('🔍 Loading conversation for:', {
-                currentUser: currentUser.name,
-                selectedContact: selectedContact.name
-            });
+            try {
+                // Try to create/get existing conversation
+                const res = await fetch('/api/chat/conversations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        participant_ids: [selectedContact.id],
+                        type: 'direct',
+                    }),
+                });
 
-            // 1. Find existing conversation with this user
-            // STEP A: Get all my conversations
-            const { data: myConvos, error: myConvosError } = await supabase
-                .from('conversation_participants')
-                .select('conversation_id')
-                .eq('user_id', currentUser.id);
-
-            console.log('📋 My conversations:', { myConvos, error: myConvosError });
-
-            if (!myConvos || myConvos.length === 0) {
-                console.log('⚠️ No conversations found for current user');
-                setActiveConversationId(null);
-                setMessages([]);
-                return;
-            }
-
-            const myConvoIds = myConvos.map(c => c.conversation_id);
-            console.log('🔑 My conversation IDs:', myConvoIds);
-
-            // STEP B: Check if selected contact is in any of these conversations
-            // IMPROVED: Get all participants in my conversations
-            const { data: allParticipants, error: participantsError } = await supabase
-                .from('conversation_participants')
-                .select('conversation_id, user_id')
-                .in('conversation_id', myConvoIds);
-
-            console.log('👥 All participants:', { allParticipants, error: participantsError });
-
-            // Find conversation where BOTH me and selected contact are participants
-            let sharedConvoId = null;
-            if (allParticipants) {
-                for (const convoId of myConvoIds) {
-                    const participantIds = allParticipants
-                        .filter(p => p.conversation_id === convoId)
-                        .map(p => p.user_id);
-
-                    if (participantIds.includes(currentUser.id) && participantIds.includes(selectedContact.id)) {
-                        sharedConvoId = convoId;
-                        break;
-                    }
+                const data = await res.json();
+                if (data.conversation) {
+                    setActiveConversationId(data.conversation.id);
+                    // Load messages
+                    await fetchMessages(data.conversation.id);
                 }
-            }
-
-            console.log('🤝 Shared conversation:', sharedConvoId);
-
-            if (sharedConvoId) {
-                setActiveConversationId(sharedConvoId);
-                console.log('✅ Found existing conversation:', sharedConvoId);
-
-                // Load messages
-                const { data: msgs, error: msgsError } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .eq('conversation_id', sharedConvoId)
-                    .order('created_at', { ascending: true });
-
-                console.log('💬 Messages loaded:', { count: msgs?.length, error: msgsError, messages: msgs });
-                setMessages(msgs || []);
-            } else {
-                console.log('❌ No common conversation found - will create on first message');
-                setActiveConversationId(null); // Will create on first message
-                setMessages([]);
+            } catch (error) {
+                console.error('Error loading conversation:', error);
             }
         };
 
         loadConversation();
-    }, [currentUser?.id, selectedContact?.id]); // Use stable IDs to prevent size changes
+    }, [currentUser, selectedContact]);
 
-    // Presence Subscription
+    // Fetch Messages
+    const fetchMessages = async (conversationId: string) => {
+        try {
+            const res = await fetch(`/api/chat/messages?conversation_id=${conversationId}`);
+            const data = await res.json();
+            if (data.messages) {
+                setMessages(data.messages);
+                // Scroll to bottom
+                setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        }
+    };
+
+    // Poll for new messages every 3 seconds when chat is open
     useEffect(() => {
-        if (!currentUser) return;
+        if (!activeConversationId || !isOpen) return;
 
-        const channel = supabase.channel('global_presence', {
-            config: {
-                presence: {
-                    key: currentUser.id,
-                },
-            },
-        });
+        const interval = setInterval(() => {
+            fetchMessages(activeConversationId);
+        }, 3000);
 
-        channel
-            .on('presence', { event: 'sync' }, () => {
-                const newState = channel.presenceState();
-
-                setContacts((prevContacts) =>
-                    prevContacts.map((contact) => ({
-                        ...contact,
-                        isOnline: !!newState[contact.id]
-                    }))
-                );
-            })
-            .subscribe(async (status) => {
-                if (status === 'SUBSCRIBED') {
-                    await channel.track({
-                        user_id: currentUser.id,
-                        online_at: new Date().toISOString(),
-                    });
-                }
-            });
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [currentUser]);
-
-    // Real-time Subscription (Messages) - ALWAYS ACTIVE
-    useEffect(() => {
-        if (!currentUser) return;
-
-        const channel = supabase
-            .channel('chat_updates_' + currentUser.id)
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'messages' },
-                (payload) => {
-                    const newMsg = payload.new as Message;
-                    console.log('📨 New message received:', newMsg);
-
-                    // If it belongs to active conversation, append it immediately
-                    if (activeConversationId && newMsg.conversation_id === activeConversationId) {
-                        setMessages((prev) => {
-                            // Avoid duplicates
-                            if (prev.some(m => m.id === newMsg.id)) return prev;
-                            return [...prev, newMsg];
-                        });
-                        // Scroll to bottom
-                        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-
-                        // Play sound if chat is open
-                        if (isOpen) {
-                            audioRef.current?.play().catch(e => console.log('Audio play failed', e));
-                        }
-                    }
-                    // Note: For other conversations, we could update unread counts here
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [currentUser?.id, activeConversationId]); // Use stable ID
+        return () => clearInterval(interval);
+    }, [activeConversationId, isOpen]);
 
     // Send Message
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !currentUser || !selectedContact) return;
 
         setIsSending(true);
-        let conversationId = activeConversationId;
 
         try {
+            let conversationId = activeConversationId;
+
             // If no conversation exists, create one
             if (!conversationId) {
-                // 1. Create conversation
-                const { data: conv, error: convError } = await supabase
-                    .from('conversations')
-                    .insert({ type: 'direct' })
-                    .select()
-                    .single();
-
-                if (convError) throw convError;
-                conversationId = conv.id;
-
-                // 2. Add participants (Me and Them)
-                const { error: partError } = await supabase
-                    .from('conversation_participants')
-                    .insert([
-                        { conversation_id: conversationId, user_id: currentUser.id },
-                        { conversation_id: conversationId, user_id: selectedContact.id }
-                    ]);
-
-                if (partError) throw partError;
-
+                const convRes = await fetch('/api/chat/conversations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        participant_ids: [selectedContact.id],
+                        type: 'direct',
+                    }),
+                });
+                const convData = await convRes.json();
+                conversationId = convData.conversation.id;
                 setActiveConversationId(conversationId);
             }
 
             // Send message
-            const { error: msgError } = await supabase
-                .from('messages')
-                .insert({
+            const res = await fetch('/api/chat/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     conversation_id: conversationId,
                     sender_id: currentUser.id,
                     content: newMessage.trim(),
-                    type: 'text'
-                });
+                    type: 'text',
+                }),
+            });
 
-            if (msgError) throw msgError;
-
-            setNewMessage('');
+            if (res.ok) {
+                setNewMessage('');
+                // Refresh messages
+                if (conversationId) {
+                    await fetchMessages(conversationId);
+                }
+            }
         } catch (error) {
             console.error('Error sending message:', error);
             alert('Failed to send message');
@@ -465,7 +303,7 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
                                 </button>
                             </div>
 
-                            {/* Search & Filter - Only show locally in contact list view */}
+                            {/* Search & Filter - Only show in contact list view */}
                             {!selectedContact && (
                                 <div className="space-y-3 cursor-default" onMouseDown={(e) => e.stopPropagation()}>
                                     {/* Search Bar */}
@@ -502,17 +340,16 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
                         {/* Contacts List */}
                         {!selectedContact && (
                             <div className="flex-1 overflow-y-auto bg-white min-h-0 p-2 space-y-2">
-                                {Object.entries(groupedContacts).map(([category, contacts]) => (
+                                {Object.entries(groupedContacts).map(([category, categoryContacts]) => (
                                     <div key={category}>
                                         <div className="px-4 py-2 sticky top-0 bg-white/95 backdrop-blur-sm z-10">
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{category}</p>
                                         </div>
                                         <div className="space-y-1">
-                                            {contacts.map((contact) => (
+                                            {categoryContacts.map((contact) => (
                                                 <div
                                                     key={contact.id}
                                                     onClick={() => {
-                                                        // Clear unread count for this contact
                                                         setContacts(prev => prev.map(c =>
                                                             c.id === contact.id ? { ...c, unreadCount: 0 } : c
                                                         ));
@@ -557,11 +394,6 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
                                                                 </p>
                                                             ) : (
                                                                 <p className="text-xs text-slate-400 italic flex-1">No messages yet</p>
-                                                            )}
-                                                            {contact.isOnline && (
-                                                                <span className="text-[10px] text-emerald-600 font-medium px-1.5 py-0.5 bg-emerald-50 rounded-full">
-                                                                    Online
-                                                                </span>
                                                             )}
                                                         </div>
                                                     </div>
@@ -608,7 +440,7 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
                                         </div>
                                     ) : (
                                         messages.map((msg) => {
-                                            const isMe = msg.sender_id === currentUser.id;
+                                            const isMe = msg.senderId === currentUser.id;
                                             return (
                                                 <div key={msg.id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : ''}`}>
                                                     <div className="size-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-[10px] flex-shrink-0">
@@ -620,7 +452,7 @@ export default function ChatWidget({ currentUser }: ChatWidgetProps) {
                                                         }`}>
                                                         <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                                                         <p className={`text-[10px] mt-1 ${isMe ? 'text-white/70' : 'text-slate-400'}`}>
-                                                            {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                         </p>
                                                     </div>
                                                 </div>

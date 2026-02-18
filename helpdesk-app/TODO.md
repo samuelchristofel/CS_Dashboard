@@ -1,237 +1,162 @@
-# HelpDesk App - Implementation TODO
+# Vastel HelpDesk - TODO List
 
-> **Last Updated:** December 26, 2024  
-> **Status:** Phase 4 - UI Integration ✅ COMPLETE
-
----
-
-## Phase 1: Modal UI Development ✅
-
-### 1.1 Ticket Modals
-
-- [x] **Create Ticket Modal** (Senior/Admin)
-- [x] **Assign Ticket Modal** (Senior/Admin)
-- [x] **Add Note Modal** (All roles)
-- [ ] **Ticket Detail Modal** (All roles) - *Optional future enhancement*
-
-### 1.2 Confirmation Modals
-
-- [x] **Mark as Resolved** confirmation (Senior)
-- [x] **Close Ticket** confirmation (Senior)
-- [x] **Assign to IT** confirmation (Senior)
-- [x] **Mark as Done** confirmation (Junior)
-- [x] **Mark as Fixed** confirmation (IT)
-
-### 1.3 User Modals (Admin)
-
-- [x] **Add User Modal**
-- [x] **Edit User Modal**
-- [x] **Delete User** confirmation modal
+> **Last Updated:** December 31, 2024  
+> **Full Details:** See `QA_FEEDBACK_TASKS.md`
 
 ---
 
-## Phase 2: Supabase Database Setup ✅
+## ✅ COMPLETED
 
-- [x] **users** table with RLS policies
-- [x] **tickets** table with foreign keys
-- [x] **activities** table (audit log)
-- [x] **messages** table (chat - optional)
-- [x] **notes** table
-- [x] Demo data seeded (5 users, 6 tickets, activities, notes)
-
----
-
-## Phase 3: API Routes (Next.js) ✅
-
-| Endpoint | Methods | Status |
-|----------|---------|--------|
-| `/api/auth/login` | POST | ✅ |
-| `/api/users` | GET, POST | ✅ |
-| `/api/users/[id]` | GET, PATCH, DELETE | ✅ |
-| `/api/tickets` | GET, POST | ✅ |
-| `/api/tickets/[id]` | GET, PATCH, DELETE | ✅ |
-| `/api/tickets/[id]/notes` | GET, POST | ✅ |
-| `/api/activities` | GET | ✅ |
-| `/api/stats` | GET | ✅ |
+- [x] MySQL Migration (from Supabase)
+- [x] Prisma ORM Setup
+- [x] All API Routes Working
+- [x] Chat Widget with Polling
+- [x] Database Seeding
+- [x] Date Formatting Fix
 
 ---
 
-## Phase 4: Connect UI to Backend ✅
+## 🔴 PHASE 1: Core Workflow (HIGH PRIORITY)
 
-### 4.1 Authentication
-- [x] Login calls real API
-- [x] User stored in localStorage
-- [x] Role-based dashboard redirect
+### Junior CS Changes ✅ DONE
+- [x] Add self-assignment for LOW/MEDIUM tickets
+- [x] Remove "Pending Review" - direct resolve for LOW/MEDIUM
+- [x] Add "Escalate to IT" button for MEDIUM/HIGH
 
-### 4.2 Dashboard Pages
-- [x] Senior Dashboard - real stats, tickets, activities
-- [x] Junior Dashboard - real assigned tickets
-- [x] IT Dashboard - real technical tickets
-- [x] Admin Dashboard - real stats, users, activities
 
-### 4.3 Tickets Pages
-- [x] Senior Tickets - real data with filtering
-- [x] Create Ticket saves to database
-- [x] Assign Ticket updates database
-- [x] Status changes update database
+### Status Flow Changes
+- [ ] Add `PENDING` status (starting point after assignment)
+- [ ] Add `PAUSED_BY_CUSTOMER` status (long-term cases)
+- [ ] Flow: OPEN → PENDING → IN_PROGRESS → RESOLVED → CLOSED
+- [ ] Remove `TRIAGE` status (same as OPEN)
 
-### 4.4 User Management (Admin)
-- [x] Users list from database
-- [x] Add User creates in database
-- [x] Edit User updates database
-- [x] Delete User removes from database
+### Action Logging
+- [ ] Log when ticket is self-claimed (bonus score)
+- [ ] Require note/reason when clicking "Resolve"
+- [ ] Require note when IT clicks "Mark as Fixed"
+- [ ] Log IT assignment with assignee name
 
 ---
 
-## Phase 5: Polish & Testing 🟡 IN PROGRESS
+## 🟠 PHASE 2: KPI System (MEDIUM PRIORITY)
 
-### 5.1 Form Validation
-- [x] Client-side validation messages
-- [x] Required field indicators
-- [x] Email format validation
-
-### 5.2 Error Handling
-- [x] Toast notifications for success/error
-- [x] Network error handling
-- [x] Loading states for all API calls
-
-### 5.3 UX Improvements
-- [x] Custom styled dropdowns (replaced native selects)
-- [ ] Optimistic UI updates
-- [ ] Empty state illustrations
-
-### 5.4 Testing
-- [ ] Test all CRUD operations
-- [ ] Test all role permissions
-- [ ] Test edge cases
-
-### 5.5 Security
-- [ ] Password hashing (bcrypt)
-- [ ] Session/cookie-based auth
-- [ ] Protected route middleware
+- [ ] Remove monthly ticket target
+- [ ] Use percentage-based scoring
+- [ ] Score = tickets taken + resolution speed
+- [ ] Add initiative bonus for self-claiming
+- [ ] SLA penalties: LOW=1day, MEDIUM=2days, HIGH=3days
+- [ ] Show KPI formula info in Admin settings
 
 ---
 
-## Phase 6: UI Audit & Missing Features 🟡 IN PROGRESS
-  
-### 6.1 User Management (Admin)
-- [ ] **User online/offline status** - Currently hardcoded as "Active", need real login status tracking
-- [ ] **Last login timestamp** - Track when users last logged in
+## 🟡 PHASE 3: UI Fixes (LOW-MEDIUM PRIORITY)
 
-### 6.2 Ticket Filters (TicketFilters.tsx) ✅ DONE
-- [x] **Replace native dropdowns** - Replaced with `CustomSelect`
-- [x] **Search functionality** - Wired up client-side search
-- [x] **Pass filter values** - Filters implemented in all ticket pages
+### Layout Changes
+- [ ] Admin: System Activity above Admin Actions
+- [ ] CS Dashboards: Ticket Details above CS Actions
+- [ ] Reduce border radius (less rounded)
+- [ ] Wider modals (2-column layout)
 
-### 6.3 Tickets Pages (Real API Connected) ✅ DONE
-| Page | Status |
-|------|-------|
-| `/junior/tickets` | ✅ Wired to real API |
-| `/it/tickets` | ✅ Wired to real API |
-| `/admin/tickets` | ✅ Wired to real API |
-| `/senior/tickets` | ✅ Wired to real API |
+### Color Fixes
+- [ ] LOW priority → GREEN (not blue)
+- [ ] IN_PROGRESS color consistency
 
-### 6.4 Ticket Tabs (Functional) ✅ DONE
-- [x] **Junior Tickets** - Tabs filtering implemented
-- [x] **IT Tickets** - Tabs filtering implemented
-- [x] **Admin/Senior Tickets** - Tabs filtering implemented
+### Text Changes
+- [ ] "My Activity" → "Logs"
+- [ ] Assigned To: Show initials "RP" + role, not full name
+- [ ] Senior CS & Junior CS dashboard layout consistency
 
-### 6.5 History Pages ✅ DONE
-- [x] `/senior/history` - Wired to real tickets API (closed tickets)
-- [x] `/junior/history` - Wired to real tickets API (closed tickets)
-- [x] `/it/history` - Wired to real tickets API (closed tickets)
-- [x] `/admin/history` - Wired to real tickets API (closed tickets)
-
-### 6.6 Other Pages ✅ DONE
-- [x] `/admin/analytics` - Wired to real stats/performance APIs with visual charts
-- [x] `/admin/reports` - Wired to `/api/performance`
-- [x] `/admin/audit` - Wired to activities API
-- [x] `/senior/reports` - Wired to personal performance/stats APIs
+### Form Improvements
+- [ ] Customer Email = required in Create Ticket
+- [ ] Avatar upload (not URL) in Add User
+- [ ] Subject dropdown → predefined categories
 
 ---
 
-## Phase 7: Chat & Real-time Features 🚀 PLANNED
+## 🟢 PHASE 4: Reports & Analytics
 
-### 7.1 Database Schema
-- [x] **conversations** table
-- [x] **conversation_participants** table
-- [x] **messages** table (update existing or create new)
-- [x] RLS Policies for secure messaging
-
-### 7.2 Frontend Implementation
-- [x] **Refactor ChatWidget** to use real data (remove mockContacts)
-- [x] **User List** fetching from database
-- [x] **Conversation** creation/retrieval logic
-- [x] **Message** sending/receiving logic
-
-### 7.3 Real-time Integration (Supabase)
-- [x] **Online Presence** (green dots) via Supabase Presence
-- [x] **Live Messages** via Supabase Realtime subscriptions
-- [x] **Typing indicators** (optional) - *Skipped for now*
+- [ ] Add custom date range picker (start/end date)
+- [ ] Add "This Year" option to filters
+- [ ] Show Pending/Open count in reports
+- [ ] Split per-agent reports in Admin
+- [ ] Add Reports page to Junior CS
+- [ ] System Overview: custom date picker
 
 ---
 
-## Optional Features (Future)
+## 🔵 PHASE 5: New Features
 
-- [ ] Email notifications
-- [ ] File attachments on tickets
-- [ ] Export to CSV/PDF
-- [ ] SLA timers
+### Chat
+- [ ] Convert Chat Widget → dedicated `/chat` page
+
+### Tickets Page
+- [ ] Add "Latest Update" column with sort arrows
+- [ ] Add filter for stale tickets (>3 months)
+- [ ] Handle long subjects (truncate or wrap)
+
+### IT Backlog
+- [ ] Create internal todo/backlog page for IT
+- [ ] No customer attached
+- [ ] For tracking future development
+
+### Notifications
+- [ ] Toast for new tickets (longer duration)
+- [ ] Replace History → Notification History
+- [ ] Add notification bell with unread count
+- [ ] Mark as Read buttons
+
+### Audit
+- [ ] Add search bar to Audit Logs
 
 ---
 
-## Current Progress
+## 🟣 PHASE 6: AI Features (OPTIONAL)
 
-| Phase | Status |
-|-------|--------|
-| Phase 1 - Modals | ✅ Complete |
-| Phase 2 - Database | ✅ Complete |
-| Phase 3 - APIs | ✅ Complete |
-| Phase 4 - Integration | ✅ Complete |
-| Phase 5 - Polish | ✅ Complete |
-| **Phase 6 - UI Audit** | ✅ Complete |
+- [ ] AI Priority Classification (Gemini)
+- [ ] Best Performance Agent (weekly)
+- [ ] Problem Summary Analytics
+- [ ] Customer Analytics (frequent complainers)
 
 ---
 
-## Files Structure
+## 📱 PHASE 7: Mobile (OPTIONAL)
+
+- [ ] Mobile-friendly dashboard
+
+---
+
+## 📊 PROGRESS TRACKER
+
+| Phase | Status | Tasks | Done |
+|-------|--------|-------|------|
+| Phase 1 | 🔴 Not Started | 11 | 0 |
+| Phase 2 | 🔴 Not Started | 6 | 0 |
+| Phase 3 | 🔴 Not Started | 11 | 0 |
+| Phase 4 | 🔴 Not Started | 6 | 0 |
+| Phase 5 | 🔴 Not Started | 10 | 0 |
+| Phase 6 | 🔴 Not Started | 4 | 0 |
+| Phase 7 | 🔴 Not Started | 1 | 0 |
+| **TOTAL** | | **49** | **0** |
+
+---
+
+## 🗄️ SCHEMA CHANGES NEEDED
 
 ```
-src/
-├── app/
-│   ├── (agents)/           # Route group for all agent roles
-│   │   ├── layout.tsx      # Shared dashboard layout
-│   │   ├── senior/         # Senior CS pages
-│   │   ├── junior/         # Junior CS pages
-│   │   ├── it/             # IT Support pages
-│   │   └── admin/          # Admin pages
-│   ├── api/                # API routes
-│   │   ├── auth/login/
-│   │   ├── users/
-│   │   ├── tickets/
-│   │   ├── activities/
-│   │   └── stats/
-│   └── login/              # Login page
-├── components/
-│   ├── dashboard/          # Dashboard UI components
-│   ├── modals/             # Modal components
-│   ├── tickets/            # Ticket-related components
-│   └── ui/                 # Reusable UI components
-└── lib/
-    └── supabase.ts         # Supabase client
+New Status: PENDING, PAUSED_BY_CUSTOMER
+Remove Status: TRIAGE
 
-supabase/
-├── schema.sql              # Database schema
-└── seed.sql                # Demo data
+New Models:
+- TicketCategory (subject dropdown)
+- ITBacklog (internal todo)
+- Notification (notification system)
 ```
 
 ---
 
-## Quick Start
+## 🔗 QUICK LINKS
 
-1. Run `npm run dev` to start the development server
-2. Go to `http://localhost:3000/login`
-3. Use quick login buttons for demo accounts:
-   - **Senior CS**: jay@helpdesk.com
-   - **Junior CS**: himari@helpdesk.com
-   - **IT Support**: budi@helpdesk.com
-   - **Admin**: admin@helpdesk.com
+- Full QA Details: `QA_FEEDBACK_TASKS.md`
+- Credentials: `CREDENTIALS.md`
+- KPI System: `KPI_SYSTEM.md`
+- API Docs: `README.md`

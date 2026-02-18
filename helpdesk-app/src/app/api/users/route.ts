@@ -1,23 +1,28 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import prisma from '@/lib/db';
 
 // GET /api/users - List all users
 export async function GET() {
     try {
-        const { data: users, error } = await supabaseAdmin
-            .from('users')
-            .select('id, name, email, role, avatar, created_at')
-            .order('created_at', { ascending: false });
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                avatar: true,
+                createdAt: true,
+            },
+            orderBy: { createdAt: 'desc' },
+        });
 
-        if (error) {
-            console.error('Error fetching users:', error);
-            return NextResponse.json(
-                { error: 'Failed to fetch users' },
-                { status: 500 }
-            );
-        }
+        // Transform to snake_case for frontend compatibility
+        const transformedUsers = users.map(u => ({
+            ...u,
+            created_at: u.createdAt.toISOString(),
+        }));
 
-        return NextResponse.json({ users });
+        return NextResponse.json({ users: transformedUsers });
 
     } catch (error) {
         console.error('Users API error:', error);
@@ -43,11 +48,10 @@ export async function POST(request: Request) {
         }
 
         // Check if email already exists
-        const { data: existing } = await supabaseAdmin
-            .from('users')
-            .select('id')
-            .eq('email', email)
-            .single();
+        const existing = await prisma.user.findUnique({
+            where: { email },
+            select: { id: true },
+        });
 
         if (existing) {
             return NextResponse.json(
@@ -57,27 +61,31 @@ export async function POST(request: Request) {
         }
 
         // Create user (plain text password for demo - use bcrypt in production)
-        const { data: user, error } = await supabaseAdmin
-            .from('users')
-            .insert({
+        const user = await prisma.user.create({
+            data: {
                 name,
                 email,
                 password,
                 role: role || 'junior',
                 avatar: avatar || null,
-            })
-            .select('id, name, email, role, avatar, created_at')
-            .single();
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                avatar: true,
+                createdAt: true,
+            },
+        });
 
-        if (error) {
-            console.error('Error creating user:', error);
-            return NextResponse.json(
-                { error: 'Failed to create user' },
-                { status: 500 }
-            );
-        }
+        // Transform to snake_case
+        const transformedUser = {
+            ...user,
+            created_at: user.createdAt.toISOString(),
+        };
 
-        return NextResponse.json({ user }, { status: 201 });
+        return NextResponse.json({ user: transformedUser }, { status: 201 });
 
     } catch (error) {
         console.error('Create user error:', error);

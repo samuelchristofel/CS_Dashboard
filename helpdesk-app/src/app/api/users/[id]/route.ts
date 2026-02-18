@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import prisma from '@/lib/db';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -10,13 +10,19 @@ export async function GET(request: Request, { params }: RouteParams) {
     try {
         const { id } = await params;
 
-        const { data: user, error } = await supabaseAdmin
-            .from('users')
-            .select('id, name, email, role, avatar, created_at')
-            .eq('id', id)
-            .single();
+        const user = await prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                avatar: true,
+                createdAt: true,
+            },
+        });
 
-        if (error || !user) {
+        if (!user) {
             return NextResponse.json(
                 { error: 'User not found' },
                 { status: 404 }
@@ -42,27 +48,25 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         const { name, email, password, role, avatar } = body;
 
         // Build update object
-        const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+        const updates: Record<string, unknown> = {};
         if (name) updates.name = name;
         if (email) updates.email = email;
         if (password) updates.password = password;
         if (role) updates.role = role;
         if (avatar !== undefined) updates.avatar = avatar;
 
-        const { data: user, error } = await supabaseAdmin
-            .from('users')
-            .update(updates)
-            .eq('id', id)
-            .select('id, name, email, role, avatar, created_at')
-            .single();
-
-        if (error) {
-            console.error('Error updating user:', error);
-            return NextResponse.json(
-                { error: 'Failed to update user' },
-                { status: 500 }
-            );
-        }
+        const user = await prisma.user.update({
+            where: { id },
+            data: updates,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                avatar: true,
+                createdAt: true,
+            },
+        });
 
         return NextResponse.json({ user });
 
@@ -80,18 +84,9 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     try {
         const { id } = await params;
 
-        const { error } = await supabaseAdmin
-            .from('users')
-            .delete()
-            .eq('id', id);
-
-        if (error) {
-            console.error('Error deleting user:', error);
-            return NextResponse.json(
-                { error: 'Failed to delete user' },
-                { status: 500 }
-            );
-        }
+        await prisma.user.delete({
+            where: { id },
+        });
 
         return NextResponse.json({ message: 'User deleted' });
 

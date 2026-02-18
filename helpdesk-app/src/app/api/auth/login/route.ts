@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import prisma from '@/lib/db';
 
 export async function POST(request: Request) {
     try {
@@ -13,13 +13,11 @@ export async function POST(request: Request) {
         }
 
         // Find user by email
-        const { data: user, error } = await supabaseAdmin
-            .from('users')
-            .select('*')
-            .eq('email', email)
-            .single();
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
 
-        if (error || !user) {
+        if (!user) {
             return NextResponse.json(
                 { error: 'Invalid email or password' },
                 { status: 401 }

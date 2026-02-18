@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import prisma from '@/lib/db';
+import { Priority, TicketStatus } from '@prisma/client';
 
 // GET /api/tickets - List tickets with filters
 export async function GET(request: Request) {
@@ -8,41 +9,49 @@ export async function GET(request: Request) {
         const status = searchParams.get('status');
         const priority = searchParams.get('priority');
         const assignedTo = searchParams.get('assigned_to');
+        const unassigned = searchParams.get('unassigned');
         const limit = parseInt(searchParams.get('limit') || '50');
         const offset = parseInt(searchParams.get('offset') || '0');
 
-        let query = supabaseAdmin
-            .from('tickets')
-            .select(`
-                *,
-                assigned_to:users!tickets_assigned_to_id_fkey(id, name, email, role, avatar),
-                created_by:users!tickets_created_by_id_fkey(id, name, email, role)
-            `)
-            .order('created_at', { ascending: false })
-            .range(offset, offset + limit - 1);
+        const tickets = await prisma.ticket.findMany({
+            where: {
+                ...(status && { status: status as TicketStatus }),
+                ...(priority && { priority: priority as Priority }),
+                ...(assignedTo && { assignedToId: assignedTo }),
+                // Filter for unassigned tickets (no assigned user)
+                ...(unassigned === 'true' && { assignedToId: null }),
+            },
+            include: {
+                assignedTo: {
+                    select: { id: true, name: true, email: true, role: true, avatar: true }
+                },
+                createdBy: {
+                    select: { id: true, name: true, email: true, role: true }
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+            skip: offset,
+            take: limit,
+        });
 
-        // Apply filters
-        if (status) {
-            query = query.eq('status', status);
-        }
-        if (priority) {
-            query = query.eq('priority', priority);
-        }
-        if (assignedTo) {
-            query = query.eq('assigned_to_id', assignedTo);
-        }
 
-        const { data: tickets, error, count } = await query;
+        // Transform to match previous API response format (snake_case for assigned_to)
+        const transformedTickets = tickets.map(ticket => ({
+            ...ticket,
+            assigned_to: ticket.assignedTo,
+            created_by: ticket.createdBy,
+            customer_name: ticket.customerName,
+            customer_email: ticket.customerEmail,
+            customer_phone: ticket.customerPhone,
+            assigned_to_id: ticket.assignedToId,
+            created_by_id: ticket.createdById,
+            created_at: ticket.createdAt,
+            updated_at: ticket.updatedAt,
+            assigned_at: ticket.assignedAt,
+            closed_at: ticket.closedAt,
+        }));
 
-        if (error) {
-            console.error('Error fetching tickets:', error);
-            return NextResponse.json(
-                { error: 'Failed to fetch tickets' },
-                { status: 500 }
-            );
-        }
-
-        return NextResponse.json({ tickets, count });
+        return NextResponse.json({ tickets: transformedTickets, count: tickets.length });
 
     } catch (error) {
         console.error('Tickets API error:', error);
@@ -78,16 +87,15 @@ export async function POST(request: Request) {
         }
 
         // Generate ticket number - get MAX to avoid duplicates
-        const { data: tickets } = await supabaseAdmin
-            .from('tickets')
-            .select('number')
-            .order('number', { ascending: false })
-            .limit(1);
+        const lastTicket = await prisma.ticket.findFirst({
+            orderBy: { number: 'desc' },
+            select: { number: true },
+        });
 
         // Parse the highest ticket number or use default
         let maxNumber = 10000;
-        if (tickets && tickets.length > 0) {
-            const parsed = parseInt(tickets[0].number);
+        if (lastTicket) {
+            const parsed = parseInt(lastTicket.number);
             if (!isNaN(parsed)) {
                 maxNumber = parsed;
             }
@@ -95,48 +103,57 @@ export async function POST(request: Request) {
         const newNumber = (maxNumber + 1).toString();
 
         // Create ticket
-        const { data: ticket, error } = await supabaseAdmin
-            .from('tickets')
-            .insert({
+        const ticket = await prisma.ticket.create({
+            data: {
                 number: newNumber,
                 subject,
                 description: description || null,
                 priority: priority || 'MEDIUM',
                 status: 'OPEN',
                 source: source || 'Freshchat',
-                customer_name,
-                customer_email: customer_email || null,
-                customer_phone: customer_phone || null,
-                assigned_to_id: assigned_to_id || null,
-                created_by_id: created_by_id || null,
-            })
-            .select(`
-                *,
-                assigned_to:users!tickets_assigned_to_id_fkey(id, name, email, role, avatar),
-                created_by:users!tickets_created_by_id_fkey(id, name, email, role)
-            `)
-            .single();
-
-        if (error) {
-            console.error('Error creating ticket:', error);
-            console.error('Error details:', JSON.stringify(error, null, 2));
-            return NextResponse.json(
-                { error: 'Failed to create ticket', details: error.message },
-                { status: 500 }
-            );
-        }
+                customerName: customer_name,
+                customerEmail: customer_email || null,
+                customerPhone: customer_phone || null,
+                assignedToId: assigned_to_id || null,
+                createdById: created_by_id || null,
+            },
+            include: {
+                assignedTo: {
+                    select: { id: true, name: true, email: true, role: true, avatar: true }
+                },
+                createdBy: {
+                    select: { id: true, name: true, email: true, role: true }
+                },
+            },
+        });
 
         // Log activity
         if (created_by_id) {
-            await supabaseAdmin.from('activities').insert({
-                action: 'TICKET_CREATED',
-                details: `Ticket #${newNumber} created`,
-                user_id: created_by_id,
-                ticket_id: ticket.id,
+            await prisma.activity.create({
+                data: {
+                    action: 'TICKET_CREATED',
+                    details: `Ticket #${newNumber} created`,
+                    userId: created_by_id,
+                    ticketId: ticket.id,
+                },
             });
         }
 
-        return NextResponse.json({ ticket }, { status: 201 });
+        // Transform response
+        const transformedTicket = {
+            ...ticket,
+            assigned_to: ticket.assignedTo,
+            created_by: ticket.createdBy,
+            customer_name: ticket.customerName,
+            customer_email: ticket.customerEmail,
+            customer_phone: ticket.customerPhone,
+            assigned_to_id: ticket.assignedToId,
+            created_by_id: ticket.createdById,
+            created_at: ticket.createdAt,
+            updated_at: ticket.updatedAt,
+        };
+
+        return NextResponse.json({ ticket: transformedTicket }, { status: 201 });
 
     } catch (error) {
         console.error('Create ticket error:', error);

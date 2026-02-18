@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import prisma from '@/lib/db';
 
 // GET /api/performance - Get agent performance metrics
 export async function GET(request: Request) {
@@ -8,31 +8,19 @@ export async function GET(request: Request) {
         const period = searchParams.get('period') || 'month'; // month, week, all
 
         // Get all non-admin users
-        const { data: users, error: usersError } = await supabaseAdmin
-            .from('users')
-            .select('id, name, email, role, avatar')
-            .neq('role', 'admin');
-
-        if (usersError) {
-            console.error('Error fetching users:', usersError);
-            return NextResponse.json(
-                { error: 'Failed to fetch users' },
-                { status: 500 }
-            );
-        }
+        const users = await prisma.user.findMany({
+            where: { role: { not: 'admin' } },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                avatar: true,
+            },
+        });
 
         // Get all tickets for performance calculation
-        const { data: tickets, error: ticketsError } = await supabaseAdmin
-            .from('tickets')
-            .select('*');
-
-        if (ticketsError) {
-            console.error('Error fetching tickets:', ticketsError);
-            return NextResponse.json(
-                { error: 'Failed to fetch tickets' },
-                { status: 500 }
-            );
-        }
+        const tickets = await prisma.ticket.findMany();
 
         // Calculate date range for period filter
         const now = new Date();
@@ -54,13 +42,13 @@ export async function GET(request: Request) {
         }
 
         // Filter tickets by period
-        const periodTickets = tickets?.filter(t =>
-            new Date(t.created_at) >= startDate
-        ) || [];
+        const periodTickets = tickets.filter(t =>
+            new Date(t.createdAt) >= startDate
+        );
 
         // Calculate performance for each user
-        const agents = users?.map(user => {
-            const userTickets = periodTickets.filter(t => t.assigned_to_id === user.id);
+        const agents = users.map(user => {
+            const userTickets = periodTickets.filter(t => t.assignedToId === user.id);
             const completedTickets = userTickets.filter(t =>
                 t.status === 'CLOSED' || t.status === 'RESOLVED' || t.status === 'PENDING_REVIEW'
             );
@@ -70,9 +58,9 @@ export async function GET(request: Request) {
             let ticketsWithTime = 0;
 
             completedTickets.forEach(ticket => {
-                if (ticket.assigned_at && ticket.closed_at) {
-                    const assignedAt = new Date(ticket.assigned_at).getTime();
-                    const closedAt = new Date(ticket.closed_at).getTime();
+                if (ticket.assignedAt && ticket.closedAt) {
+                    const assignedAt = new Date(ticket.assignedAt).getTime();
+                    const closedAt = new Date(ticket.closedAt).getTime();
                     const handlingTimeHours = (closedAt - assignedAt) / (1000 * 60 * 60);
                     if (handlingTimeHours > 0 && handlingTimeHours < 720) { // Exclude outliers (> 30 days)
                         totalHandlingTime += handlingTimeHours;
@@ -107,10 +95,8 @@ export async function GET(request: Request) {
                 const baseScore = Math.min(60, (completedTickets.length / target) * 60);
 
                 // Speed bonus (25% weight) - based on handling time vs targets
-                // Target times: HIGH=4h, MEDIUM=24h, LOW=48h
                 let speedBonus = 0;
                 if (ticketsWithTime > 0 && avgHandlingTime > 0) {
-                    // Average target time across all priorities
                     const avgTarget = 24; // hours
                     if (avgHandlingTime <= avgTarget) {
                         speedBonus = 25;
@@ -121,7 +107,7 @@ export async function GET(request: Request) {
                     }
                 }
 
-                // Quality bonus (15% weight) - assume 100% for now (no rejection tracking yet)
+                // Quality bonus (15% weight)
                 const qualityBonus = 15;
 
                 score = Math.round(Math.min(100, baseScore + speedBonus + qualityBonus));
@@ -146,11 +132,11 @@ export async function GET(request: Request) {
                     completed: completedTickets.length,
                     avgHandlingTime: avgTimeFormatted,
                     avgHandlingTimeRaw: avgHandlingTime,
-                    score: user.role === 'it' ? null : score, // IT doesn't get scored
+                    score: user.role === 'it' ? null : score,
                     rating: user.role === 'it' ? null : rating,
                 }
             };
-        }) || [];
+        });
 
         // Calculate team stats
         const totalResolved = periodTickets.filter(t =>
