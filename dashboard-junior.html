@@ -1,467 +1,427 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Junior CS Dashboard</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#EB4C36",
-                        "primary-dark": "#d13a25",
-                        "page-bg": "#F3F4F6",
-                        "card-bg": "#FFFFFF",
-                        "text-main": "#1e293b",
-                        "text-secondary": "#64748b",
-                    },
-                    fontFamily: { "display": ["Manrope", "sans-serif"] },
-                    borderRadius: { "2xl": "1.25rem", "3xl": "2rem" },
-                    boxShadow: {
-                        "soft": "0 10px 40px -10px rgba(0,0,0,0.05)",
-                        "card": "0 4px 6px -1px rgba(0, 0, 0, 0.02)"
-                    }
-                },
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#EB4C36",
+              "primary-dark": "#d13a25",
+              "page-bg": "#F3F4F6",
+              "card-bg": "#FFFFFF",
+              "text-main": "#1e293b",
+              "text-secondary": "#64748b",
             },
-        }
+            fontFamily: { display: ["Manrope", "sans-serif"] },
+            borderRadius: { "2xl": "1.25rem", "3xl": "2rem" },
+            boxShadow: {
+              soft: "0 10px 40px -10px rgba(0,0,0,0.05)",
+              card: "0 4px 6px -1px rgba(0, 0, 0, 0.02)",
+            },
+          },
+        },
+      };
     </script>
     <style>
-        body {
-            font-family: 'Manrope', sans-serif;
-        }
+      body {
+        font-family: "Manrope", sans-serif;
+      }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
 
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-page-bg text-text-main overflow-hidden h-screen flex p-6 gap-6">
+  <body class="bg-page-bg text-text-main overflow-hidden h-screen flex p-6 gap-6">
     <!-- Sidebar -->
     <div class="w-64 flex-shrink-0 flex flex-col h-full bg-transparent">
-        <div class="h-16 flex items-center px-2 mb-8">
-            <div class="flex items-center gap-3">
-                <div
-                    class="size-10 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
-                    <span class="material-symbols-outlined text-2xl">support_agent</span>
-                </div>
-                <h1 class="text-slate-900 text-xl font-bold tracking-tight">HelpDesk</h1>
-            </div>
+      <div class="h-16 flex items-center px-2 mb-8">
+        <div class="flex items-center gap-3">
+          <div class="size-10 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
+            <span class="material-symbols-outlined text-2xl">support_agent</span>
+          </div>
+          <h1 class="text-slate-900 text-xl font-bold tracking-tight">HelpDesk</h1>
         </div>
-        <div class="flex-1 space-y-2 overflow-y-auto no-scrollbar">
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full bg-white text-slate-900 shadow-soft transition-all"
-                href="dashboard-junior.html">
-                <span class="material-symbols-outlined text-primary text-2xl"
-                    style="font-variation-settings: 'FILL' 1;">grid_view</span>
-                <span class="text-base font-bold">Dashboard</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="junior-tickets.html">
-                <span class="material-symbols-outlined text-2xl">confirmation_number</span>
-                <span class="text-base font-semibold">Tickets</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="history.html#junior">
-                <span class="material-symbols-outlined text-2xl">history</span>
-                <span class="text-base font-semibold">History</span>
-            </a>
+      </div>
+      <div class="flex-1 space-y-2 overflow-y-auto no-scrollbar">
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-white text-slate-900 shadow-soft transition-all" href="dashboard-junior.html">
+          <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: &quot;FILL&quot; 1">grid_view</span>
+          <span class="text-base font-bold">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="junior-tickets.html">
+          <span class="material-symbols-outlined text-2xl">confirmation_number</span>
+          <span class="text-base font-semibold">Tickets</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="history.html#junior">
+          <span class="material-symbols-outlined text-2xl">history</span>
+          <span class="text-base font-semibold">History</span>
+        </a>
+      </div>
+      <div class="mt-auto">
+        <div class="flex items-center gap-3 p-2 pr-4 bg-white rounded-lg shadow-soft cursor-pointer">
+          <div
+            class="size-10 rounded-full bg-cover bg-center"
+            style="
+              background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDN0rsqgI4Fv1zrp1NtwFDfMAtVMQ2Oy1GVDJOvJ6nCUCQ7jsiVV56xA7nbgCm5tdWoz7uRJrvKLjNMVQjnTMrOkljsYHrZQXhnMHQ5CdvP5axphgV6bpBS37A56yKKtC62X_dV8ExJ__FV1vSZxJHnm6MtQpfaAfapPm0coFGD-DUok5mewrK8Mmy6ABuxS5_YsFmQs1t22lop8_n8TY7Vk9QXC4c9Gu2AMIHn2KB-a37kNDLDGLObRehy6a9NVQSgv140p_nRAM8&quot;);
+            "
+          ></div>
+          <div class="flex flex-col">
+            <p class="text-sm font-bold text-slate-900 leading-tight">Himari</p>
+            <p class="text-[10px] text-slate-500 font-medium">Junior CS Agent</p>
+          </div>
+          <span class="material-symbols-outlined text-slate-400 text-lg ml-auto cursor-pointer hover:text-primary" onclick="window.location.href = 'login.html'">logout</span>
         </div>
-        <div class="mt-auto">
-            <div class="flex items-center gap-3 p-2 pr-4 bg-white rounded-full shadow-soft cursor-pointer">
-                <div class="size-10 rounded-full bg-cover bg-center"
-                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDN0rsqgI4Fv1zrp1NtwFDfMAtVMQ2Oy1GVDJOvJ6nCUCQ7jsiVV56xA7nbgCm5tdWoz7uRJrvKLjNMVQjnTMrOkljsYHrZQXhnMHQ5CdvP5axphgV6bpBS37A56yKKtC62X_dV8ExJ__FV1vSZxJHnm6MtQpfaAfapPm0coFGD-DUok5mewrK8Mmy6ABuxS5_YsFmQs1t22lop8_n8TY7Vk9QXC4c9Gu2AMIHn2KB-a37kNDLDGLObRehy6a9NVQSgv140p_nRAM8');">
-                </div>
-                <div class="flex flex-col">
-                    <p class="text-sm font-bold text-slate-900 leading-tight">Himari</p>
-                    <p class="text-[10px] text-slate-500 font-medium">Junior CS Agent</p>
-                </div>
-                <span class="material-symbols-outlined text-slate-400 text-lg ml-auto cursor-pointer hover:text-primary"
-                    onclick="window.location.href='login.html'">logout</span>
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col gap-4 h-full overflow-hidden">
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">Welcome back, Himari! 👋</h1>
-                <p class="text-sm text-slate-500 mt-1">Here's your performance summary</p>
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900">Welcome back, Himari! 👋</h1>
+          <p class="text-sm text-slate-500 mt-1">Here's your performance summary</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-slate-500">Dec 25, 2024</span>
+        </div>
+      </div>
+
+      <!-- Main Content Area - 2 Columns -->
+      <div class="flex-1 flex gap-6 overflow-hidden">
+        <!-- Left Column: Stats + Tickets -->
+        <div class="flex-[1.2] flex flex-col gap-6 overflow-hidden">
+          <!-- Score Card -->
+          <div class="bg-gradient-to-br from-emerald-500 to-green-700 rounded-lg shadow-soft p-6 text-white">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <p class="text-sm font-semibold opacity-90">Halo Himari,</p>
+                <p class="text-xs opacity-70">Sisa Poin Bulan Ini:</p>
+              </div>
+              <span class="text-[10px] font-bold bg-white/20 px-3 py-1 rounded-md">December 2024</span>
             </div>
-            <div class="flex items-center gap-3">
-                <span class="text-sm text-slate-500">Dec 25, 2024</span>
+            <div class="flex items-end gap-3">
+              <span class="text-5xl font-extrabold">72</span>
+              <span class="text-2xl font-bold opacity-70 mb-1">/100</span>
             </div>
+            <p class="text-sm opacity-80 mt-2">⚠️ Perlu ditingkatkan - 28 poin berkurang bulan ini.</p>
+          </div>
+
+          <!-- Ticket Stats -->
+          <div class="flex gap-4">
+            <div class="flex-1 bg-white rounded-lg p-4 shadow-soft border-2 border-primary">
+              <p class="text-3xl font-extrabold text-primary">5</p>
+              <p class="text-xs text-slate-500 mt-1">Open Tickets</p>
+            </div>
+            <div class="flex-1 bg-white rounded-lg p-4 shadow-soft">
+              <p class="text-3xl font-extrabold text-green-500">3</p>
+              <p class="text-xs text-slate-500 mt-1">Resolved Today</p>
+            </div>
+            <div class="flex-1 bg-white rounded-lg p-4 shadow-soft">
+              <p class="text-3xl font-extrabold text-slate-600">32</p>
+              <p class="text-xs text-slate-500 mt-1">Total This Month</p>
+            </div>
+          </div>
+
+          <!-- My Tickets -->
+          <div class="bg-white rounded-lg shadow-soft flex flex-col flex-1 overflow-hidden min-h-0">
+            <div class="px-8 py-5 flex items-center justify-between border-b border-slate-50">
+              <h2 class="text-base font-bold text-slate-900">Active Tickets</h2>
+              <button class="text-slate-400 hover:text-slate-600 transition-colors">
+                <span class="material-symbols-outlined text-xl">sort</span>
+              </button>
+            </div>
+            <div class="overflow-y-auto px-6 py-4 space-y-3 no-scrollbar flex-1">
+              <!-- Ticket 1 - SELECTED -->
+              <div class="p-5 rounded-lg bg-white border border-slate-100 shadow-card cursor-pointer transition-all hover:shadow-lg border-l-4 border-l-primary">
+                <div class="flex justify-between items-start mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-400">#8825</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-600 uppercase tracking-wide">Medium</span>
+                  </div>
+                  <span class="text-xs font-medium text-slate-400">10:23 AM</span>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-900 mb-1">How to change password</h3>
+                <p class="text-sm text-slate-500 mb-3">Customer needs help resetting their account password.</p>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="size-6 rounded-full bg-purple-100 flex items-center justify-center text-[10px] text-purple-700 font-bold">AM</div>
+                    <span class="text-sm font-medium text-slate-500">Alice Miller</span>
+                  </div>
+                  <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">In Progress</span>
+                </div>
+              </div>
+
+              <!-- Ticket 2 -->
+              <div class="p-5 rounded-lg bg-white border border-slate-100 shadow-card cursor-pointer transition-all hover:shadow-lg">
+                <div class="flex justify-between items-start mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-400">#8820</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-600 uppercase tracking-wide">Medium</span>
+                  </div>
+                  <span class="text-xs font-medium text-slate-400">1h ago</span>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-900 mb-1">Billing inquiry for November</h3>
+                <p class="text-sm text-slate-500 mb-3">Questions about invoice charges for last month.</p>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="size-6 rounded-full bg-blue-100 flex items-center justify-center text-[10px] text-blue-700 font-bold">JM</div>
+                    <span class="text-sm font-medium text-slate-500">John Miller</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ticket 3 -->
+              <div class="p-5 rounded-lg bg-white border border-slate-100 shadow-card cursor-pointer transition-all hover:shadow-lg">
+                <div class="flex justify-between items-start mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-400">#8818</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-100 text-blue-600 uppercase tracking-wide">Low</span>
+                  </div>
+                  <span class="text-xs font-medium text-slate-400">2h ago</span>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-900 mb-1">Request for product information</h3>
+                <p class="text-sm text-slate-500 mb-3">Customer wants details about GPS tracker features.</p>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="size-6 rounded-full bg-green-100 flex items-center justify-center text-[10px] text-green-700 font-bold">DC</div>
+                    <span class="text-sm font-medium text-slate-500">David Chen</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Main Content Area - 2 Columns -->
-        <div class="flex-1 flex gap-6 overflow-hidden">
-            <!-- Left Column: Stats + Tickets -->
-            <div class="flex-[1.2] flex flex-col gap-6 overflow-hidden">
-                <!-- Score Card -->
-                <div class="bg-gradient-to-br from-emerald-500 to-green-700 rounded-[2rem] shadow-soft p-6 text-white">
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <p class="text-sm font-semibold opacity-90">Halo Himari,</p>
-                            <p class="text-xs opacity-70">Sisa Poin Bulan Ini:</p>
-                        </div>
-                        <span class="text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full">December 2024</span>
-                    </div>
-                    <div class="flex items-end gap-3">
-                        <span class="text-5xl font-extrabold">72</span>
-                        <span class="text-2xl font-bold opacity-70 mb-1">/100</span>
-                    </div>
-                    <p class="text-sm opacity-80 mt-2">⚠️ Perlu ditingkatkan - 28 poin berkurang bulan ini.</p>
-                </div>
+        <!-- Right Panel -->
+        <div class="w-[450px] flex flex-col gap-4 min-w-0 h-full overflow-hidden">
+          <!-- CS Actions - FIXED AT TOP -->
+          <div class="flex-shrink-0">
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
+              <span class="material-symbols-outlined text-base">support_agent</span>
+              CS Actions
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-soft flex flex-col gap-3">
+              <button class="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors">
+                <span class="material-symbols-outlined">edit_note</span>
+                Add Note
+              </button>
+              <button class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors shadow-lg shadow-green-500/30">
+                <span class="material-symbols-outlined">check_circle</span>
+                Mark as Done (Request Senior Review)
+              </button>
+              <!-- Disabled Close Button -->
+              <button disabled class="w-full bg-slate-100 text-slate-400 font-semibold py-4 px-4 rounded-lg flex items-center justify-center gap-3 cursor-not-allowed opacity-60">
+                <span class="material-symbols-outlined">lock</span>
+                Close Ticket
+                <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded-full">Senior Only</span>
+              </button>
+            </div>
+          </div>
 
-                <!-- Ticket Stats -->
-                <div class="flex gap-4">
-                    <div class="flex-1 bg-white rounded-2xl p-4 shadow-soft border-2 border-primary">
-                        <p class="text-3xl font-extrabold text-primary">5</p>
-                        <p class="text-xs text-slate-500 mt-1">Open Tickets</p>
-                    </div>
-                    <div class="flex-1 bg-white rounded-2xl p-4 shadow-soft">
-                        <p class="text-3xl font-extrabold text-green-500">3</p>
-                        <p class="text-xs text-slate-500 mt-1">Resolved Today</p>
-                    </div>
-                    <div class="flex-1 bg-white rounded-2xl p-4 shadow-soft">
-                        <p class="text-3xl font-extrabold text-slate-600">32</p>
-                        <p class="text-xs text-slate-500 mt-1">Total This Month</p>
-                    </div>
-                </div>
-
-                <!-- My Tickets -->
-                <div class="bg-white rounded-[2rem] shadow-soft flex flex-col flex-1 overflow-hidden min-h-0">
-                    <div class="px-8 py-5 flex items-center justify-between border-b border-slate-50">
-                        <h2 class="text-base font-bold text-slate-900">Active Tickets</h2>
-                        <button class="text-slate-400 hover:text-slate-600 transition-colors">
-                            <span class="material-symbols-outlined text-xl">sort</span>
-                        </button>
-                    </div>
-                    <div class="overflow-y-auto px-6 py-4 space-y-3 no-scrollbar flex-1">
-                        <!-- Ticket 1 - SELECTED -->
-                        <div
-                            class="p-5 rounded-2xl bg-white border border-slate-100 shadow-card cursor-pointer transition-all hover:shadow-lg border-l-4 border-l-primary">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-mono font-bold text-slate-400">#8825</span>
-                                    <span
-                                        class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-600 uppercase tracking-wide">Medium</span>
-                                </div>
-                                <span class="text-xs font-medium text-slate-400">10:23 AM</span>
-                            </div>
-                            <h3 class="text-lg font-semibold text-slate-900 mb-1">How to change password</h3>
-                            <p class="text-sm text-slate-500 mb-3">Customer needs help resetting their account password.
-                            </p>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="size-6 rounded-full bg-purple-100 flex items-center justify-center text-[10px] text-purple-700 font-bold">
-                                        AM</div>
-                                    <span class="text-sm font-medium text-slate-500">Alice Miller</span>
-                                </div>
-                                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">In
-                                    Progress</span>
-                            </div>
-                        </div>
-
-                        <!-- Ticket 2 -->
-                        <div
-                            class="p-5 rounded-2xl bg-white border border-slate-100 shadow-card cursor-pointer transition-all hover:shadow-lg">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-mono font-bold text-slate-400">#8820</span>
-                                    <span
-                                        class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-600 uppercase tracking-wide">Medium</span>
-                                </div>
-                                <span class="text-xs font-medium text-slate-400">1h ago</span>
-                            </div>
-                            <h3 class="text-lg font-semibold text-slate-900 mb-1">Billing inquiry for November</h3>
-                            <p class="text-sm text-slate-500 mb-3">Questions about invoice charges for last month.</p>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="size-6 rounded-full bg-blue-100 flex items-center justify-center text-[10px] text-blue-700 font-bold">
-                                        JM</div>
-                                    <span class="text-sm font-medium text-slate-500">John Miller</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Ticket 3 -->
-                        <div
-                            class="p-5 rounded-2xl bg-white border border-slate-100 shadow-card cursor-pointer transition-all hover:shadow-lg">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-mono font-bold text-slate-400">#8818</span>
-                                    <span
-                                        class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-100 text-blue-600 uppercase tracking-wide">Low</span>
-                                </div>
-                                <span class="text-xs font-medium text-slate-400">2h ago</span>
-                            </div>
-                            <h3 class="text-lg font-semibold text-slate-900 mb-1">Request for product information</h3>
-                            <p class="text-sm text-slate-500 mb-3">Customer wants details about GPS tracker features.
-                            </p>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="size-6 rounded-full bg-green-100 flex items-center justify-center text-[10px] text-green-700 font-bold">
-                                        DC</div>
-                                    <span class="text-sm font-medium text-slate-500">David Chen</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <!-- Ticket Info + Activity Card -->
+          <div class="bg-white rounded-lg shadow-soft flex flex-col flex-1 overflow-hidden min-h-0">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-slate-50 flex items-center justify-between flex-shrink-0">
+              <div class="flex items-center gap-3">
+                <h3 class="text-base font-bold">Ticket #8825</h3>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 uppercase">MEDIUM</span>
+              </div>
+              <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">In Progress</span>
             </div>
 
-            <!-- Right Panel -->
-            <div class="w-[450px] flex flex-col gap-4 min-w-0 h-full overflow-hidden">
-                <!-- CS Actions - FIXED AT TOP -->
-                <div class="flex-shrink-0">
-                    <div
-                        class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
-                        <span class="material-symbols-outlined text-base">support_agent</span>
-                        CS Actions
-                    </div>
-                    <div class="bg-white p-6 rounded-[2rem] shadow-soft flex flex-col gap-3">
-                        <button
-                            class="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-4 px-4 rounded-2xl flex items-center justify-center gap-3 transition-colors">
-                            <span class="material-symbols-outlined">edit_note</span>
-                            Add Note
-                        </button>
-                        <button
-                            class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-4 rounded-2xl flex items-center justify-center gap-3 transition-colors shadow-lg shadow-green-500/30">
-                            <span class="material-symbols-outlined">check_circle</span>
-                            Mark as Done (Request Senior Review)
-                        </button>
-                        <!-- Disabled Close Button -->
-                        <button disabled
-                            class="w-full bg-slate-100 text-slate-400 font-semibold py-4 px-4 rounded-2xl flex items-center justify-center gap-3 cursor-not-allowed opacity-60">
-                            <span class="material-symbols-outlined">lock</span>
-                            Close Ticket
-                            <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded-full">Senior Only</span>
-                        </button>
-                    </div>
+            <!-- Fixed Ticket Info -->
+            <div class="px-6 py-4 flex-shrink-0 border-b border-slate-50">
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-50 p-3 rounded-xl">
+                  <p class="text-[10px] font-bold text-slate-400 uppercase">Issue Type</p>
+                  <p class="text-sm font-semibold text-slate-700 mt-1">Password Reset</p>
                 </div>
-
-                <!-- Ticket Info + Activity Card -->
-                <div class="bg-white rounded-[2rem] shadow-soft flex flex-col flex-1 overflow-hidden min-h-0">
-                    <!-- Header -->
-                    <div class="px-6 py-4 border-b border-slate-50 flex items-center justify-between flex-shrink-0">
-                        <div class="flex items-center gap-3">
-                            <h3 class="text-base font-bold">Ticket #8825</h3>
-                            <span
-                                class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600 uppercase">MEDIUM</span>
-                        </div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">In
-                            Progress</span>
-                    </div>
-
-                    <!-- Fixed Ticket Info -->
-                    <div class="px-6 py-4 flex-shrink-0 border-b border-slate-50">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-slate-50 p-3 rounded-xl">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase">Issue Type</p>
-                                <p class="text-sm font-semibold text-slate-700 mt-1">Password Reset</p>
-                            </div>
-                            <div class="bg-slate-50 p-3 rounded-xl">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase">Customer</p>
-                                <p class="text-sm font-semibold text-slate-700 mt-1">Alice Miller</p>
-                            </div>
-                            <div class="bg-slate-50 p-3 rounded-xl">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase">Assigned By</p>
-                                <p class="text-sm font-semibold text-slate-700 mt-1">Jay Won (Senior)</p>
-                            </div>
-                            <div class="bg-slate-50 p-3 rounded-xl">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase">Priority</p>
-                                <p class="text-sm font-semibold text-amber-600 mt-1">Medium</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- My Activity Title - Fixed -->
-                    <div class="px-6 pt-4 pb-2 flex-shrink-0">
-                        <div class="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
-                            <span class="material-symbols-outlined text-slate-400 text-lg">history</span>
-                            My Activity
-                        </div>
-                    </div>
-
-                    <!-- Scrollable Activity List -->
-                    <div class="flex-1 overflow-y-auto px-6 pb-4 no-scrollbar">
-                        <div class="space-y-3">
-                            <!-- Activity 1 -->
-                            <div class="bg-slate-50 p-3 rounded-xl hover:bg-white hover:shadow-card transition-all">
-                                <div class="flex items-center justify-between mb-1">
-                                    <p class="text-sm font-bold text-slate-900">Started working on #8825</p>
-                                    <span class="text-[10px] text-slate-400">10:30 AM</span>
-                                </div>
-                                <p class="text-xs text-slate-500">Status: In Progress</p>
-                            </div>
-                            <!-- Activity 2 -->
-                            <div class="bg-green-50 p-3 rounded-xl">
-                                <div class="flex items-center justify-between mb-1">
-                                    <p class="text-sm font-bold text-slate-900">Resolved #8816</p>
-                                    <span class="text-[10px] text-slate-400">09:45 AM</span>
-                                </div>
-                                <p class="text-xs text-green-600">Completed in 25min</p>
-                            </div>
-                            <!-- Activity 3 -->
-                            <div class="bg-slate-50 p-3 rounded-xl">
-                                <div class="flex items-center justify-between mb-1">
-                                    <p class="text-sm font-bold text-slate-900">Started working on #8816</p>
-                                    <span class="text-[10px] text-slate-400">09:20 AM</span>
-                                </div>
-                                <p class="text-xs text-slate-500">Status: In Progress</p>
-                            </div>
-                            <!-- Activity 4 -->
-                            <div class="bg-blue-50 p-3 rounded-xl">
-                                <div class="flex items-center justify-between mb-1">
-                                    <p class="text-sm font-bold text-slate-900">Received #8825</p>
-                                    <span class="text-[10px] text-slate-400">08:30 AM</span>
-                                </div>
-                                <p class="text-xs text-blue-600">Assigned by Jay Won</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="bg-slate-50 p-3 rounded-xl">
+                  <p class="text-[10px] font-bold text-slate-400 uppercase">Customer</p>
+                  <p class="text-sm font-semibold text-slate-700 mt-1">Alice Miller</p>
                 </div>
+                <div class="bg-slate-50 p-3 rounded-xl">
+                  <p class="text-[10px] font-bold text-slate-400 uppercase">Assigned By</p>
+                  <p class="text-sm font-semibold text-slate-700 mt-1">Jay Won (Senior)</p>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl">
+                  <p class="text-[10px] font-bold text-slate-400 uppercase">Priority</p>
+                  <p class="text-sm font-semibold text-amber-600 mt-1">Medium</p>
+                </div>
+              </div>
             </div>
+
+            <!-- My Activity Title - Fixed -->
+            <div class="px-6 pt-4 pb-2 flex-shrink-0">
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
+                <span class="material-symbols-outlined text-slate-400 text-lg">history</span>
+                My Activity
+              </div>
+            </div>
+
+            <!-- Scrollable Activity List -->
+            <div class="flex-1 overflow-y-auto px-6 pb-4 no-scrollbar">
+              <div class="space-y-3">
+                <!-- Activity 1 -->
+                <div class="bg-slate-50 p-3 rounded-xl hover:bg-white hover:shadow-card transition-all">
+                  <div class="flex items-center justify-between mb-1">
+                    <p class="text-sm font-bold text-slate-900">Started working on #8825</p>
+                    <span class="text-[10px] text-slate-400">10:30 AM</span>
+                  </div>
+                  <p class="text-xs text-slate-500">Status: In Progress</p>
+                </div>
+                <!-- Activity 2 -->
+                <div class="bg-green-50 p-3 rounded-xl">
+                  <div class="flex items-center justify-between mb-1">
+                    <p class="text-sm font-bold text-slate-900">Resolved #8816</p>
+                    <span class="text-[10px] text-slate-400">09:45 AM</span>
+                  </div>
+                  <p class="text-xs text-green-600">Completed in 25min</p>
+                </div>
+                <!-- Activity 3 -->
+                <div class="bg-slate-50 p-3 rounded-xl">
+                  <div class="flex items-center justify-between mb-1">
+                    <p class="text-sm font-bold text-slate-900">Started working on #8816</p>
+                    <span class="text-[10px] text-slate-400">09:20 AM</span>
+                  </div>
+                  <p class="text-xs text-slate-500">Status: In Progress</p>
+                </div>
+                <!-- Activity 4 -->
+                <div class="bg-blue-50 p-3 rounded-xl">
+                  <div class="flex items-center justify-between mb-1">
+                    <p class="text-sm font-bold text-slate-900">Received #8825</p>
+                    <span class="text-[10px] text-slate-400">08:30 AM</span>
+                  </div>
+                  <p class="text-xs text-blue-600">Assigned by Jay Won</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Floating Chat Widget -->
     <div id="chatWidget" class="fixed bottom-6 right-6 z-50">
-        <button id="chatToggle" onclick="toggleChat()"
-            class="size-14 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:bg-emerald-600 transition-all hover:scale-105">
-            <span class="material-symbols-outlined text-2xl" id="chatIcon">chat</span>
-        </button>
-        <span
-            class="absolute -top-1 -right-1 size-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">1</span>
+      <button id="chatToggle" onclick="toggleChat()" class="size-14 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:bg-emerald-600 transition-all hover:scale-105">
+        <span class="material-symbols-outlined text-2xl" id="chatIcon">chat</span>
+      </button>
+      <span class="absolute -top-1 -right-1 size-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">1</span>
 
-        <div id="chatPanel"
-            class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-3xl shadow-2xl overflow-hidden">
-            <div class="bg-gradient-to-r from-emerald-500 to-green-600 text-white p-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-lg">Messages</h3>
-                    <button onclick="toggleChat()"
-                        class="size-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30">
-                        <span class="material-symbols-outlined text-lg">close</span>
-                    </button>
-                </div>
-                <p class="text-sm opacity-80 mt-1">Team Communication</p>
-            </div>
-
-            <div id="contactsList" class="max-h-96 overflow-y-auto">
-                <div class="px-4 py-2 bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider">Senior CS
-                </div>
-                <div onclick="openChat('Jay Won', 'Senior CS')"
-                    class="px-4 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100">
-                    <div class="relative">
-                        <div class="size-10 rounded-full bg-cover bg-center"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA');">
-                        </div>
-                        <span
-                            class="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-white rounded-full"></span>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-slate-900">Jay Won</p>
-                        <p class="text-xs text-slate-400">Online</p>
-                    </div>
-                    <span
-                        class="size-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">1</span>
-                </div>
-
-                <div class="px-4 py-2 bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider">Junior CS
-                </div>
-                <div onclick="openChat('Andi R.', 'Junior CS')"
-                    class="px-4 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100">
-                    <div class="relative">
-                        <div
-                            class="size-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm">
-                            AR</div>
-                        <span
-                            class="absolute bottom-0 right-0 size-3 bg-slate-300 border-2 border-white rounded-full"></span>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-slate-900">Andi R.</p>
-                        <p class="text-xs text-slate-400">Offline</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="chatConversation" class="hidden flex flex-col h-96">
-                <div class="p-3 border-b border-slate-100 flex items-center gap-3">
-                    <button onclick="backToContacts()"
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
-                        <span class="material-symbols-outlined text-lg">arrow_back</span>
-                    </button>
-                    <div class="flex-1">
-                        <p id="chatName" class="text-sm font-bold text-slate-900">Name</p>
-                        <p id="chatRole" class="text-[10px] text-slate-400">Role</p>
-                    </div>
-                </div>
-                <div class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50">
-                    <div class="flex gap-2">
-                        <div class="size-7 rounded-full bg-cover bg-center flex-shrink-0"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA');">
-                        </div>
-                        <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[80%]">
-                            <p class="text-sm text-slate-700">Hi Himari, bisa bantu handle ticket #8820? Customer lagi
-                                nunggu.</p>
-                            <p class="text-[10px] text-slate-400 mt-1">11:30 AM</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 justify-end">
-                        <div class="bg-emerald-500 text-white p-3 rounded-2xl rounded-tr-none max-w-[80%]">
-                            <p class="text-sm">Siap kak, aku cek sekarang 👍</p>
-                            <p class="text-[10px] opacity-70 mt-1">11:32 AM</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-3 border-t border-slate-100 flex gap-2">
-                    <input type="text" placeholder="Type a message..."
-                        class="flex-1 px-4 py-2 bg-slate-100 rounded-full border-none text-sm focus:ring-2 focus:ring-emerald-500/20">
-                    <button
-                        class="size-10 rounded-full bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600">
-                        <span class="material-symbols-outlined text-lg">send</span>
-                    </button>
-                </div>
-            </div>
+      <div id="chatPanel" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-lg shadow-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-emerald-500 to-green-600 text-white p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-lg">Messages</h3>
+            <button onclick="toggleChat()" class="size-8 rounded-lg bg-white/20 flex items-center justify-center hover:bg-white/30">
+              <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+          </div>
+          <p class="text-sm opacity-80 mt-1">Team Communication</p>
         </div>
+
+        <div id="contactsList" class="max-h-96 overflow-y-auto">
+          <div class="px-4 py-2 bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider">Senior CS</div>
+          <div onclick="openChat('Jay Won', 'Senior CS')" class="px-4 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100">
+            <div class="relative">
+              <div
+                class="size-10 rounded-full bg-cover bg-center"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA&quot;);
+                "
+              ></div>
+              <span class="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-white rounded-full"></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-slate-900">Jay Won</p>
+              <p class="text-xs text-slate-400">Online</p>
+            </div>
+            <span class="size-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">1</span>
+          </div>
+
+          <div class="px-4 py-2 bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider">Junior CS</div>
+          <div onclick="openChat('Andi R.', 'Junior CS')" class="px-4 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100">
+            <div class="relative">
+              <div class="size-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm">AR</div>
+              <span class="absolute bottom-0 right-0 size-3 bg-slate-300 border-2 border-white rounded-full"></span>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-slate-900">Andi R.</p>
+              <p class="text-xs text-slate-400">Offline</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="chatConversation" class="hidden flex flex-col h-96">
+          <div class="p-3 border-b border-slate-100 flex items-center gap-3">
+            <button onclick="backToContacts()" class="size-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
+              <span class="material-symbols-outlined text-lg">arrow_back</span>
+            </button>
+            <div class="flex-1">
+              <p id="chatName" class="text-sm font-bold text-slate-900">Name</p>
+              <p id="chatRole" class="text-[10px] text-slate-400">Role</p>
+            </div>
+          </div>
+          <div class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50">
+            <div class="flex gap-2">
+              <div
+                class="size-7 rounded-full bg-cover bg-center flex-shrink-0"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA&quot;);
+                "
+              ></div>
+              <div class="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[80%]">
+                <p class="text-sm text-slate-700">Hi Himari, bisa bantu handle ticket #8820? Customer lagi nunggu.</p>
+                <p class="text-[10px] text-slate-400 mt-1">11:30 AM</p>
+              </div>
+            </div>
+            <div class="flex gap-2 justify-end">
+              <div class="bg-emerald-500 text-white p-3 rounded-lg rounded-tr-none max-w-[80%]">
+                <p class="text-sm">Siap kak, aku cek sekarang 👍</p>
+                <p class="text-[10px] opacity-70 mt-1">11:32 AM</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-3 border-t border-slate-100 flex gap-2">
+            <input type="text" placeholder="Type a message..." class="flex-1 px-4 py-2 bg-slate-100 rounded-full border-none text-sm focus:ring-2 focus:ring-emerald-500/20" />
+            <button class="size-10 rounded-full bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600">
+              <span class="material-symbols-outlined text-lg">send</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        function toggleChat() {
-            const panel = document.getElementById('chatPanel');
-            const icon = document.getElementById('chatIcon');
-            panel.classList.toggle('hidden');
-            icon.textContent = panel.classList.contains('hidden') ? 'chat' : 'close';
-        }
-        function openChat(name, role) {
-            document.getElementById('contactsList').classList.add('hidden');
-            document.getElementById('chatConversation').classList.remove('hidden');
-            document.getElementById('chatName').textContent = name;
-            document.getElementById('chatRole').textContent = role;
-        }
-        function backToContacts() {
-            document.getElementById('contactsList').classList.remove('hidden');
-            document.getElementById('chatConversation').classList.add('hidden');
-        }
+      function toggleChat() {
+        const panel = document.getElementById("chatPanel");
+        const icon = document.getElementById("chatIcon");
+        panel.classList.toggle("hidden");
+        icon.textContent = panel.classList.contains("hidden") ? "chat" : "close";
+      }
+      function openChat(name, role) {
+        document.getElementById("contactsList").classList.add("hidden");
+        document.getElementById("chatConversation").classList.remove("hidden");
+        document.getElementById("chatName").textContent = name;
+        document.getElementById("chatRole").textContent = role;
+      }
+      function backToContacts() {
+        document.getElementById("contactsList").classList.remove("hidden");
+        document.getElementById("chatConversation").classList.add("hidden");
+      }
     </script>
-</body>
-
+  </body>
 </html>

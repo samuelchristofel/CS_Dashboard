@@ -1,293 +1,273 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Super Admin - Analytics</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#EB4C36",
-                        "primary-dark": "#d13a25",
-                        "page-bg": "#F3F4F6",
-                        "card-bg": "#FFFFFF",
-                        "text-main": "#1e293b",
-                        "text-secondary": "#64748b",
-                    },
-                    fontFamily: { "display": ["Manrope", "sans-serif"] },
-                    borderRadius: { "2xl": "1.25rem", "3xl": "2rem" },
-                    boxShadow: {
-                        "soft": "0 10px 40px -10px rgba(0,0,0,0.05)",
-                        "card": "0 4px 6px -1px rgba(0, 0, 0, 0.02)"
-                    }
-                },
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#EB4C36",
+              "primary-dark": "#d13a25",
+              "page-bg": "#F3F4F6",
+              "card-bg": "#FFFFFF",
+              "text-main": "#1e293b",
+              "text-secondary": "#64748b",
             },
-        }
+            fontFamily: { display: ["Manrope", "sans-serif"] },
+            borderRadius: { "2xl": "1.25rem", "3xl": "2rem" },
+            boxShadow: {
+              soft: "0 10px 40px -10px rgba(0,0,0,0.05)",
+              card: "0 4px 6px -1px rgba(0, 0, 0, 0.02)",
+            },
+          },
+        },
+      };
     </script>
     <style>
-        body {
-            font-family: 'Manrope', sans-serif;
-        }
+      body {
+        font-family: "Manrope", sans-serif;
+      }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
 
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-page-bg text-text-main overflow-hidden h-screen flex p-6 gap-6">
+  <body class="bg-page-bg text-text-main overflow-hidden h-screen flex p-6 gap-6">
     <!-- Sidebar -->
     <div class="w-64 flex-shrink-0 flex flex-col h-full bg-transparent">
-        <div class="h-16 flex items-center px-2 mb-8">
-            <div class="flex items-center gap-3">
-                <div class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
-                    <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
-                </div>
-                <h1 class="text-slate-900 text-xl font-bold tracking-tight">Admin Panel</h1>
-            </div>
+      <div class="h-16 flex items-center px-2 mb-8">
+        <div class="flex items-center gap-3">
+          <div class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
+            <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
+          </div>
+          <h1 class="text-slate-900 text-xl font-bold tracking-tight">Admin Panel</h1>
         </div>
-        <div class="flex-1 space-y-2 overflow-y-auto no-scrollbar">
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-dashboard.html">
-                <span class="material-symbols-outlined text-2xl">grid_view</span>
-                <span class="text-base font-semibold">Dashboard</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-tickets.html">
-                <span class="material-symbols-outlined text-2xl">confirmation_number</span>
-                <span class="text-base font-semibold">Tickets</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="dashboard-admin.html">
-                <span class="material-symbols-outlined text-2xl">people</span>
-                <span class="text-base font-semibold">Users</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-reports.html">
-                <span class="material-symbols-outlined text-2xl">bar_chart</span>
-                <span class="text-base font-semibold">Reports</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full bg-white text-slate-900 shadow-soft transition-all"
-                href="admin-analytics.html">
-                <span class="material-symbols-outlined text-primary text-2xl"
-                    style="font-variation-settings: 'FILL' 1;">analytics</span>
-                <span class="text-base font-bold">Analytics</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-audit.html">
-                <span class="material-symbols-outlined text-2xl">security</span>
-                <span class="text-base font-semibold">Audit Logs</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="history.html#admin">
-                <span class="material-symbols-outlined text-2xl">history</span>
-                <span class="text-base font-semibold">History</span>
-            </a>
+      </div>
+      <div class="flex-1 space-y-2 overflow-y-auto no-scrollbar">
+        <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-dashboard.html">
+          <span class="material-symbols-outlined text-2xl">grid_view</span>
+          <span class="text-base font-semibold">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-tickets.html">
+          <span class="material-symbols-outlined text-2xl">confirmation_number</span>
+          <span class="text-base font-semibold">Tickets</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="dashboard-admin.html">
+          <span class="material-symbols-outlined text-2xl">people</span>
+          <span class="text-base font-semibold">Users</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-reports.html">
+          <span class="material-symbols-outlined text-2xl">bar_chart</span>
+          <span class="text-base font-semibold">Reports</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-white text-slate-900 shadow-soft transition-all" href="admin-analytics.html">
+          <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: &quot;FILL&quot; 1">analytics</span>
+          <span class="text-base font-bold">Analytics</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-audit.html">
+          <span class="material-symbols-outlined text-2xl">security</span>
+          <span class="text-base font-semibold">Audit Logs</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="history.html#admin">
+          <span class="material-symbols-outlined text-2xl">history</span>
+          <span class="text-base font-semibold">History</span>
+        </a>
+      </div>
+      <div class="mt-auto">
+        <div class="flex items-center gap-3 p-2 pr-4 bg-white rounded-lg shadow-soft cursor-pointer">
+          <div class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-sm">SA</div>
+          <div class="flex flex-col">
+            <p class="text-sm font-bold text-slate-900 leading-tight">Admin</p>
+            <p class="text-[10px] text-slate-500 font-medium">Super Administrator</p>
+          </div>
+          <span class="material-symbols-outlined text-slate-400 text-lg ml-auto cursor-pointer hover:text-primary" onclick="window.location.href = 'login.html'">logout</span>
         </div>
-        <div class="mt-auto">
-            <div class="flex items-center gap-3 p-2 pr-4 bg-white rounded-full shadow-soft cursor-pointer">
-                <div
-                    class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-sm">
-                    SA</div>
-                <div class="flex flex-col">
-                    <p class="text-sm font-bold text-slate-900 leading-tight">Admin</p>
-                    <p class="text-[10px] text-slate-500 font-medium">Super Administrator</p>
-                </div>
-                <span class="material-symbols-outlined text-slate-400 text-lg ml-auto cursor-pointer hover:text-primary"
-                    onclick="window.location.href='login.html'">logout</span>
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col gap-6 h-full overflow-y-auto no-scrollbar">
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">Analytics Dashboard</h1>
-                <p class="text-sm text-slate-500 mt-1">Performance trends and insights</p>
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900">Analytics Dashboard</h1>
+          <p class="text-sm text-slate-500 mt-1">Performance trends and insights</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <select class="px-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm">
+            <option>Last 7 Days</option>
+            <option>Last 30 Days</option>
+            <option>Last 3 Months</option>
+            <option>This Year</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-2 gap-6">
+        <!-- Tickets Trend Chart -->
+        <div class="bg-white rounded-lg shadow-soft p-6">
+          <h2 class="text-lg font-bold text-slate-900 mb-4">Ticket Volume Trend</h2>
+          <div class="h-48 flex items-end gap-3">
+            <!-- Bar Chart Visualization -->
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-primary/20 rounded-t" style="height: 60%"></div>
+              <span class="text-[10px] text-slate-400">Mon</span>
             </div>
-            <div class="flex items-center gap-3">
-                <select class="px-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm">
-                    <option>Last 7 Days</option>
-                    <option>Last 30 Days</option>
-                    <option>Last 3 Months</option>
-                    <option>This Year</option>
-                </select>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-primary/30 rounded-t" style="height: 75%"></div>
+              <span class="text-[10px] text-slate-400">Tue</span>
             </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-primary/40 rounded-t" style="height: 45%"></div>
+              <span class="text-[10px] text-slate-400">Wed</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-primary/50 rounded-t" style="height: 90%"></div>
+              <span class="text-[10px] text-slate-400">Thu</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-primary/60 rounded-t" style="height: 70%"></div>
+              <span class="text-[10px] text-slate-400">Fri</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-primary/30 rounded-t" style="height: 35%"></div>
+              <span class="text-[10px] text-slate-400">Sat</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-primary rounded-t" style="height: 55%"></div>
+              <span class="text-[10px] text-slate-400">Sun</span>
+            </div>
+          </div>
+          <div class="flex justify-between mt-4 text-xs text-slate-400">
+            <span>Total: 156 tickets</span>
+            <span>Peak: Thursday (32 tickets)</span>
+          </div>
         </div>
 
-        <!-- Charts Row -->
-        <div class="grid grid-cols-2 gap-6">
-            <!-- Tickets Trend Chart -->
-            <div class="bg-white rounded-2xl shadow-soft p-6">
-                <h2 class="text-lg font-bold text-slate-900 mb-4">Ticket Volume Trend</h2>
-                <div class="h-48 flex items-end gap-3">
-                    <!-- Bar Chart Visualization -->
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-primary/20 rounded-t" style="height: 60%"></div>
-                        <span class="text-[10px] text-slate-400">Mon</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-primary/30 rounded-t" style="height: 75%"></div>
-                        <span class="text-[10px] text-slate-400">Tue</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-primary/40 rounded-t" style="height: 45%"></div>
-                        <span class="text-[10px] text-slate-400">Wed</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-primary/50 rounded-t" style="height: 90%"></div>
-                        <span class="text-[10px] text-slate-400">Thu</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-primary/60 rounded-t" style="height: 70%"></div>
-                        <span class="text-[10px] text-slate-400">Fri</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-primary/30 rounded-t" style="height: 35%"></div>
-                        <span class="text-[10px] text-slate-400">Sat</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-primary rounded-t" style="height: 55%"></div>
-                        <span class="text-[10px] text-slate-400">Sun</span>
-                    </div>
-                </div>
-                <div class="flex justify-between mt-4 text-xs text-slate-400">
-                    <span>Total: 156 tickets</span>
-                    <span>Peak: Thursday (32 tickets)</span>
-                </div>
+        <!-- Resolution Time Chart -->
+        <div class="bg-white rounded-lg shadow-soft p-6">
+          <h2 class="text-lg font-bold text-slate-900 mb-4">Avg Resolution Time</h2>
+          <div class="h-48 flex items-end gap-3">
+            <!-- Line Chart Visualization -->
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-green-400 rounded-t" style="height: 40%"></div>
+              <span class="text-[10px] text-slate-400">Mon</span>
             </div>
-
-            <!-- Resolution Time Chart -->
-            <div class="bg-white rounded-2xl shadow-soft p-6">
-                <h2 class="text-lg font-bold text-slate-900 mb-4">Avg Resolution Time</h2>
-                <div class="h-48 flex items-end gap-3">
-                    <!-- Line Chart Visualization -->
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-green-400 rounded-t" style="height: 40%"></div>
-                        <span class="text-[10px] text-slate-400">Mon</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-green-500 rounded-t" style="height: 55%"></div>
-                        <span class="text-[10px] text-slate-400">Tue</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-amber-400 rounded-t" style="height: 70%"></div>
-                        <span class="text-[10px] text-slate-400">Wed</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-amber-500 rounded-t" style="height: 85%"></div>
-                        <span class="text-[10px] text-slate-400">Thu</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-green-400 rounded-t" style="height: 45%"></div>
-                        <span class="text-[10px] text-slate-400">Fri</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-green-500 rounded-t" style="height: 35%"></div>
-                        <span class="text-[10px] text-slate-400">Sat</span>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <div class="w-full bg-green-400 rounded-t" style="height: 50%"></div>
-                        <span class="text-[10px] text-slate-400">Sun</span>
-                    </div>
-                </div>
-                <div class="flex justify-between mt-4 text-xs text-slate-400">
-                    <span>Avg: 2.4 hours</span>
-                    <span class="text-green-500">↓ 18min vs last week</span>
-                </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-green-500 rounded-t" style="height: 55%"></div>
+              <span class="text-[10px] text-slate-400">Tue</span>
             </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-amber-400 rounded-t" style="height: 70%"></div>
+              <span class="text-[10px] text-slate-400">Wed</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-amber-500 rounded-t" style="height: 85%"></div>
+              <span class="text-[10px] text-slate-400">Thu</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-green-400 rounded-t" style="height: 45%"></div>
+              <span class="text-[10px] text-slate-400">Fri</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-green-500 rounded-t" style="height: 35%"></div>
+              <span class="text-[10px] text-slate-400">Sat</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-green-400 rounded-t" style="height: 50%"></div>
+              <span class="text-[10px] text-slate-400">Sun</span>
+            </div>
+          </div>
+          <div class="flex justify-between mt-4 text-xs text-slate-400">
+            <span>Avg: 2.4 hours</span>
+            <span class="text-green-500">↓ 18min vs last week</span>
+          </div>
         </div>
+      </div>
 
-        <!-- Score Trends -->
-        <div class="bg-white rounded-2xl shadow-soft p-6">
-            <h2 class="text-lg font-bold text-slate-900 mb-4">Team Score Trends (December 2024)</h2>
-            <div class="flex gap-8">
-                <!-- Chart Area -->
-                <div class="flex-1">
-                    <div class="h-64 relative">
-                        <!-- Y-axis labels -->
-                        <div
-                            class="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-slate-400 pr-2">
-                            <span>100</span>
-                            <span>75</span>
-                            <span>50</span>
-                            <span>25</span>
-                            <span>0</span>
-                        </div>
-                        <!-- Chart grid -->
-                        <div class="ml-8 h-full flex flex-col justify-between">
-                            <div class="border-b border-dashed border-slate-100"></div>
-                            <div class="border-b border-dashed border-slate-100"></div>
-                            <div class="border-b border-dashed border-slate-100"></div>
-                            <div class="border-b border-dashed border-slate-100"></div>
-                            <div class="border-b border-slate-200"></div>
-                        </div>
-                        <!-- Score lines (simplified) -->
-                        <div class="absolute left-8 right-0 top-0 bottom-0 flex items-end">
-                            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                <!-- Jay Won line (green) -->
-                                <polyline fill="none" stroke="#22c55e" stroke-width="2"
-                                    points="0,13 15,15 30,10 45,12 60,8 75,10 85,13 100,13" />
-                                <!-- Himari line (amber) -->
-                                <polyline fill="none" stroke="#f59e0b" stroke-width="2"
-                                    points="0,30 15,28 30,32 45,35 60,30 75,28 85,25 100,28" />
-                                <!-- Andi line (red) -->
-                                <polyline fill="none" stroke="#ef4444" stroke-width="2"
-                                    points="0,40 15,45 30,50 45,55 60,52 75,55 85,52 100,55" />
-                            </svg>
-                        </div>
-                    </div>
-                    <!-- X-axis labels -->
-                    <div class="ml-8 flex justify-between text-xs text-slate-400 mt-2">
-                        <span>Week 1</span>
-                        <span>Week 2</span>
-                        <span>Week 3</span>
-                        <span>Week 4</span>
-                    </div>
-                </div>
-                <!-- Legend -->
-                <div class="w-48 space-y-3">
-                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
-                        <div class="size-3 rounded-full bg-green-500"></div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-900">Jay Won</p>
-                            <p class="text-xs text-slate-400">87 pts</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
-                        <div class="size-3 rounded-full bg-amber-500"></div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-900">Himari</p>
-                            <p class="text-xs text-slate-400">72 pts</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
-                        <div class="size-3 rounded-full bg-red-500"></div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-900">Andi R.</p>
-                            <p class="text-xs text-slate-400">45 pts</p>
-                        </div>
-                    </div>
-                </div>
+      <!-- Score Trends -->
+      <div class="bg-white rounded-lg shadow-soft p-6">
+        <h2 class="text-lg font-bold text-slate-900 mb-4">Team Score Trends (December 2024)</h2>
+        <div class="flex gap-8">
+          <!-- Chart Area -->
+          <div class="flex-1">
+            <div class="h-64 relative">
+              <!-- Y-axis labels -->
+              <div class="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-slate-400 pr-2">
+                <span>100</span>
+                <span>75</span>
+                <span>50</span>
+                <span>25</span>
+                <span>0</span>
+              </div>
+              <!-- Chart grid -->
+              <div class="ml-8 h-full flex flex-col justify-between">
+                <div class="border-b border-dashed border-slate-100"></div>
+                <div class="border-b border-dashed border-slate-100"></div>
+                <div class="border-b border-dashed border-slate-100"></div>
+                <div class="border-b border-dashed border-slate-100"></div>
+                <div class="border-b border-slate-200"></div>
+              </div>
+              <!-- Score lines (simplified) -->
+              <div class="absolute left-8 right-0 top-0 bottom-0 flex items-end">
+                <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <!-- Jay Won line (green) -->
+                  <polyline fill="none" stroke="#22c55e" stroke-width="2" points="0,13 15,15 30,10 45,12 60,8 75,10 85,13 100,13" />
+                  <!-- Himari line (amber) -->
+                  <polyline fill="none" stroke="#f59e0b" stroke-width="2" points="0,30 15,28 30,32 45,35 60,30 75,28 85,25 100,28" />
+                  <!-- Andi line (red) -->
+                  <polyline fill="none" stroke="#ef4444" stroke-width="2" points="0,40 15,45 30,50 45,55 60,52 75,55 85,52 100,55" />
+                </svg>
+              </div>
             </div>
+            <!-- X-axis labels -->
+            <div class="ml-8 flex justify-between text-xs text-slate-400 mt-2">
+              <span>Week 1</span>
+              <span>Week 2</span>
+              <span>Week 3</span>
+              <span>Week 4</span>
+            </div>
+          </div>
+          <!-- Legend -->
+          <div class="w-48 space-y-3">
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
+              <div class="size-3 rounded-full bg-green-500"></div>
+              <div class="flex-1">
+                <p class="text-sm font-bold text-slate-900">Jay Won</p>
+                <p class="text-xs text-slate-400">87 pts</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
+              <div class="size-3 rounded-full bg-amber-500"></div>
+              <div class="flex-1">
+                <p class="text-sm font-bold text-slate-900">Himari</p>
+                <p class="text-xs text-slate-400">72 pts</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
+              <div class="size-3 rounded-full bg-red-500"></div>
+              <div class="flex-1">
+                <p class="text-sm font-bold text-slate-900">Andi R.</p>
+                <p class="text-xs text-slate-400">45 pts</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</body>
-
+  </body>
 </html>

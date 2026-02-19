@@ -1,414 +1,369 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Super Admin - All Tickets</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#EB4C36",
-                        "primary-dark": "#d13a25",
-                        "page-bg": "#F3F4F6",
-                        "card-bg": "#FFFFFF",
-                        "text-main": "#1e293b",
-                        "text-secondary": "#64748b",
-                    },
-                    fontFamily: { "display": ["Manrope", "sans-serif"] },
-                    borderRadius: { "2xl": "1.25rem", "3xl": "2rem" },
-                    boxShadow: {
-                        "soft": "0 10px 40px -10px rgba(0,0,0,0.05)",
-                        "card": "0 4px 6px -1px rgba(0, 0, 0, 0.02)"
-                    }
-                },
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#EB4C36",
+              "primary-dark": "#d13a25",
+              "page-bg": "#F3F4F6",
+              "card-bg": "#FFFFFF",
+              "text-main": "#1e293b",
+              "text-secondary": "#64748b",
             },
-        }
+            fontFamily: { display: ["Manrope", "sans-serif"] },
+            borderRadius: { "2xl": "1.25rem", "3xl": "2rem" },
+            boxShadow: {
+              soft: "0 10px 40px -10px rgba(0,0,0,0.05)",
+              card: "0 4px 6px -1px rgba(0, 0, 0, 0.02)",
+            },
+          },
+        },
+      };
     </script>
     <style>
-        body {
-            font-family: 'Manrope', sans-serif;
-        }
+      body {
+        font-family: "Manrope", sans-serif;
+      }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
 
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-page-bg text-text-main overflow-hidden h-screen flex p-6 gap-6">
+  <body class="bg-page-bg text-text-main overflow-hidden h-screen flex p-6 gap-6">
     <!-- Sidebar -->
     <div class="w-64 flex-shrink-0 flex flex-col h-full bg-transparent">
-        <div class="h-16 flex items-center px-2 mb-8">
-            <div class="flex items-center gap-3">
-                <div class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
-                    <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
-                </div>
-                <h1 class="text-slate-900 text-xl font-bold tracking-tight">Admin Panel</h1>
-            </div>
+      <div class="h-16 flex items-center px-2 mb-8">
+        <div class="flex items-center gap-3">
+          <div class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
+            <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
+          </div>
+          <h1 class="text-slate-900 text-xl font-bold tracking-tight">Admin Panel</h1>
         </div>
-        <div class="flex-1 space-y-2 overflow-y-auto no-scrollbar">
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-dashboard.html">
-                <span class="material-symbols-outlined text-2xl">grid_view</span>
-                <span class="text-base font-semibold">Dashboard</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full bg-white text-slate-900 shadow-soft transition-all"
-                href="admin-tickets.html">
-                <span class="material-symbols-outlined text-primary text-2xl"
-                    style="font-variation-settings: 'FILL' 1;">confirmation_number</span>
-                <span class="text-base font-bold">Tickets</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="dashboard-admin.html">
-                <span class="material-symbols-outlined text-2xl">people</span>
-                <span class="text-base font-semibold">Users</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-reports.html">
-                <span class="material-symbols-outlined text-2xl">bar_chart</span>
-                <span class="text-base font-semibold">Reports</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-analytics.html">
-                <span class="material-symbols-outlined text-2xl">analytics</span>
-                <span class="text-base font-semibold">Analytics</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-audit.html">
-                <span class="material-symbols-outlined text-2xl">security</span>
-                <span class="text-base font-semibold">Audit Logs</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="history.html#admin">
-                <span class="material-symbols-outlined text-2xl">history</span>
-                <span class="text-base font-semibold">History</span>
-            </a>
+      </div>
+      <div class="flex-1 space-y-2 overflow-y-auto no-scrollbar">
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-dashboard.html">
+          <span class="material-symbols-outlined text-2xl">grid_view</span>
+          <span class="text-base font-semibold">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-white text-slate-900 shadow-soft transition-all" href="admin-tickets.html">
+          <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: &quot;FILL&quot; 1">confirmation_number</span>
+          <span class="text-base font-bold">Tickets</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="dashboard-admin.html">
+          <span class="material-symbols-outlined text-2xl">people</span>
+          <span class="text-base font-semibold">Users</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-reports.html">
+          <span class="material-symbols-outlined text-2xl">bar_chart</span>
+          <span class="text-base font-semibold">Reports</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-analytics.html">
+          <span class="material-symbols-outlined text-2xl">analytics</span>
+          <span class="text-base font-semibold">Analytics</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-audit.html">
+          <span class="material-symbols-outlined text-2xl">security</span>
+          <span class="text-base font-semibold">Audit Logs</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="history.html#admin">
+          <span class="material-symbols-outlined text-2xl">history</span>
+          <span class="text-base font-semibold">History</span>
+        </a>
+      </div>
+      <div class="mt-auto">
+        <div class="flex items-center gap-3 p-2 pr-4 bg-white rounded-lg shadow-soft cursor-pointer">
+          <div class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-sm">SA</div>
+          <div class="flex flex-col">
+            <p class="text-sm font-bold text-slate-900 leading-tight">Admin</p>
+            <p class="text-[10px] text-slate-500 font-medium">Super Administrator</p>
+          </div>
+          <span class="material-symbols-outlined text-slate-400 text-lg ml-auto cursor-pointer hover:text-primary" onclick="window.location.href = 'login.html'">logout</span>
         </div>
-        <div class="mt-auto">
-            <div class="flex items-center gap-3 p-2 pr-4 bg-white rounded-full shadow-soft cursor-pointer">
-                <div
-                    class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-sm">
-                    SA</div>
-                <div class="flex flex-col">
-                    <p class="text-sm font-bold text-slate-900 leading-tight">Admin</p>
-                    <p class="text-[10px] text-slate-500 font-medium">Super Administrator</p>
-                </div>
-                <span class="material-symbols-outlined text-slate-400 text-lg ml-auto cursor-pointer hover:text-primary"
-                    onclick="window.location.href='login.html'">logout</span>
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col gap-6 h-full overflow-hidden">
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">All Tickets</h1>
-                <p class="text-sm text-slate-500 mt-1">View and manage all system tickets</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="relative">
-                    <span
-                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                    <input type="text" placeholder="Search tickets..."
-                        class="pl-10 pr-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm w-64 focus:ring-2 focus:ring-primary/20">
-                </div>
-                <select class="px-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm">
-                    <option>All Status</option>
-                    <option>Open</option>
-                    <option>In Progress</option>
-                    <option>Pending Review</option>
-                    <option>Resolved</option>
-                    <option>Closed</option>
-                </select>
-                <select class="px-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm">
-                    <option>All Priority</option>
-                    <option>High</option>
-                    <option>Medium</option>
-                    <option>Low</option>
-                </select>
-                <button
-                    class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-full font-bold text-sm shadow-lg shadow-primary/30 hover:bg-primary-dark transition-colors">
-                    <span class="material-symbols-outlined text-lg">add</span>
-                    New Ticket
-                </button>
-            </div>
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900">All Tickets</h1>
+          <p class="text-sm text-slate-500 mt-1">View and manage all system tickets</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <input type="text" placeholder="Search tickets..." class="pl-10 pr-4 py-2.5 bg-white rounded-lg border-none shadow-soft text-sm w-64 focus:ring-2 focus:ring-primary/20" />
+          </div>
+          <select class="px-4 py-2.5 bg-white rounded-lg border-none shadow-soft text-sm">
+            <option>All Status</option>
+            <option>Open</option>
+            <option>In Progress</option>
+            <option>Pending Review</option>
+            <option>Resolved</option>
+            <option>Closed</option>
+          </select>
+          <select class="px-4 py-2.5 bg-white rounded-lg border-none shadow-soft text-sm">
+            <option>All Priority</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+          <button class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-lg shadow-primary/30 hover:bg-primary-dark transition-colors">
+            <span class="material-symbols-outlined text-lg">add</span>
+            New Ticket
+          </button>
+        </div>
+      </div>
+
+      <!-- Tickets Table -->
+      <div class="bg-white rounded-lg shadow-soft flex-1 overflow-hidden flex flex-col">
+        <!-- Column Headers -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-4 text-xs font-bold text-slate-400 uppercase">
+          <div class="w-20">Ticket</div>
+          <div class="flex-1">Subject</div>
+          <div class="w-20">Priority</div>
+          <div class="w-28">Status</div>
+          <div class="w-28">Assigned To</div>
+          <div class="w-20">Source</div>
+          <div class="w-28">Created</div>
+          <div class="w-20 text-right">Actions</div>
         </div>
 
-        <!-- Tickets Table -->
-        <div class="bg-white rounded-[2rem] shadow-soft flex-1 overflow-hidden flex flex-col">
-            <!-- Column Headers -->
-            <div
-                class="px-6 py-4 border-b border-slate-100 flex items-center gap-4 text-xs font-bold text-slate-400 uppercase">
-                <div class="w-20">Ticket</div>
-                <div class="flex-1">Subject</div>
-                <div class="w-20">Priority</div>
-                <div class="w-28">Status</div>
-                <div class="w-28">Assigned To</div>
-                <div class="w-20">Source</div>
-                <div class="w-28">Created</div>
-                <div class="w-20 text-right">Actions</div>
+        <!-- Table Body -->
+        <div class="flex-1 overflow-y-auto no-scrollbar">
+          <!-- Ticket 1 - High Priority Open -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors">
+            <div class="w-20 text-xs font-mono font-bold text-slate-400">#8821</div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-slate-900">GPS device offline for 3 hours</p>
+              <p class="text-xs text-slate-400 mt-0.5">PT. Trans Logistics • 0812****1234</p>
             </div>
-
-            <!-- Table Body -->
-            <div class="flex-1 overflow-y-auto no-scrollbar">
-                <!-- Ticket 1 - High Priority Open -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors">
-                    <div class="w-20 text-xs font-mono font-bold text-slate-400">#8821</div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-slate-900">GPS device offline for 3 hours</p>
-                        <p class="text-xs text-slate-400 mt-0.5">PT. Trans Logistics • 0812****1234</p>
-                    </div>
-                    <div class="w-20">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-500">HIGH</span>
-                    </div>
-                    <div class="w-28">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600">IN
-                            PROGRESS</span>
-                    </div>
-                    <div class="w-28 flex items-center gap-2">
-                        <div class="size-6 rounded-full bg-cover bg-center"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA');">
-                        </div>
-                        <span class="text-xs font-medium text-slate-600">Jay Won</span>
-                    </div>
-                    <div class="w-20">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600">Freshchat</span>
-                    </div>
-                    <div class="w-28 text-xs text-slate-500">Dec 25, 13:45</div>
-                    <div class="w-20 flex justify-end gap-1">
-                        <button
-                            class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span class="material-symbols-outlined text-base">visibility</span>
-                        </button>
-                        <button
-                            class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Ticket 2 - Medium Pending Review -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors bg-amber-50/30">
-                    <div class="w-20 text-xs font-mono font-bold text-slate-400">#8820</div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-slate-900">Invoice discrepancy for November</p>
-                        <p class="text-xs text-slate-400 mt-0.5">CV. Maju Bersama • 0821****5678</p>
-                    </div>
-                    <div class="w-20">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600">MEDIUM</span>
-                    </div>
-                    <div class="w-28">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">PENDING
-                            REVIEW</span>
-                    </div>
-                    <div class="w-28 flex items-center gap-2">
-                        <div class="size-6 rounded-full bg-cover bg-center"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDN0rsqgI4Fv1zrp1NtwFDfMAtVMQ2Oy1GVDJOvJ6nCUCQ7jsiVV56xA7nbgCm5tdWoz7uRJrvKLjNMVQjnTMrOkljsYHrZQXhnMHQ5CdvP5axphgV6bpBS37A56yKKtC62X_dV8ExJ__FV1vSZxJHnm6MtQpfaAfapPm0coFGD-DUok5mewrK8Mmy6ABuxS5_YsFmQs1t22lop8_n8TY7Vk9QXC4c9Gu2AMIHn2KB-a37kNDLDGLObRehy6a9NVQSgv140p_nRAM8');">
-                        </div>
-                        <span class="text-xs font-medium text-slate-600">Himari</span>
-                    </div>
-                    <div class="w-20">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">WhatsApp</span>
-                    </div>
-                    <div class="w-28 text-xs text-slate-500">Dec 25, 11:20</div>
-                    <div class="w-20 flex justify-end gap-1">
-                        <button
-                            class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span class="material-symbols-outlined text-base">visibility</span>
-                        </button>
-                        <button
-                            class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Ticket 3 - High With IT -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-blue-500">
-                    <div class="w-20 text-xs font-mono font-bold text-slate-400">#8819</div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-slate-900">Server authentication error 500</p>
-                        <p class="text-xs text-slate-400 mt-0.5">PT. Digital Solusi • 0815****9012</p>
-                    </div>
-                    <div class="w-20">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-500">HIGH</span>
-                    </div>
-                    <div class="w-28">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">WITH
-                            IT</span>
-                    </div>
-                    <div class="w-28 flex items-center gap-2">
-                        <div
-                            class="size-6 rounded-full bg-red-100 flex items-center justify-center text-primary font-bold text-[10px]">
-                            IT</div>
-                        <span class="text-xs font-medium text-slate-600">Budi</span>
-                    </div>
-                    <div class="w-20">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600">Freshchat</span>
-                    </div>
-                    <div class="w-28 text-xs text-slate-500">Dec 25, 10:30</div>
-                    <div class="w-20 flex justify-end gap-1">
-                        <button
-                            class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span class="material-symbols-outlined text-base">visibility</span>
-                        </button>
-                        <button
-                            class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span class="material-symbols-outlined text-base">edit</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Ticket 4 - Low Open -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors">
-                    <div class="w-20 text-xs font-mono font-bold text-slate-400">#8818</div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-slate-900">Request for fleet pricing quotation</p>
-                        <p class="text-xs text-slate-400 mt-0.5">Sarah Williams • 0856****3456</p>
-                    </div>
-                    <div class="w-20">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-500">LOW</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">OPEN</span>
-                    </div>
-                    <div class="w-28 text-xs text-slate-400">Unassigned</div>
-                    <div class="w-20">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">WhatsApp</span>
-                    </div>
-                    <div class="w-28 text-xs text-slate-500">Dec 25, 09:15</div>
-                    <div class="w-20 flex justify-end gap-1">
-                        <button
-                            class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span class="material-symbols-outlined text-base">visibility</span>
-                        </button>
-                        <button
-                            class="size-7 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20">
-                            <span class="material-symbols-outlined text-base">person_add</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Ticket 5 - Resolved -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors opacity-60">
-                    <div class="w-20 text-xs font-mono font-bold text-slate-400">#8817</div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-slate-900">Password reset request</p>
-                        <p class="text-xs text-slate-400 mt-0.5">Ahmad Fauzi • 0877****7890</p>
-                    </div>
-                    <div class="w-20">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-500">LOW</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700">CLOSED</span>
-                    </div>
-                    <div class="w-28 flex items-center gap-2">
-                        <div class="size-6 rounded-full bg-cover bg-center"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDN0rsqgI4Fv1zrp1NtwFDfMAtVMQ2Oy1GVDJOvJ6nCUCQ7jsiVV56xA7nbgCm5tdWoz7uRJrvKLjNMVQjnTMrOkljsYHrZQXhnMHQ5CdvP5axphgV6bpBS37A56yKKtC62X_dV8ExJ__FV1vSZxJHnm6MtQpfaAfapPm0coFGD-DUok5mewrK8Mmy6ABuxS5_YsFmQs1t22lop8_n8TY7Vk9QXC4c9Gu2AMIHn2KB-a37kNDLDGLObRehy6a9NVQSgv140p_nRAM8');">
-                        </div>
-                        <span class="text-xs font-medium text-slate-600">Himari</span>
-                    </div>
-                    <div class="w-20">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600">Freshchat</span>
-                    </div>
-                    <div class="w-28 text-xs text-slate-500">Dec 24, 16:30</div>
-                    <div class="w-20 flex justify-end gap-1">
-                        <button
-                            class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span class="material-symbols-outlined text-base">visibility</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Ticket 6 - Resolved -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors opacity-60">
-                    <div class="w-20 text-xs font-mono font-bold text-slate-400">#8816</div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-slate-900">Vehicle not moving on map display</p>
-                        <p class="text-xs text-slate-400 mt-0.5">PT. Logistik Nusantara • 0812****5678</p>
-                    </div>
-                    <div class="w-20">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-500">HIGH</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700">CLOSED</span>
-                    </div>
-                    <div class="w-28 flex items-center gap-2">
-                        <div class="size-6 rounded-full bg-cover bg-center"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA');">
-                        </div>
-                        <span class="text-xs font-medium text-slate-600">Jay Won</span>
-                    </div>
-                    <div class="w-20">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">WhatsApp</span>
-                    </div>
-                    <div class="w-28 text-xs text-slate-500">Dec 24, 14:30</div>
-                    <div class="w-20 flex justify-end gap-1">
-                        <button
-                            class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                            <span class="material-symbols-outlined text-base">visibility</span>
-                        </button>
-                    </div>
-                </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-500">HIGH</span>
             </div>
-
-            <!-- Pagination -->
-            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-                <p class="text-sm text-slate-500">Showing 1-6 of 156 tickets</p>
-                <div class="flex items-center gap-2">
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                        <span class="material-symbols-outlined text-lg">chevron_left</span>
-                    </button>
-                    <button
-                        class="size-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</button>
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">2</button>
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">3</button>
-                    <span class="text-slate-400">...</span>
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">26</button>
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                        <span class="material-symbols-outlined text-lg">chevron_right</span>
-                    </button>
-                </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600">IN PROGRESS</span>
             </div>
+            <div class="w-28 flex items-center gap-2">
+              <div
+                class="size-6 rounded-full bg-cover bg-center"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA&quot;);
+                "
+              ></div>
+              <span class="text-xs font-medium text-slate-600">Jay Won</span>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600">Freshchat</span>
+            </div>
+            <div class="w-28 text-xs text-slate-500">Dec 25, 13:45</div>
+            <div class="w-20 flex justify-end gap-1">
+              <button class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-base">visibility</span>
+              </button>
+              <button class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-base">edit</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ticket 2 - Medium Pending Review -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors bg-amber-50/30">
+            <div class="w-20 text-xs font-mono font-bold text-slate-400">#8820</div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-slate-900">Invoice discrepancy for November</p>
+              <p class="text-xs text-slate-400 mt-0.5">CV. Maju Bersama • 0821****5678</p>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600">MEDIUM</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">PENDING REVIEW</span>
+            </div>
+            <div class="w-28 flex items-center gap-2">
+              <div
+                class="size-6 rounded-full bg-cover bg-center"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDN0rsqgI4Fv1zrp1NtwFDfMAtVMQ2Oy1GVDJOvJ6nCUCQ7jsiVV56xA7nbgCm5tdWoz7uRJrvKLjNMVQjnTMrOkljsYHrZQXhnMHQ5CdvP5axphgV6bpBS37A56yKKtC62X_dV8ExJ__FV1vSZxJHnm6MtQpfaAfapPm0coFGD-DUok5mewrK8Mmy6ABuxS5_YsFmQs1t22lop8_n8TY7Vk9QXC4c9Gu2AMIHn2KB-a37kNDLDGLObRehy6a9NVQSgv140p_nRAM8&quot;);
+                "
+              ></div>
+              <span class="text-xs font-medium text-slate-600">Himari</span>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">WhatsApp</span>
+            </div>
+            <div class="w-28 text-xs text-slate-500">Dec 25, 11:20</div>
+            <div class="w-20 flex justify-end gap-1">
+              <button class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-base">visibility</span>
+              </button>
+              <button class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-base">edit</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ticket 3 - High With IT -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors border-l-4 border-blue-500">
+            <div class="w-20 text-xs font-mono font-bold text-slate-400">#8819</div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-slate-900">Server authentication error 500</p>
+              <p class="text-xs text-slate-400 mt-0.5">PT. Digital Solusi • 0815****9012</p>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-500">HIGH</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">WITH IT</span>
+            </div>
+            <div class="w-28 flex items-center gap-2">
+              <div class="size-6 rounded-full bg-red-100 flex items-center justify-center text-primary font-bold text-[10px]">IT</div>
+              <span class="text-xs font-medium text-slate-600">Budi</span>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600">Freshchat</span>
+            </div>
+            <div class="w-28 text-xs text-slate-500">Dec 25, 10:30</div>
+            <div class="w-20 flex justify-end gap-1">
+              <button class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-base">visibility</span>
+              </button>
+              <button class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-base">edit</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ticket 4 - Low Open -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors">
+            <div class="w-20 text-xs font-mono font-bold text-slate-400">#8818</div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-slate-900">Request for fleet pricing quotation</p>
+              <p class="text-xs text-slate-400 mt-0.5">Sarah Williams • 0856****3456</p>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-500">LOW</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">OPEN</span>
+            </div>
+            <div class="w-28 text-xs text-slate-400">Unassigned</div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">WhatsApp</span>
+            </div>
+            <div class="w-28 text-xs text-slate-500">Dec 25, 09:15</div>
+            <div class="w-20 flex justify-end gap-1">
+              <button class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-base">visibility</span>
+              </button>
+              <button class="size-7 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20">
+                <span class="material-symbols-outlined text-base">person_add</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ticket 5 - Resolved -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors opacity-60">
+            <div class="w-20 text-xs font-mono font-bold text-slate-400">#8817</div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-slate-900">Password reset request</p>
+              <p class="text-xs text-slate-400 mt-0.5">Ahmad Fauzi • 0877****7890</p>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-500">LOW</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700">CLOSED</span>
+            </div>
+            <div class="w-28 flex items-center gap-2">
+              <div
+                class="size-6 rounded-full bg-cover bg-center"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDN0rsqgI4Fv1zrp1NtwFDfMAtVMQ2Oy1GVDJOvJ6nCUCQ7jsiVV56xA7nbgCm5tdWoz7uRJrvKLjNMVQjnTMrOkljsYHrZQXhnMHQ5CdvP5axphgV6bpBS37A56yKKtC62X_dV8ExJ__FV1vSZxJHnm6MtQpfaAfapPm0coFGD-DUok5mewrK8Mmy6ABuxS5_YsFmQs1t22lop8_n8TY7Vk9QXC4c9Gu2AMIHn2KB-a37kNDLDGLObRehy6a9NVQSgv140p_nRAM8&quot;);
+                "
+              ></div>
+              <span class="text-xs font-medium text-slate-600">Himari</span>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600">Freshchat</span>
+            </div>
+            <div class="w-28 text-xs text-slate-500">Dec 24, 16:30</div>
+            <div class="w-20 flex justify-end gap-1">
+              <button class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-base">visibility</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ticket 6 - Resolved -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors opacity-60">
+            <div class="w-20 text-xs font-mono font-bold text-slate-400">#8816</div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-slate-900">Vehicle not moving on map display</p>
+              <p class="text-xs text-slate-400 mt-0.5">PT. Logistik Nusantara • 0812****5678</p>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-500">HIGH</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700">CLOSED</span>
+            </div>
+            <div class="w-28 flex items-center gap-2">
+              <div
+                class="size-6 rounded-full bg-cover bg-center"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA&quot;);
+                "
+              ></div>
+              <span class="text-xs font-medium text-slate-600">Jay Won</span>
+            </div>
+            <div class="w-20">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">WhatsApp</span>
+            </div>
+            <div class="w-28 text-xs text-slate-500">Dec 24, 14:30</div>
+            <div class="w-20 flex justify-end gap-1">
+              <button class="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-base">visibility</span>
+              </button>
+            </div>
+          </div>
         </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+          <p class="text-sm text-slate-500">Showing 1-6 of 156 tickets</p>
+          <div class="flex items-center gap-2">
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+              <span class="material-symbols-outlined text-lg">chevron_left</span>
+            </button>
+            <button class="size-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</button>
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">2</button>
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">3</button>
+            <span class="text-slate-400">...</span>
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">26</button>
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+              <span class="material-symbols-outlined text-lg">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
-
+  </body>
 </html>

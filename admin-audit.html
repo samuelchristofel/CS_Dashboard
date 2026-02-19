@@ -1,379 +1,321 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Super Admin - Audit Logs</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#EB4C36",
-                        "primary-dark": "#d13a25",
-                        "page-bg": "#F3F4F6",
-                        "card-bg": "#FFFFFF",
-                        "text-main": "#1e293b",
-                        "text-secondary": "#64748b",
-                    },
-                    fontFamily: { "display": ["Manrope", "sans-serif"] },
-                    borderRadius: { "2xl": "1.25rem", "3xl": "2rem" },
-                    boxShadow: {
-                        "soft": "0 10px 40px -10px rgba(0,0,0,0.05)",
-                        "card": "0 4px 6px -1px rgba(0, 0, 0, 0.02)"
-                    }
-                },
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#EB4C36",
+              "primary-dark": "#d13a25",
+              "page-bg": "#F3F4F6",
+              "card-bg": "#FFFFFF",
+              "text-main": "#1e293b",
+              "text-secondary": "#64748b",
             },
-        }
+            fontFamily: { display: ["Manrope", "sans-serif"] },
+            borderRadius: { "2xl": "1.25rem", "3xl": "2rem" },
+            boxShadow: {
+              soft: "0 10px 40px -10px rgba(0,0,0,0.05)",
+              card: "0 4px 6px -1px rgba(0, 0, 0, 0.02)",
+            },
+          },
+        },
+      };
     </script>
     <style>
-        body {
-            font-family: 'Manrope', sans-serif;
-        }
+      body {
+        font-family: "Manrope", sans-serif;
+      }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
 
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-page-bg text-text-main overflow-hidden h-screen flex p-6 gap-6">
+  <body class="bg-page-bg text-text-main overflow-hidden h-screen flex p-6 gap-6">
     <!-- Sidebar -->
     <div class="w-64 flex-shrink-0 flex flex-col h-full bg-transparent">
-        <div class="h-16 flex items-center px-2 mb-8">
-            <div class="flex items-center gap-3">
-                <div class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
-                    <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
-                </div>
-                <h1 class="text-slate-900 text-xl font-bold tracking-tight">Admin Panel</h1>
-            </div>
+      <div class="h-16 flex items-center px-2 mb-8">
+        <div class="flex items-center gap-3">
+          <div class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
+            <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
+          </div>
+          <h1 class="text-slate-900 text-xl font-bold tracking-tight">Admin Panel</h1>
         </div>
-        <div class="flex-1 space-y-2 overflow-y-auto no-scrollbar">
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-dashboard.html">
-                <span class="material-symbols-outlined text-2xl">grid_view</span>
-                <span class="text-base font-semibold">Dashboard</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-tickets.html">
-                <span class="material-symbols-outlined text-2xl">confirmation_number</span>
-                <span class="text-base font-semibold">Tickets</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="dashboard-admin.html">
-                <span class="material-symbols-outlined text-2xl">people</span>
-                <span class="text-base font-semibold">Users</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-reports.html">
-                <span class="material-symbols-outlined text-2xl">bar_chart</span>
-                <span class="text-base font-semibold">Reports</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="admin-analytics.html">
-                <span class="material-symbols-outlined text-2xl">analytics</span>
-                <span class="text-base font-semibold">Analytics</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full bg-white text-slate-900 shadow-soft transition-all"
-                href="admin-audit.html">
-                <span class="material-symbols-outlined text-primary text-2xl"
-                    style="font-variation-settings: 'FILL' 1;">security</span>
-                <span class="text-base font-bold">Audit Logs</span>
-            </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
-                href="history.html#admin">
-                <span class="material-symbols-outlined text-2xl">history</span>
-                <span class="text-base font-semibold">History</span>
-            </a>
+      </div>
+      <div class="flex-1 space-y-2 overflow-y-auto no-scrollbar">
+        <a class="flex items-center gap-4 px-4 py-3 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-dashboard.html">
+          <span class="material-symbols-outlined text-2xl">grid_view</span>
+          <span class="text-base font-semibold">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-tickets.html">
+          <span class="material-symbols-outlined text-2xl">confirmation_number</span>
+          <span class="text-base font-semibold">Tickets</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="dashboard-admin.html">
+          <span class="material-symbols-outlined text-2xl">people</span>
+          <span class="text-base font-semibold">Users</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-reports.html">
+          <span class="material-symbols-outlined text-2xl">bar_chart</span>
+          <span class="text-base font-semibold">Reports</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="admin-analytics.html">
+          <span class="material-symbols-outlined text-2xl">analytics</span>
+          <span class="text-base font-semibold">Analytics</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-white text-slate-900 shadow-soft transition-all" href="admin-audit.html">
+          <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: &quot;FILL&quot; 1">security</span>
+          <span class="text-base font-bold">Audit Logs</span>
+        </a>
+        <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all" href="history.html#admin">
+          <span class="material-symbols-outlined text-2xl">history</span>
+          <span class="text-base font-semibold">History</span>
+        </a>
+      </div>
+      <div class="mt-auto">
+        <div class="flex items-center gap-3 p-2 pr-4 bg-white rounded-lg shadow-soft cursor-pointer">
+          <div class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-sm">SA</div>
+          <div class="flex flex-col">
+            <p class="text-sm font-bold text-slate-900 leading-tight">Admin</p>
+            <p class="text-[10px] text-slate-500 font-medium">Super Administrator</p>
+          </div>
+          <span class="material-symbols-outlined text-slate-400 text-lg ml-auto cursor-pointer hover:text-primary" onclick="window.location.href = 'login.html'">logout</span>
         </div>
-        <div class="mt-auto">
-            <div class="flex items-center gap-3 p-2 pr-4 bg-white rounded-full shadow-soft cursor-pointer">
-                <div
-                    class="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-sm">
-                    SA</div>
-                <div class="flex flex-col">
-                    <p class="text-sm font-bold text-slate-900 leading-tight">Admin</p>
-                    <p class="text-[10px] text-slate-500 font-medium">Super Administrator</p>
-                </div>
-                <span class="material-symbols-outlined text-slate-400 text-lg ml-auto cursor-pointer hover:text-primary"
-                    onclick="window.location.href='login.html'">logout</span>
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col gap-6 h-full overflow-hidden">
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">Audit Logs</h1>
-                <p class="text-sm text-slate-500 mt-1">System activity and security monitoring</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="relative">
-                    <span
-                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                    <input type="text" placeholder="Search logs..."
-                        class="pl-10 pr-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm w-64 focus:ring-2 focus:ring-primary/20">
-                </div>
-                <select class="px-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm">
-                    <option>All Actions</option>
-                    <option>Login/Logout</option>
-                    <option>Ticket Actions</option>
-                    <option>User Management</option>
-                    <option>System</option>
-                </select>
-                <select class="px-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm">
-                    <option>All Users</option>
-                    <option>Admin</option>
-                    <option>Jay Won</option>
-                    <option>Himari</option>
-                    <option>Budi</option>
-                </select>
-                <button
-                    class="flex items-center gap-2 px-4 py-2.5 bg-white rounded-full shadow-soft text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
-                    <span class="material-symbols-outlined text-lg">download</span>
-                    Export
-                </button>
-            </div>
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900">Audit Logs</h1>
+          <p class="text-sm text-slate-500 mt-1">System activity and security monitoring</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <input type="text" placeholder="Search logs..." class="pl-10 pr-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm w-64 focus:ring-2 focus:ring-primary/20" />
+          </div>
+          <select class="px-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm">
+            <option>All Actions</option>
+            <option>Login/Logout</option>
+            <option>Ticket Actions</option>
+            <option>User Management</option>
+            <option>System</option>
+          </select>
+          <select class="px-4 py-2.5 bg-white rounded-full border-none shadow-soft text-sm">
+            <option>All Users</option>
+            <option>Admin</option>
+            <option>Jay Won</option>
+            <option>Himari</option>
+            <option>Budi</option>
+          </select>
+          <button class="flex items-center gap-2 px-4 py-2.5 bg-white rounded-full shadow-soft text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+            <span class="material-symbols-outlined text-lg">download</span>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Audit Log Table -->
+      <div class="bg-white rounded-lg shadow-soft flex-1 overflow-hidden flex flex-col">
+        <!-- Column Headers -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-4 text-xs font-bold text-slate-400 uppercase">
+          <div class="w-40">Timestamp</div>
+          <div class="w-32">User</div>
+          <div class="w-28">Action</div>
+          <div class="flex-1">Details</div>
+          <div class="w-28">IP Address</div>
+          <div class="w-20">Status</div>
         </div>
 
-        <!-- Audit Log Table -->
-        <div class="bg-white rounded-[2rem] shadow-soft flex-1 overflow-hidden flex flex-col">
-            <!-- Column Headers -->
-            <div
-                class="px-6 py-4 border-b border-slate-100 flex items-center gap-4 text-xs font-bold text-slate-400 uppercase">
-                <div class="w-40">Timestamp</div>
-                <div class="w-32">User</div>
-                <div class="w-28">Action</div>
-                <div class="flex-1">Details</div>
-                <div class="w-28">IP Address</div>
-                <div class="w-20">Status</div>
+        <!-- Table Body -->
+        <div class="flex-1 overflow-y-auto no-scrollbar">
+          <!-- Log 1 -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+            <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 14:12:34</div>
+            <div class="w-32 flex items-center gap-2">
+              <div
+                class="size-6 rounded-full bg-cover bg-center"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA&quot;);
+                "
+              ></div>
+              <span class="text-xs font-medium text-slate-600">Jay Won</span>
             </div>
-
-            <!-- Table Body -->
-            <div class="flex-1 overflow-y-auto no-scrollbar">
-                <!-- Log 1 -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                    <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 14:12:34</div>
-                    <div class="w-32 flex items-center gap-2">
-                        <div class="size-6 rounded-full bg-cover bg-center"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA');">
-                        </div>
-                        <span class="text-xs font-medium text-slate-600">Jay Won</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">CLOSE</span>
-                    </div>
-                    <div class="flex-1 text-sm text-slate-600">
-                        Closed ticket <span class="font-mono text-primary">#8820</span> - Invoice discrepancy resolved
-                    </div>
-                    <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.45</div>
-                    <div class="w-20">
-                        <span class="size-2 rounded-full bg-green-500 inline-block"></span>
-                    </div>
-                </div>
-
-                <!-- Log 2 -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                    <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 14:08:21</div>
-                    <div class="w-32 flex items-center gap-2">
-                        <div
-                            class="size-6 rounded-full bg-red-100 flex items-center justify-center text-primary font-bold text-[8px]">
-                            IT</div>
-                        <span class="text-xs font-medium text-slate-600">Budi</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600">RESOLVED</span>
-                    </div>
-                    <div class="flex-1 text-sm text-slate-600">
-                        Marked ticket <span class="font-mono text-primary">#8819</span> as done - Server issue fixed
-                    </div>
-                    <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.102</div>
-                    <div class="w-20">
-                        <span class="size-2 rounded-full bg-green-500 inline-block"></span>
-                    </div>
-                </div>
-
-                <!-- Log 3 -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                    <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 13:45:00</div>
-                    <div class="w-32 flex items-center gap-2">
-                        <div
-                            class="size-6 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-[8px]">
-                            SA</div>
-                        <span class="text-xs font-medium text-slate-600">Admin</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600">USER</span>
-                    </div>
-                    <div class="flex-1 text-sm text-slate-600">
-                        Created new user <span class="font-bold">Andi Rahmat</span> with role Junior CS
-                    </div>
-                    <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.10</div>
-                    <div class="w-20">
-                        <span class="size-2 rounded-full bg-green-500 inline-block"></span>
-                    </div>
-                </div>
-
-                <!-- Log 4 -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                    <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 13:30:15</div>
-                    <div class="w-32 flex items-center gap-2">
-                        <div class="size-6 rounded-full bg-cover bg-center"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA');">
-                        </div>
-                        <span class="text-xs font-medium text-slate-600">Jay Won</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600">ASSIGN</span>
-                    </div>
-                    <div class="flex-1 text-sm text-slate-600">
-                        Assigned ticket <span class="font-mono text-primary">#8819</span> to IT Support (Budi)
-                    </div>
-                    <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.45</div>
-                    <div class="w-20">
-                        <span class="size-2 rounded-full bg-green-500 inline-block"></span>
-                    </div>
-                </div>
-
-                <!-- Log 5 -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                    <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 13:15:42</div>
-                    <div class="w-32 flex items-center gap-2">
-                        <div class="size-6 rounded-full bg-cover bg-center"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDN0rsqgI4Fv1zrp1NtwFDfMAtVMQ2Oy1GVDJOvJ6nCUCQ7jsiVV56xA7nbgCm5tdWoz7uRJrvKLjNMVQjnTMrOkljsYHrZQXhnMHQ5CdvP5axphgV6bpBS37A56yKKtC62X_dV8ExJ__FV1vSZxJHnm6MtQpfaAfapPm0coFGD-DUok5mewrK8Mmy6ABuxS5_YsFmQs1t22lop8_n8TY7Vk9QXC4c9Gu2AMIHn2KB-a37kNDLDGLObRehy6a9NVQSgv140p_nRAM8');">
-                        </div>
-                        <span class="text-xs font-medium text-slate-600">Himari</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">LOGIN</span>
-                    </div>
-                    <div class="flex-1 text-sm text-slate-600">
-                        User logged in successfully
-                    </div>
-                    <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.88</div>
-                    <div class="w-20">
-                        <span class="size-2 rounded-full bg-green-500 inline-block"></span>
-                    </div>
-                </div>
-
-                <!-- Log 6 - Failed Login -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-red-50 transition-colors bg-red-50/30">
-                    <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 13:10:08</div>
-                    <div class="w-32 flex items-center gap-2">
-                        <div
-                            class="size-6 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-[8px]">
-                            ?</div>
-                        <span class="text-xs font-medium text-slate-600">Unknown</span>
-                    </div>
-                    <div class="w-28">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-500">FAILED</span>
-                    </div>
-                    <div class="flex-1 text-sm text-red-600">
-                        Failed login attempt for email <span class="font-mono">admin@vastel.id</span>
-                    </div>
-                    <div class="w-28 text-xs text-slate-400 font-mono">103.45.67.89</div>
-                    <div class="w-20">
-                        <span class="size-2 rounded-full bg-red-500 inline-block"></span>
-                    </div>
-                </div>
-
-                <!-- Log 7 -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                    <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 12:45:33</div>
-                    <div class="w-32 flex items-center gap-2">
-                        <div
-                            class="size-6 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-[8px]">
-                            SA</div>
-                        <span class="text-xs font-medium text-slate-600">Admin</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">LOGIN</span>
-                    </div>
-                    <div class="flex-1 text-sm text-slate-600">
-                        User logged in successfully
-                    </div>
-                    <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.10</div>
-                    <div class="w-20">
-                        <span class="size-2 rounded-full bg-green-500 inline-block"></span>
-                    </div>
-                </div>
-
-                <!-- Log 8 -->
-                <div
-                    class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                    <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 12:30:00</div>
-                    <div class="w-32 flex items-center gap-2">
-                        <div
-                            class="size-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-[8px]">
-                            SYS</div>
-                        <span class="text-xs font-medium text-slate-600">System</span>
-                    </div>
-                    <div class="w-28">
-                        <span
-                            class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600">SYSTEM</span>
-                    </div>
-                    <div class="flex-1 text-sm text-slate-600">
-                        Monthly score reset completed for all CS agents
-                    </div>
-                    <div class="w-28 text-xs text-slate-400 font-mono">localhost</div>
-                    <div class="w-20">
-                        <span class="size-2 rounded-full bg-green-500 inline-block"></span>
-                    </div>
-                </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600">CLOSE</span>
             </div>
-
-            <!-- Pagination -->
-            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-                <p class="text-sm text-slate-500">Showing 1-8 of 1,234 logs</p>
-                <div class="flex items-center gap-2">
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                        <span class="material-symbols-outlined text-lg">chevron_left</span>
-                    </button>
-                    <button
-                        class="size-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</button>
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">2</button>
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">3</button>
-                    <span class="text-slate-400">...</span>
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">154</button>
-                    <button
-                        class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
-                        <span class="material-symbols-outlined text-lg">chevron_right</span>
-                    </button>
-                </div>
+            <div class="flex-1 text-sm text-slate-600">Closed ticket <span class="font-mono text-primary">#8820</span> - Invoice discrepancy resolved</div>
+            <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.45</div>
+            <div class="w-20">
+              <span class="size-2 rounded-full bg-green-500 inline-block"></span>
             </div>
+          </div>
+
+          <!-- Log 2 -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+            <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 14:08:21</div>
+            <div class="w-32 flex items-center gap-2">
+              <div class="size-6 rounded-full bg-red-100 flex items-center justify-center text-primary font-bold text-[8px]">IT</div>
+              <span class="text-xs font-medium text-slate-600">Budi</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600">RESOLVED</span>
+            </div>
+            <div class="flex-1 text-sm text-slate-600">Marked ticket <span class="font-mono text-primary">#8819</span> as done - Server issue fixed</div>
+            <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.102</div>
+            <div class="w-20">
+              <span class="size-2 rounded-full bg-green-500 inline-block"></span>
+            </div>
+          </div>
+
+          <!-- Log 3 -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+            <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 13:45:00</div>
+            <div class="w-32 flex items-center gap-2">
+              <div class="size-6 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-[8px]">SA</div>
+              <span class="text-xs font-medium text-slate-600">Admin</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-600">USER</span>
+            </div>
+            <div class="flex-1 text-sm text-slate-600">Created new user <span class="font-bold">Andi Rahmat</span> with role Junior CS</div>
+            <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.10</div>
+            <div class="w-20">
+              <span class="size-2 rounded-full bg-green-500 inline-block"></span>
+            </div>
+          </div>
+
+          <!-- Log 4 -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+            <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 13:30:15</div>
+            <div class="w-32 flex items-center gap-2">
+              <div
+                class="size-6 rounded-full bg-cover bg-center"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAoS1f1jqiPLCv9wP1ZX5ODYa0ghkKGjzT0pHb0bhhH20OWJucjJF3IaQ3_s7kGdgzSrESvLELeRePVCXvRr6Yy6B44ot4XYOMJ8EMZqG-XCW3_LdyPn99i7jvXqfWcPrKLwpHBNINwHk8ii2yZhCVjb4ie45MSAzkKY1ThrKQqU6IW1IYNMpiJCMbLekMBKotxWueVnTbLJwOjHjthhnsBYumDmvRUF1jRAc8enpPdmTnLWmqaUL-YtKY7AbgW3bg6V9BjT3ZcykA&quot;);
+                "
+              ></div>
+              <span class="text-xs font-medium text-slate-600">Jay Won</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600">ASSIGN</span>
+            </div>
+            <div class="flex-1 text-sm text-slate-600">Assigned ticket <span class="font-mono text-primary">#8819</span> to IT Support (Budi)</div>
+            <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.45</div>
+            <div class="w-20">
+              <span class="size-2 rounded-full bg-green-500 inline-block"></span>
+            </div>
+          </div>
+
+          <!-- Log 5 -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+            <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 13:15:42</div>
+            <div class="w-32 flex items-center gap-2">
+              <div
+                class="size-6 rounded-full bg-cover bg-center"
+                style="
+                  background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDN0rsqgI4Fv1zrp1NtwFDfMAtVMQ2Oy1GVDJOvJ6nCUCQ7jsiVV56xA7nbgCm5tdWoz7uRJrvKLjNMVQjnTMrOkljsYHrZQXhnMHQ5CdvP5axphgV6bpBS37A56yKKtC62X_dV8ExJ__FV1vSZxJHnm6MtQpfaAfapPm0coFGD-DUok5mewrK8Mmy6ABuxS5_YsFmQs1t22lop8_n8TY7Vk9QXC4c9Gu2AMIHn2KB-a37kNDLDGLObRehy6a9NVQSgv140p_nRAM8&quot;);
+                "
+              ></div>
+              <span class="text-xs font-medium text-slate-600">Himari</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">LOGIN</span>
+            </div>
+            <div class="flex-1 text-sm text-slate-600">User logged in successfully</div>
+            <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.88</div>
+            <div class="w-20">
+              <span class="size-2 rounded-full bg-green-500 inline-block"></span>
+            </div>
+          </div>
+
+          <!-- Log 6 - Failed Login -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-red-50 transition-colors bg-red-50/30">
+            <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 13:10:08</div>
+            <div class="w-32 flex items-center gap-2">
+              <div class="size-6 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-[8px]">?</div>
+              <span class="text-xs font-medium text-slate-600">Unknown</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-500">FAILED</span>
+            </div>
+            <div class="flex-1 text-sm text-red-600">Failed login attempt for email <span class="font-mono">admin@vastel.id</span></div>
+            <div class="w-28 text-xs text-slate-400 font-mono">103.45.67.89</div>
+            <div class="w-20">
+              <span class="size-2 rounded-full bg-red-500 inline-block"></span>
+            </div>
+          </div>
+
+          <!-- Log 7 -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+            <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 12:45:33</div>
+            <div class="w-32 flex items-center gap-2">
+              <div class="size-6 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-[8px]">SA</div>
+              <span class="text-xs font-medium text-slate-600">Admin</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">LOGIN</span>
+            </div>
+            <div class="flex-1 text-sm text-slate-600">User logged in successfully</div>
+            <div class="w-28 text-xs text-slate-400 font-mono">192.168.1.10</div>
+            <div class="w-20">
+              <span class="size-2 rounded-full bg-green-500 inline-block"></span>
+            </div>
+          </div>
+
+          <!-- Log 8 -->
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+            <div class="w-40 text-xs text-slate-500 font-mono">Dec 25, 12:30:00</div>
+            <div class="w-32 flex items-center gap-2">
+              <div class="size-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-[8px]">SYS</div>
+              <span class="text-xs font-medium text-slate-600">System</span>
+            </div>
+            <div class="w-28">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600">SYSTEM</span>
+            </div>
+            <div class="flex-1 text-sm text-slate-600">Monthly score reset completed for all CS agents</div>
+            <div class="w-28 text-xs text-slate-400 font-mono">localhost</div>
+            <div class="w-20">
+              <span class="size-2 rounded-full bg-green-500 inline-block"></span>
+            </div>
+          </div>
         </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+          <p class="text-sm text-slate-500">Showing 1-8 of 1,234 logs</p>
+          <div class="flex items-center gap-2">
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+              <span class="material-symbols-outlined text-lg">chevron_left</span>
+            </button>
+            <button class="size-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</button>
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">2</button>
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">3</button>
+            <span class="text-slate-400">...</span>
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 font-medium text-sm">154</button>
+            <button class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200">
+              <span class="material-symbols-outlined text-lg">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
-
+  </body>
 </html>
