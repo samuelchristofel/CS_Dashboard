@@ -8,290 +8,290 @@
    Search Container
    ============================================ */
 .search-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
 }
 
 .search-container .search-icon {
-    position: absolute;
-    left: var(--spacing-5);
-    color: var(--color-text-muted);
-    pointer-events: none;
-    font-size: 20px;
+  position: absolute;
+  left: var(--spacing-5);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  font-size: 20px;
 }
 
 .search-container .input-search {
-    flex: 1;
-    padding-left: 56px;
-    height: 52px;
+  flex: 1;
+  padding-left: 56px;
+  height: 52px;
 }
 
 /* ============================================
    Ticket Queue Card
    ============================================ */
 .ticket-queue-card {
-    display: flex;
-    flex-direction: column;
-    max-height: 40%;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 40%;
+  overflow: hidden;
 }
 
 .ticket-queue-card .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--spacing-5) var(--spacing-6);
-    border-bottom: 1px solid var(--color-border-light);
-    flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-5) var(--spacing-6);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-shrink: 0;
 }
 
 .ticket-queue-card .card-title {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
 }
 
 .ticket-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--spacing-4) var(--spacing-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-4) var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
 }
 
 /* Locked Ticket Overlay */
 .ticket-card.locked {
-    position: relative;
-    opacity: 0.6;
-    filter: grayscale(0.5);
+  position: relative;
+  opacity: 0.6;
+  filter: grayscale(0.5);
 }
 
 .ticket-lock-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(2px);
-    border-radius: var(--radius-3xl);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(2px);
+  border-radius: var(--radius-md);
 }
 
 .ticket-lock-badge {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    padding: var(--spacing-2) var(--spacing-4);
-    background: var(--color-text-primary);
-    color: var(--color-text-inverse);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-bold);
-    box-shadow: var(--shadow-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-text-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-xl);
 }
 
 /* ============================================
    Chat Panel
    ============================================ */
 .chat-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .chat-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    padding: var(--spacing-5) var(--spacing-6);
-    border-bottom: 1px solid var(--color-border-light);
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
-    flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--spacing-5) var(--spacing-6);
+  border-bottom: 1px solid var(--color-border-light);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
 }
 
 .chat-ticket-title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-    margin-bottom: var(--spacing-1);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-1);
 }
 
 .chat-ticket-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 .meta-dot {
-    width: 4px;
-    height: 4px;
-    background: var(--color-border);
-    border-radius: var(--radius-full);
+  width: 4px;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
 }
 
 .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--spacing-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-6);
-    background: var(--color-surface-tertiary);
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  background: var(--color-surface-tertiary);
 }
 
 /* Date Divider */
 .chat-date-divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-date-divider span {
-    font-size: 10px;
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    background: var(--color-border-light);
-    padding: var(--spacing-1) var(--spacing-3);
-    border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-border-light);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
 }
 
 /* Chat Message */
 .chat-message {
-    display: flex;
-    gap: var(--spacing-4);
-    max-width: 85%;
+  display: flex;
+  gap: var(--spacing-4);
+  max-width: 85%;
 }
 
 .chat-message.outgoing {
-    flex-direction: row-reverse;
-    margin-left: auto;
+  flex-direction: row-reverse;
+  margin-left: auto;
 }
 
 .chat-message .avatar {
-    flex-shrink: 0;
-    margin-top: var(--spacing-1);
+  flex-shrink: 0;
+  margin-top: var(--spacing-1);
 }
 
 .chat-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
 }
 
 .chat-message.outgoing .chat-content {
-    align-items: flex-end;
+  align-items: flex-end;
 }
 
 .chat-message.outgoing .chat-meta {
-    flex-direction: row-reverse;
+  flex-direction: row-reverse;
 }
 
 .chat-bubble.incoming {
-    border-top-left-radius: 0;
+  border-top-left-radius: 0;
 }
 
 .chat-bubble.outgoing {
-    border-top-right-radius: 0;
+  border-top-right-radius: 0;
 }
 
 /* System Message */
 .chat-system-message {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-1);
-    padding: var(--spacing-1) var(--spacing-3);
-    background: var(--color-border-light);
-    border-radius: var(--radius-full);
-    font-size: 10px;
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-muted);
-    align-self: center;
-    border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--color-border-light);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  align-self: center;
+  border: 1px solid var(--color-border);
 }
 
 /* ============================================
    Action Buttons
    ============================================ */
 .section-label {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-4);
 }
 
 .action-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
 }
 
 .action-buttons .btn {
-    padding: var(--spacing-4);
-    border-radius: var(--radius-2xl);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
 }
 
 /* ============================================
    Audit Timeline Card
    ============================================ */
 .audit-card {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .audit-card .card-header {
-    padding: var(--spacing-5) var(--spacing-6);
-    flex-shrink: 0;
+  padding: var(--spacing-5) var(--spacing-6);
+  flex-shrink: 0;
 }
 
 .audit-timeline-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0 var(--spacing-6) var(--spacing-6);
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--spacing-6) var(--spacing-6);
 }
 
 /* Timeline Quote */
 .timeline-quote {
-    background: var(--color-surface);
-    padding: var(--spacing-3);
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--color-border);
-    font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
-    margin-top: var(--spacing-2);
-    font-style: italic;
+  background: var(--color-surface);
+  padding: var(--spacing-3);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-2);
+  font-style: italic;
 }
 
 /* ============================================
    Panel Layout Adjustments
    ============================================ */
 .panel-left {
-    flex: 2;
-    min-width: 0;
+  flex: 2;
+  min-width: 0;
 }
 
 .panel-right {
-    flex: 1;
-    min-width: 300px;
-    max-width: 400px;
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
 }
 
 /* ============================================
@@ -300,110 +300,110 @@
 
 /* Score Widget */
 .score-widget {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    color: var(--color-text-inverse);
-    border-radius: var(--radius-3xl);
-    padding: var(--spacing-6);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
 }
 
 .score-widget-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-4);
 }
 
 .score-widget-title {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    opacity: 0.9;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  opacity: 0.9;
 }
 
 .score-widget-value {
-    font-size: 48px;
-    font-weight: var(--font-weight-extrabold);
-    line-height: 1;
+  font-size: 48px;
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1;
 }
 
 .score-widget-label {
-    font-size: var(--font-size-sm);
-    opacity: 0.8;
-    margin-top: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+  margin-top: var(--spacing-2);
 }
 
 /* Ticket Stats Cards */
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-4);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-4);
 }
 
 .stat-card {
-    background: var(--color-surface);
-    border-radius: var(--radius-2xl);
-    padding: var(--spacing-4);
-    text-align: center;
-    box-shadow: var(--shadow-soft);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  text-align: center;
+  box-shadow: var(--shadow-soft);
 }
 
 .stat-value {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-extrabold);
 }
 
 .stat-label {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
-    margin-top: var(--spacing-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-1);
 }
 
 .stat-card.stat-high .stat-value {
-    color: var(--color-priority-high);
+  color: var(--color-priority-high);
 }
 
 .stat-card.stat-medium .stat-value {
-    color: var(--color-priority-medium);
+  color: var(--color-priority-medium);
 }
 
 .stat-card.stat-low .stat-value {
-    color: var(--color-priority-low);
+  color: var(--color-priority-low);
 }
 
 /* High Priority Styling (no animation) */
 .stat-card.stat-high {
-    border: 2px solid var(--color-priority-high);
+  border: 2px solid var(--color-priority-high);
 }
 
 /* ============================================
    Responsive Adjustments
    ============================================ */
 @media (max-width: 1280px) {
-    .panel-right {
-        min-width: 280px;
-        max-width: 350px;
-    }
+  .panel-right {
+    min-width: 280px;
+    max-width: 350px;
+  }
 }
 
 @media (max-width: 1024px) {
-    .dashboard-main {
-        flex-direction: column;
-    }
+  .dashboard-main {
+    flex-direction: column;
+  }
 
-    .panel-left,
-    .panel-right {
-        flex: none;
-        max-width: none;
-    }
+  .panel-left,
+  .panel-right {
+    flex: none;
+    max-width: none;
+  }
 
-    .ticket-queue-card {
-        max-height: 300px;
-    }
+  .ticket-queue-card {
+    max-height: 300px;
+  }
 
-    .chat-panel {
-        min-height: 400px;
-    }
+  .chat-panel {
+    min-height: 400px;
+  }
 
-    .audit-card {
-        max-height: 300px;
-    }
+  .audit-card {
+    max-height: 300px;
+  }
 }
