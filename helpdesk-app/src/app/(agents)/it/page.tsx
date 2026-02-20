@@ -202,6 +202,21 @@ export default function ITDashboardPage() {
 
   return (
     <>
+      <style>{`
+        .it-ticket-list::-webkit-scrollbar {
+          width: 6px;
+        }
+        .it-ticket-list::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .it-ticket-list::-webkit-scrollbar-thumb {
+          background: #d1d5db;
+          border-radius: 3px;
+        }
+        .it-ticket-list::-webkit-scrollbar-thumb:hover {
+          background: #9ca3af;
+        }
+      `}</style>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Welcome back, {userName}! 👋</h1>
@@ -227,7 +242,7 @@ export default function ITDashboardPage() {
               <div className="flex items-center gap-3">
                 <h2 className="text-lg font-bold text-slate-900">Technical Tickets</h2>
                 {priorityFilter !== "all" && (
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${priorityFilter === "HIGH" ? "bg-red-50 text-red-600" : priorityFilter === "MEDIUM" ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600"}`}>
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${priorityFilter === "HIGH" ? "bg-red-50 text-red-600" : priorityFilter === "MEDIUM" ? "bg-amber-50 text-amber-600" : "bg-green-50 text-green-600"}`}>
                     {priorityFilter}
                   </span>
                 )}
@@ -245,7 +260,7 @@ export default function ITDashboardPage() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar p-1">
+            <div className="max-h-[400px] overflow-y-auto space-y-3 p-1 it-ticket-list" style={{ scrollbarWidth: "thin" }}>
               {isLoadingData ? (
                 <div className="flex items-center justify-center py-8">
                   <span className="size-6 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
@@ -282,31 +297,6 @@ export default function ITDashboardPage() {
         </div>
 
         <div className="w-[450px] flex flex-col gap-4 min-w-0 overflow-hidden">
-          <div className="flex-shrink-0">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
-              <span className="material-symbols-outlined text-base">bolt</span>
-              IT Actions
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-soft flex flex-col gap-3">
-              <button
-                onClick={() => setShowNoteModal(true)}
-                disabled={!selectedTicket}
-                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined">edit_note</span>
-                Add Technical Note
-              </button>
-              <button
-                onClick={() => setShowFixedModal(true)}
-                disabled={!selectedTicket}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors shadow-lg shadow-blue-500/30 disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined">build</span>
-                Mark as Fixed
-              </button>
-            </div>
-          </div>
-
           <div className="flex-1 bg-white rounded-lg shadow-soft flex flex-col overflow-hidden min-h-0">
             {selectedTicket ? (
               <>
@@ -316,7 +306,7 @@ export default function ITDashboardPage() {
                     <h3 className="text-base font-bold">Ticket #{selectedTicket.number}</h3>
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
-                        selectedTicket.priority === "HIGH" ? "bg-red-50 text-red-600" : selectedTicket.priority === "MEDIUM" ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600"
+                        selectedTicket.priority === "HIGH" ? "bg-red-50 text-red-600" : selectedTicket.priority === "MEDIUM" ? "bg-amber-50 text-amber-600" : "bg-green-50 text-green-600"
                       }`}
                     >
                       {!selectedTicket.priority.startsWith("!") ? (selectedTicket.priority === "HIGH" ? "! " : "") : ""}
@@ -395,6 +385,31 @@ export default function ITDashboardPage() {
                 <p>Select a ticket to view details</p>
               </div>
             )}
+          </div>
+
+          <div className="flex-shrink-0">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
+              <span className="material-symbols-outlined text-base">bolt</span>
+              IT Actions
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-soft flex flex-col gap-3">
+              <button
+                onClick={() => setShowNoteModal(true)}
+                disabled={!selectedTicket}
+                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined">edit_note</span>
+                Add Technical Note
+              </button>
+              <button
+                onClick={() => setShowFixedModal(true)}
+                disabled={!selectedTicket}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors shadow-lg shadow-blue-500/30 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined">build</span>
+                Mark as Fixed
+              </button>
+            </div>
           </div>
         </div>
       </div>

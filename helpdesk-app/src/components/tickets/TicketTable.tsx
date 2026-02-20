@@ -34,7 +34,7 @@ interface TicketTableProps {
 const priorityColors: Record<Priority, string> = {
   HIGH: "bg-red-50 text-red-500",
   MEDIUM: "bg-amber-50 text-amber-600",
-  LOW: "bg-blue-50 text-blue-500",
+  LOW: "bg-green-50 text-green-600",
 };
 
 const statusColors: Record<TicketStatus, string> = {

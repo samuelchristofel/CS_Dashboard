@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import CustomSelect from "@/components/ui/CustomSelect";
 
 interface AgentMetrics {
@@ -44,20 +45,29 @@ const scoreColors: Record<string, string> = {
 };
 
 export default function AdminReportsPage() {
+  const router = useRouter();
   const [performanceData, setPerformanceData] = useState<PerformanceData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [period, setPeriod] = useState("month");
-  const [stats, setStats] = useState({ total: 0, open: 0, resolved: 0 });
+  const [stats, setStats] = useState({ total: 0, open: 0, resolved: 0, pending: 0 });
+  const [customDateFrom, setCustomDateFrom] = useState("");
+  const [customDateTo, setCustomDateTo] = useState("");
 
   useEffect(() => {
     fetchData();
-  }, [period]);
+  }, [period, customDateFrom, customDateTo]);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
+      // Build period parameter
+      let periodParam = period;
+      if (period === "custom" && customDateFrom && customDateTo) {
+        periodParam = `custom_${customDateFrom}_${customDateTo}`;
+      }
+
       // Fetch performance data
-      const perfRes = await fetch(`/api/performance?period=${period}`);
+      const perfRes = await fetch(`/api/performance?period=${periodParam}`);
       const perfData = await perfRes.json();
       setPerformanceData(perfData);
 
@@ -88,10 +98,19 @@ export default function AdminReportsPage() {
               { value: "week", label: "This Week" },
               { value: "month", label: "This Month" },
               { value: "quarter", label: "This Quarter" },
+              { value: "year", label: "This Year" },
               { value: "all", label: "All Time" },
+              { value: "custom", label: "Custom Date Range" },
             ]}
             variant="filter"
           />
+          {period === "custom" && (
+            <div className="flex items-center gap-2">
+              <input type="date" value={customDateFrom} onChange={(e) => setCustomDateFrom(e.target.value)} className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-800" />
+              <span className="text-slate-400">→</span>
+              <input type="date" value={customDateTo} onChange={(e) => setCustomDateTo(e.target.value)} className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-800" />
+            </div>
+          )}
           <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-full font-bold text-sm shadow-lg shadow-slate-800/30 hover:bg-slate-700 transition-colors">
             <span className="material-symbols-outlined text-lg">download</span>
             Export Report
@@ -100,7 +119,7 @@ export default function AdminReportsPage() {
       </div>
 
       {/* System Stats */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-6 gap-4">
         <div className="bg-white rounded-lg p-6 shadow-soft">
           <p className="text-sm text-slate-500">Total Tickets</p>
           <p className="text-4xl font-extrabold text-slate-900 mt-2">{isLoading ? "..." : stats.total}</p>
@@ -112,6 +131,10 @@ export default function AdminReportsPage() {
         <div className="bg-white rounded-lg p-6 shadow-soft">
           <p className="text-sm text-slate-500">Open</p>
           <p className="text-4xl font-extrabold text-amber-500 mt-2">{isLoading ? "..." : stats.open}</p>
+        </div>
+        <div className="bg-white rounded-lg p-6 shadow-soft">
+          <p className="text-sm text-slate-500">Pending</p>
+          <p className="text-4xl font-extrabold text-indigo-500 mt-2">{isLoading ? "..." : stats.pending}</p>
         </div>
         <div className="bg-white rounded-lg p-6 shadow-soft">
           <p className="text-sm text-slate-500">Avg Resolution</p>
@@ -153,7 +176,7 @@ export default function AdminReportsPage() {
                 </tr>
               ) : (
                 performanceData?.agents.map((agent) => (
-                  <tr key={agent.id} className="hover:bg-slate-50">
+                  <tr key={agent.id} className="hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => router.push(`/admin/reports/${agent.id}`)}>
                     <td className="py-4 text-sm font-semibold text-slate-900">{agent.name}</td>
                     <td className="py-4 text-sm text-slate-500">{roleLabels[agent.role] || agent.role}</td>
                     <td className="py-4 text-sm text-slate-900">{agent.metrics.assigned}</td>

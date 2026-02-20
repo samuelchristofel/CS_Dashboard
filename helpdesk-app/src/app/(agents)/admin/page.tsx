@@ -34,7 +34,11 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats>({ total: 0, open: 0, inProgress: 0, resolved: 0, withIT: 0 });
   const [activities, setActivities] = useState<Activity[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [unassignedTickets, setUnassignedTickets] = useState<any[]>([]);
+  const [topAgent, setTopAgent] = useState<any>(null);
+  const [commonIssues, setCommonIssues] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dateFilter, setDateFilter] = useState<"week" | "month" | "year">("week");
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -58,6 +62,12 @@ export default function AdminDashboardPage() {
       const usersRes = await fetch("/api/users");
       const usersData = await usersRes.json();
       setUsers((usersData.users || []).filter((u: User) => u.role !== "admin"));
+
+      // Fetch unassigned tickets sorted by most recent
+      const ticketsRes = await fetch("/api/tickets?unassigned=true");
+      const ticketsData = await ticketsRes.json();
+      const unassigned = (ticketsData.tickets || []).filter((t: any) => t.status !== "CLOSED" && t.status !== "RESOLVED").sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setUnassignedTickets(unassigned);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -138,6 +148,21 @@ export default function AdminDashboardPage() {
 
   return (
     <>
+      <style>{`
+        .admin-ticket-list::-webkit-scrollbar {
+          width: 6px;
+        }
+        .admin-ticket-list::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .admin-ticket-list::-webkit-scrollbar-thumb {
+          background: #d1d5db;
+          border-radius: 3px;
+        }
+        .admin-ticket-list::-webkit-scrollbar-thumb:hover {
+          background: #9ca3af;
+        }
+      `}</style>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -177,28 +202,41 @@ export default function AdminDashboardPage() {
             <StatCard value={stats.withIT} label="With IT" color="amber" />
           </div>
 
-          {/* Team Stats */}
+          {/* Active Tickets Overview */}
           <div className="flex-1 flex flex-col min-h-0">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Team Performance</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">Unassigned Tickets</h2>
             <div className="flex-1 bg-white rounded-lg shadow-soft p-6 overflow-hidden">
-              <div className="h-full overflow-y-auto no-scrollbar space-y-4">
+              <div className="max-h-[400px] overflow-y-auto space-y-3 admin-ticket-list" style={{ scrollbarWidth: "thin" }}>
                 {isLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <span className="size-6 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
                   </div>
+                ) : unassignedTickets.length === 0 ? (
+                  <div className="text-center text-slate-400 py-8">
+                    <span className="material-symbols-outlined text-4xl mb-2 block">check_circle</span>
+                    <p className="text-sm">All tickets have been assigned</p>
+                  </div>
                 ) : (
-                  users.map((user) => (
-                    <div key={user.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-                      <div className={`size-12 rounded-full flex items-center justify-center ${getRoleColor(user.role)}`}>
-                        <span className="material-symbols-outlined">{getRoleIcon(user.role)}</span>
+                  unassignedTickets.map((ticket) => (
+                    <div key={ticket.id} className="bg-slate-50 hover:bg-slate-100 p-4 rounded-lg border border-slate-100 transition-colors cursor-pointer">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-900 text-sm">
+                            #{ticket.number} - {ticket.subject}
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1 line-clamp-2">{ticket.description || "No description"}</p>
+                        </div>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase whitespace-nowrap flex-shrink-0 ${
+                            ticket.priority === "HIGH" ? "bg-red-50 text-red-600" : ticket.priority === "MEDIUM" ? "bg-amber-50 text-amber-600" : "bg-green-50 text-green-600"
+                          }`}
+                        >
+                          {ticket.priority}
+                        </span>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-slate-900">{user.name}</p>
-                        <p className="text-xs text-slate-500">{getRoleLabel(user.role)}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-slate-900">Active</p>
-                        <p className="text-xs text-green-500">Online</p>
+                      <div className="flex items-center justify-between text-xs text-slate-400">
+                        <span>{ticket.customer_name}</span>
+                        <span>{formatTimeAgo(ticket.created_at)}</span>
                       </div>
                     </div>
                   ))
@@ -210,35 +248,7 @@ export default function AdminDashboardPage() {
 
         {/* Right Panel */}
         <div className="w-[450px] flex flex-col gap-4 min-w-0 h-full overflow-hidden">
-          {/* Admin Actions */}
-          <div className="flex-shrink-0">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
-              <span className="material-symbols-outlined text-base">admin_panel_settings</span>
-              Admin Actions
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-soft">
-              <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => setShowAddUserModal(true)} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                  <span className="material-symbols-outlined text-slate-600">person_add</span>
-                  <span className="text-xs font-medium text-slate-600">Add User</span>
-                </button>
-                <button onClick={() => router.push("/admin/reports")} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                  <span className="material-symbols-outlined text-slate-600">analytics</span>
-                  <span className="text-xs font-medium text-slate-600">Reports</span>
-                </button>
-                <button onClick={() => router.push("/admin/users")} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                  <span className="material-symbols-outlined text-slate-600">group</span>
-                  <span className="text-xs font-medium text-slate-600">Users</span>
-                </button>
-                <button onClick={() => router.push("/admin/audit")} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                  <span className="material-symbols-outlined text-slate-600">security</span>
-                  <span className="text-xs font-medium text-slate-600">Audit</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Activity */}
+          {/* System Activity */}
           <div className="flex-1 bg-white rounded-lg shadow-soft flex flex-col overflow-hidden min-h-0">
             <div className="p-6 pb-4 bg-white sticky top-0 z-10">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">

@@ -270,6 +270,21 @@ export default function JuniorDashboardPage() {
 
   return (
     <>
+      <style>{`
+        .junior-ticket-list::-webkit-scrollbar {
+          width: 6px;
+        }
+        .junior-ticket-list::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .junior-ticket-list::-webkit-scrollbar-thumb {
+          background: #d1d5db;
+          border-radius: 3px;
+        }
+        .junior-ticket-list::-webkit-scrollbar-thumb:hover {
+          background: #9ca3af;
+        }
+      `}</style>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Welcome back, {userName}! 👋</h1>
@@ -316,7 +331,7 @@ export default function JuniorDashboardPage() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar p-1">
+            <div className="max-h-[400px] overflow-y-auto space-y-3 p-1 junior-ticket-list" style={{ scrollbarWidth: "thin" }}>
               {isLoadingData ? (
                 <div className="flex items-center justify-center py-8">
                   <span className="size-6 border-2 border-slate-200 border-t-emerald-500 rounded-full animate-spin" />
@@ -359,57 +374,6 @@ export default function JuniorDashboardPage() {
 
         {/* Right Panel - Actions & Details */}
         <div className="w-[450px] flex flex-col gap-4 min-w-0 overflow-hidden">
-          {/* CS Actions */}
-          <div className="flex-shrink-0">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
-              <span className="material-symbols-outlined text-base">support_agent</span>
-              CS Actions
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-soft flex flex-col gap-3">
-              <button
-                onClick={() => setShowNoteModal(true)}
-                disabled={!selectedTicket}
-                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-3 transition-colors disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined">edit_note</span>
-                Add Note
-              </button>
-
-              {/* CLAIM BUTTON - Only for available tickets */}
-              {isAvailableTicket && (
-                <button
-                  onClick={() => setShowClaimModal(true)}
-                  className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-3 transition-colors shadow-lg shadow-amber-500/30"
-                >
-                  <span className="material-symbols-outlined">front_hand</span>
-                  Claim This Ticket
-                </button>
-              )}
-
-              {/* RESOLVE BUTTON - Only for my tickets */}
-              {isMyTicket && (
-                <button
-                  onClick={() => setShowResolveModal(true)}
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-3 transition-colors shadow-lg shadow-emerald-500/30"
-                >
-                  <span className="material-symbols-outlined">task_alt</span>
-                  Mark as Resolved
-                </button>
-              )}
-
-              {/* ESCALATE TO IT BUTTON - For MEDIUM/HIGH priority my tickets */}
-              {canEscalate && (
-                <button
-                  onClick={() => setShowEscalateModal(true)}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-3 transition-colors shadow-lg shadow-blue-500/30"
-                >
-                  <span className="material-symbols-outlined">engineering</span>
-                  Escalate to IT Support
-                </button>
-              )}
-            </div>
-          </div>
-
           {/* Ticket Details */}
           <div className="flex-1 bg-white rounded-lg shadow-soft flex flex-col overflow-hidden min-h-0">
             {selectedTicket ? (
@@ -431,64 +395,67 @@ export default function JuniorDashboardPage() {
                   </span>
                 </div>
 
-                {/* Ticket Info */}
-                <div className="px-6 py-4 flex-shrink-0 border-b border-slate-50">
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-                    <span className="material-symbols-outlined text-base">info</span>
-                    Ticket Details
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-slate-50 p-3 rounded-xl">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Issue Type</p>
-                      <p className="text-sm font-semibold text-slate-700 mt-1 truncate">{selectedTicket.subject}</p>
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto min-h-0 flex flex-col">
+                  {/* Ticket Info */}
+                  <div className="px-6 py-4 flex-shrink-0 border-b border-slate-50">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+                      <span className="material-symbols-outlined text-base">info</span>
+                      Ticket Details
                     </div>
-                    <div className="bg-slate-50 p-3 rounded-xl">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Customer</p>
-                      <p className="text-sm font-semibold text-slate-700 mt-1 truncate">{selectedTicket.customer_name}</p>
-                    </div>
-                    <div className="bg-slate-50 p-3 rounded-xl">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Created</p>
-                      <p className="text-sm font-semibold text-slate-700 mt-1 truncate">{formatTimeAgo(selectedTicket.created_at)}</p>
-                    </div>
-                    <div className="bg-slate-50 p-3 rounded-xl">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Priority</p>
-                      <p className={`text-sm font-semibold mt-1 ${selectedTicket.priority === "HIGH" ? "text-red-600" : selectedTicket.priority === "MEDIUM" ? "text-amber-600" : "text-green-600"}`}>
-                        {selectedTicket.priority.charAt(0) + selectedTicket.priority.slice(1).toLowerCase()}
-                      </p>
-                    </div>
-                  </div>
-                  {selectedTicket.description && (
-                    <div className="mt-3 bg-slate-50 p-3 rounded-xl">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Description</p>
-                      <p className="text-sm text-slate-600">{selectedTicket.description}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Logs */}
-                <div className="px-6 pt-4 pb-2 flex-shrink-0">
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    <span className="material-symbols-outlined text-slate-400 text-lg">history</span>
-                    Logs
-                  </div>
-                </div>
-
-                {/* Scrollable Activity List */}
-                <div className="flex-1 overflow-y-auto px-6 pb-4 no-scrollbar">
-                  <div className="space-y-3">
-                    {activities.map((activity) => (
-                      <div key={activity.id} className="bg-slate-50 p-3 rounded-xl group hover:bg-white hover:shadow-card transition-all">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-bold text-slate-900 truncate pr-2">{activity.details}</p>
-                          <span className="text-[10px] text-slate-400 whitespace-nowrap">{new Date(activity.created_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className={`text-[10px] font-bold text-${getActivityColor(activity.action)}-600 uppercase`}>{activity.action.replace(/_/g, " ")}</span>
-                          <span className="text-[10px] text-slate-400">{formatTimeAgo(activity.created_at)}</span>
-                        </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-slate-50 p-3 rounded-xl">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Issue Type</p>
+                        <p className="text-sm font-semibold text-slate-700 mt-1 truncate">{selectedTicket.subject}</p>
                       </div>
-                    ))}
-                    {activities.length === 0 && <p className="text-center text-slate-400 text-sm py-4">No recent activity</p>}
+                      <div className="bg-slate-50 p-3 rounded-xl">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Customer</p>
+                        <p className="text-sm font-semibold text-slate-700 mt-1 truncate">{selectedTicket.customer_name}</p>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-xl">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Created</p>
+                        <p className="text-sm font-semibold text-slate-700 mt-1 truncate">{formatTimeAgo(selectedTicket.created_at)}</p>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-xl">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">Priority</p>
+                        <p className={`text-sm font-semibold mt-1 ${selectedTicket.priority === "HIGH" ? "text-red-600" : selectedTicket.priority === "MEDIUM" ? "text-amber-600" : "text-green-600"}`}>
+                          {selectedTicket.priority.charAt(0) + selectedTicket.priority.slice(1).toLowerCase()}
+                        </p>
+                      </div>
+                    </div>
+                    {selectedTicket.description && (
+                      <div className="mt-3 bg-slate-50 p-3 rounded-xl">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Description</p>
+                        <p className="text-sm text-slate-600">{selectedTicket.description}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Logs */}
+                  <div className="px-6 pt-4 pb-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      <span className="material-symbols-outlined text-slate-400 text-lg">history</span>
+                      Logs
+                    </div>
+                  </div>
+
+                  {/* Activity List */}
+                  <div className="flex-1 px-6 pb-4">
+                    <div className="space-y-3">
+                      {activities.map((activity) => (
+                        <div key={activity.id} className="bg-slate-50 p-3 rounded-xl group hover:bg-white hover:shadow-card transition-all">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-sm font-bold text-slate-900 truncate pr-2">{activity.details}</p>
+                            <span className="text-[10px] text-slate-400 whitespace-nowrap">{new Date(activity.created_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[10px] font-bold text-${getActivityColor(activity.action)}-600 uppercase`}>{activity.action.replace(/_/g, " ")}</span>
+                            <span className="text-[10px] text-slate-400">{formatTimeAgo(activity.created_at)}</span>
+                          </div>
+                        </div>
+                      ))}
+                      {activities.length === 0 && <p className="text-center text-slate-400 text-sm py-4">No recent activity</p>}
+                    </div>
                   </div>
                 </div>
               </>
@@ -498,6 +465,57 @@ export default function JuniorDashboardPage() {
                 <p>Select a ticket to view details</p>
               </div>
             )}
+          </div>
+
+          {/* CS Actions */}
+          <div className="flex-shrink-0">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
+              <span className="material-symbols-outlined text-base">support_agent</span>
+              CS Actions
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-soft flex flex-col gap-3">
+              <button
+                onClick={() => setShowNoteModal(true)}
+                disabled={!selectedTicket}
+                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined">edit_note</span>
+                Add Note
+              </button>
+
+              {/* CLAIM BUTTON - Only for available tickets */}
+              {isAvailableTicket && (
+                <button
+                  onClick={() => setShowClaimModal(true)}
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors shadow-lg shadow-amber-500/30"
+                >
+                  <span className="material-symbols-outlined">front_hand</span>
+                  Claim This Ticket
+                </button>
+              )}
+
+              {/* RESOLVE BUTTON - Only for my tickets */}
+              {isMyTicket && (
+                <button
+                  onClick={() => setShowResolveModal(true)}
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors shadow-lg shadow-emerald-500/30"
+                >
+                  <span className="material-symbols-outlined">task_alt</span>
+                  Mark as Resolved
+                </button>
+              )}
+
+              {/* ESCALATE TO IT BUTTON - For MEDIUM/HIGH priority my tickets */}
+              {canEscalate && (
+                <button
+                  onClick={() => setShowEscalateModal(true)}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors shadow-lg shadow-blue-500/30"
+                >
+                  <span className="material-symbols-outlined">engineering</span>
+                  Escalate to IT Support
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

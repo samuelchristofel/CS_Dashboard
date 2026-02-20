@@ -253,7 +253,7 @@ export default function SeniorDashboardPage() {
               <div className="flex items-center gap-3">
                 <h2 className="text-lg font-bold text-slate-900">Active Tickets</h2>
                 {priorityFilter !== "all" && (
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${priorityFilter === "HIGH" ? "bg-red-50 text-red-600" : priorityFilter === "MEDIUM" ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600"}`}>
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${priorityFilter === "HIGH" ? "bg-red-50 text-red-600" : priorityFilter === "MEDIUM" ? "bg-amber-50 text-amber-600" : "bg-green-50 text-green-600"}`}>
                     {priorityFilter}
                   </span>
                 )}
@@ -309,6 +309,9 @@ export default function SeniorDashboardPage() {
 
         {/* Right Panel */}
         <div className="w-[450px] flex flex-col gap-4 min-w-0 h-full overflow-hidden">
+          {/* Notes Panel */}
+          <NotesPanel ticketId={selectedTicket?.id} ticketNumber={selectedTicket?.number} userId={userId} accentColor="#EB4C36" showAddForm={showAddNoteForm} onAddFormClose={() => setShowAddNoteForm(false)} />
+
           {/* Senior Actions */}
           <div className="flex-shrink-0">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
@@ -350,9 +353,6 @@ export default function SeniorDashboardPage() {
               </button>
             </div>
           </div>
-
-          {/* Notes Panel */}
-          <NotesPanel ticketId={selectedTicket?.id} ticketNumber={selectedTicket?.number} userId={userId} accentColor="#EB4C36" showAddForm={showAddNoteForm} onAddFormClose={() => setShowAddNoteForm(false)} />
         </div>
       </div>
 

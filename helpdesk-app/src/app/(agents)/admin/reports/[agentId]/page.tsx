@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import dynamic from "next/dynamic";
 import CustomSelect from "@/components/ui/CustomSelect";
@@ -38,37 +39,47 @@ interface AgentMetrics {
   };
 }
 
-export default function SeniorReportsPage() {
+interface Params {
+  agentId: string;
+}
+
+export default function IndividualAgentReportPage({ params }: { params: Params }) {
+  const router = useRouter();
+  const { agentId } = params;
+
+  const [agent, setAgent] = useState<AgentMetrics | null>(null);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
-  const [personalMetrics, setPersonalMetrics] = useState<AgentMetrics | null>(null);
   const [juniorAgents, setJuniorAgents] = useState<AgentMetrics[]>([]);
   const [trends, setTrends] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [period, setPeriod] = useState("month");
-  const [customDateFrom, setCustomDateFrom] = useState("");
-  const [customDateTo, setCustomDateTo] = useState("");
-  const [userName, setUserName] = useState("Senior CS");
 
   useEffect(() => {
     fetchData();
-  }, [period, customDateFrom, customDateTo]);
+  }, [period, agentId]);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const userStr = localStorage.getItem("user");
-      if (!userStr) return;
-      const user = JSON.parse(userStr);
-      setUserName(user.name || "Senior CS");
+      // Fetch agent performance metrics
+      const perfRes = await fetch(`/api/performance?period=${period}`);
+      const perfData = await perfRes.json();
 
-      // Build period parameter
-      let periodParam = period;
-      if (period === "custom" && customDateFrom && customDateTo) {
-        periodParam = `custom_${customDateFrom}_${customDateTo}`;
+      if (perfData.agents) {
+        const agentData = perfData.agents.find((a: AgentMetrics) => a.id === agentId);
+        if (agentData) {
+          setAgent(agentData);
+
+          // If agent is Senior, get their juniors
+          if (agentData.role === "senior") {
+            const juniors = perfData.agents.filter((a: AgentMetrics) => a.role === "junior");
+            setJuniorAgents(juniors);
+          }
+        }
       }
 
-      // Fetch personal stats with period
-      const statsRes = await fetch(`/api/stats?user_id=${user.id}&role=${user.role}&period=${periodParam}`);
+      // Fetch agent stats with period
+      const statsRes = await fetch(`/api/stats?user_id=${agentId}&period=${period}`);
       const statsData = await statsRes.json();
       if (statsData.userStats) {
         setUserStats(statsData.userStats);
@@ -76,22 +87,9 @@ export default function SeniorReportsPage() {
       if (statsData.trends) {
         setTrends(statsData.trends);
       }
-
-      // Fetch detailed performance metrics
-      const perfRes = await fetch(`/api/performance?period=${periodParam}`);
-      const perfData = await perfRes.json();
-      if (perfData.agents) {
-        const myMetrics = perfData.agents.find((a: AgentMetrics) => a.id === user.id);
-        if (myMetrics) {
-          setPersonalMetrics(myMetrics);
-        }
-        // Get all junior agents for team overview
-        const juniors = perfData.agents.filter((a: AgentMetrics) => a.role === "junior");
-        setJuniorAgents(juniors);
-      }
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast.error("Failed to load reports");
+      toast.error("Failed to load agent report");
     } finally {
       setIsLoading(false);
     }
@@ -118,38 +116,33 @@ export default function SeniorReportsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Reports</h1>
-          <p className="text-sm text-slate-500 mt-1">Your performance and activity reports</p>
+          <button onClick={() => router.back()} className="text-sm text-slate-500 hover:text-slate-900 flex items-center gap-1 mb-2 transition-colors">
+            <span className="material-symbols-outlined text-lg">arrow_back</span>
+            Back to Reports
+          </button>
+          <h1 className="text-2xl font-bold text-slate-900">{agent?.name || "Agent Report"}</h1>
+          <p className="text-sm text-slate-500 mt-1">Individual performance metrics</p>
         </div>
         <div className="flex items-center gap-3">
           <CustomSelect
             value={period}
             onChange={setPeriod}
             options={[
-              { value: "week", label: "This Week" },
-              { value: "month", label: "This Month" },
-              { value: "quarter", label: "This Quarter" },
+              { value: "today", label: "Today" },
+              { value: "week", label: "Last Week" },
+              { value: "month", label: "Last Month" },
               { value: "year", label: "This Year" },
-              { value: "all", label: "All Time" },
-              { value: "custom", label: "Custom Date Range" },
             ]}
             variant="filter"
           />
-          {period === "custom" && (
-            <div className="flex items-center gap-2">
-              <input type="date" value={customDateFrom} onChange={(e) => setCustomDateFrom(e.target.value)} className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#EB4C36]" />
-              <span className="text-slate-400">→</span>
-              <input type="date" value={customDateTo} onChange={(e) => setCustomDateTo(e.target.value)} className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#EB4C36]" />
-            </div>
-          )}
           <ExportReportButton
-            userName={userName}
-            period={period === "week" ? "This Week" : period === "month" ? "This Month" : period === "quarter" ? "This Quarter" : period === "year" ? "This Year" : "All Time"}
+            userName={agent?.name || "Agent"}
+            period={period === "week" ? "This Week" : period === "month" ? "This Month" : period === "year" ? "This Year" : "All Time"}
             personalStats={{
-              ticketsHandled: personalMetrics?.metrics.completed || userStats?.closed || 0,
-              avgResolutionTime: personalMetrics?.metrics.avgHandlingTime || "-",
+              ticketsHandled: agent?.metrics.completed || userStats?.closed || 0,
+              avgResolutionTime: agent?.metrics.avgHandlingTime || "-",
               activeTickets: userStats?.active || 0,
-              performanceScore: personalMetrics?.metrics.score || userStats?.score || 0,
+              performanceScore: agent?.metrics.score || userStats?.score || 0,
             }}
             teamStats={{
               totalJuniors: juniorAgents.length,
@@ -192,23 +185,25 @@ export default function SeniorReportsPage() {
         </div>
       </div>
 
-      {/* Bento Grid Layout */}
+      {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <span className="size-8 border-2 border-slate-200 border-t-[#EB4C36] rounded-full animate-spin" />
         </div>
+      ) : !agent ? (
+        <div className="flex items-center justify-center py-12 text-slate-400">Agent not found</div>
       ) : (
         <div className="flex-1 flex flex-col gap-6 overflow-auto no-scrollbar">
-          {/* Row 1: Your Stats */}
+          {/* Row 1: Agent Stats */}
           <div className="grid grid-cols-4 gap-4">
             <div className="bg-white rounded-lg p-6 shadow-soft">
               <p className="text-sm text-slate-500">Tickets Handled</p>
-              <p className="text-4xl font-extrabold text-slate-900 mt-2">{personalMetrics?.metrics.completed || userStats?.closed || 0}</p>
-              <p className="text-xs text-slate-400 mt-1">{personalMetrics?.metrics.assigned || userStats?.assigned || 0} assigned</p>
+              <p className="text-4xl font-extrabold text-slate-900 mt-2">{agent.metrics.completed || 0}</p>
+              <p className="text-xs text-slate-400 mt-1">{agent.metrics.assigned || 0} assigned</p>
             </div>
             <div className="bg-white rounded-lg p-6 shadow-soft">
               <p className="text-sm text-slate-500">Avg Resolution Time</p>
-              <p className="text-4xl font-extrabold text-slate-900 mt-2">{personalMetrics?.metrics.avgHandlingTime || "-"}</p>
+              <p className="text-4xl font-extrabold text-slate-900 mt-2">{agent.metrics.avgHandlingTime || "-"}</p>
               <p className="text-xs text-slate-400 mt-1">Target: 24h</p>
             </div>
             <div className="bg-white rounded-lg p-6 shadow-soft">
@@ -218,8 +213,8 @@ export default function SeniorReportsPage() {
             </div>
             <div className="bg-white rounded-lg p-6 shadow-soft">
               <p className="text-sm text-slate-500">Performance Score</p>
-              <p className={`text-4xl font-extrabold mt-2 ${getRatingColor(personalMetrics?.metrics.rating || null)}`}>{personalMetrics?.metrics.score || userStats?.score || 0}</p>
-              <p className={`text-xs mt-1 ${getRatingColor(personalMetrics?.metrics.rating || null)}`}>{personalMetrics?.metrics.rating || "out of 100"}</p>
+              <p className={`text-4xl font-extrabold mt-2 ${getRatingColor(agent.metrics.rating || null)}`}>{agent.metrics.score || 0}</p>
+              <p className={`text-xs mt-1 ${getRatingColor(agent.metrics.rating || null)}`}>{agent.metrics.rating || "out of 100"}</p>
             </div>
           </div>
 
@@ -227,21 +222,13 @@ export default function SeniorReportsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Score Breakdown Chart - takes 1 column */}
             <ScoreBreakdownChart
-              baseScore={Math.min(60, Math.round(((personalMetrics?.metrics.completed || 0) / 40) * 60))}
-              speedBonus={
-                personalMetrics?.metrics.avgHandlingTime && personalMetrics.metrics.avgHandlingTime !== "-"
-                  ? parseFloat(personalMetrics.metrics.avgHandlingTime) <= 24
-                    ? 25
-                    : parseFloat(personalMetrics.metrics.avgHandlingTime) <= 48
-                      ? 15
-                      : 5
-                  : 0
-              }
+              baseScore={Math.min(60, Math.round(((agent.metrics.completed || 0) / 40) * 60))}
+              speedBonus={agent.metrics.avgHandlingTime && agent.metrics.avgHandlingTime !== "-" ? (parseFloat(agent.metrics.avgHandlingTime) <= 24 ? 25 : parseFloat(agent.metrics.avgHandlingTime) <= 48 ? 15 : 5) : 0}
               qualityBonus={15}
-              totalScore={personalMetrics?.metrics.score || userStats?.score || 0}
-              ticketsCompleted={personalMetrics?.metrics.completed || 0}
+              totalScore={agent.metrics.score || 0}
+              ticketsCompleted={agent.metrics.completed || 0}
               targetTickets={40}
-              avgTime={personalMetrics?.metrics.avgHandlingTime || "-"}
+              avgTime={agent.metrics.avgHandlingTime || "-"}
             />
 
             {/* Resolution Trend Chart - takes 2 columns */}
@@ -250,8 +237,8 @@ export default function SeniorReportsPage() {
             </div>
           </div>
 
-          {/* Row 3: Team Overview */}
-          {juniorAgents.length > 0 && (
+          {/* Row 3: Team Overview (only for Senior agents) */}
+          {agent.role === "senior" && juniorAgents.length > 0 && (
             <div className="bg-white rounded-lg shadow-soft p-6">
               <h3 className="text-lg font-bold text-slate-900 mb-4">Team Overview</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -321,8 +308,8 @@ export default function SeniorReportsPage() {
             </div>
           )}
 
-          {/* Row 4: Junior Performance Cards */}
-          {juniorAgents.length > 0 && (
+          {/* Row 4: Junior Performance Cards (only for Senior agents) */}
+          {agent.role === "senior" && juniorAgents.length > 0 && (
             <div>
               <h3 className="text-lg font-bold text-slate-900 mb-4">Junior Performance</h3>
               <div className="grid grid-cols-3 gap-4">

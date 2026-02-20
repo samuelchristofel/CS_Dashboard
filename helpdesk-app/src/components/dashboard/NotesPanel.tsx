@@ -183,7 +183,7 @@ export default function NotesPanel({ ticketId, ticketNumber, userId, accentColor
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-5 flex flex-col min-h-0">
+      <div className="flex-1 p-5 flex flex-col min-h-0 overflow-y-auto">
         {isLoading ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="animate-spin size-6 border-2 border-slate-200 border-t-slate-500 rounded-full" />
