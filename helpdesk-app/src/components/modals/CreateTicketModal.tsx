@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Modal from "../ui/Modal";
 import CustomSelect from "../ui/CustomSelect";
 
@@ -32,18 +32,105 @@ const initialFormData: TicketFormData = {
   source: "Freshchat",
 };
 
+const OTHER_SUBJECT_VALUE = "__OTHER__";
+
+const subjectGroups = [
+  {
+    label: "DEVICE ISSUES",
+    options: [
+      "Unit GPS offline / tidak mengirim sinyal",
+      "GPS tidak akurat / posisi melenceng",
+      "Tombol SOS tidak berfungsi",
+      "Layar/display unit rusak",
+      "Unit GPS mati / tidak menyala",
+      "Sensor tidak terbaca (suhu, bahan bakar, dll)",
+    ],
+  },
+  {
+    label: "PLATFORM / DASHBOARD ISSUES",
+    options: [
+      "Tidak bisa login ke dashboard",
+      "Dashboard error / tidak bisa dibuka",
+      "Data kendaraan tidak muncul",
+      "Laporan tidak bisa didownload",
+      "Notifikasi/alert tidak masuk",
+      "Fitur geofence tidak berfungsi",
+    ],
+  },
+  {
+    label: "INSTALLATION & HARDWARE",
+    options: [
+      "Request instalasi GPS baru",
+      "Permintaan penambahan unit",
+      "Request relokasi/pindah unit",
+      "Perangkat rusak / perlu penggantian",
+      "Kalibrasi sensor bahan bakar",
+    ],
+  },
+  {
+    label: "SUBSCRIPTION & BILLING",
+    options: [
+      "Perpanjangan kontrak/langganan",
+      "Perubahan paket layanan",
+      "Pertanyaan tagihan / invoice",
+      "Aktivasi unit baru",
+    ],
+  },
+  {
+    label: "TRAINING & ONBOARDING",
+    options: ["Request pelatihan penggunaan platform", "Panduan fitur baru", "Onboarding karyawan baru"],
+  },
+  {
+    label: "OTHER",
+    options: ["Lainnya (isi manual)"],
+  },
+];
+
+const predefinedSubjects = subjectGroups.flatMap((group) => group.options).filter((subject) => subject !== "Lainnya (isi manual)");
+
 export default function CreateTicketModal({ isOpen, onClose, onSubmit, initialData, mode = "create" }: CreateTicketModalProps) {
   const [formData, setFormData] = useState<TicketFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof TicketFormData, string>>>({});
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [customSubject, setCustomSubject] = useState("");
+  const [isSubjectOpen, setIsSubjectOpen] = useState(false);
+  const [subjectSearch, setSubjectSearch] = useState("");
+  const subjectDropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (isOpen && initialData) {
       setFormData(initialData);
+      if (predefinedSubjects.includes(initialData.subject)) {
+        setSelectedSubject(initialData.subject);
+        setCustomSubject("");
+      } else if (initialData.subject.trim()) {
+        setSelectedSubject(OTHER_SUBJECT_VALUE);
+        setCustomSubject(initialData.subject);
+      } else {
+        setSelectedSubject("");
+        setCustomSubject("");
+      }
     } else if (isOpen && mode === "create") {
       setFormData(initialFormData);
+      setSelectedSubject("");
+      setCustomSubject("");
     }
   }, [isOpen, initialData, mode]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!subjectDropdownRef.current) return;
+      if (!subjectDropdownRef.current.contains(event.target as Node)) {
+        setIsSubjectOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof TicketFormData, string>> = {};
@@ -81,10 +168,23 @@ export default function CreateTicketModal({ isOpen, onClose, onSubmit, initialDa
   const handleClose = () => {
     if (mode === "create") {
       setFormData(initialFormData);
+      setSelectedSubject("");
+      setCustomSubject("");
     }
+    setIsSubjectOpen(false);
+    setSubjectSearch("");
     setErrors({});
     onClose();
   };
+
+  const filteredSubjectGroups = subjectGroups
+    .map((group) => ({
+      ...group,
+      options: group.options.filter((option) => option.toLowerCase().includes(subjectSearch.toLowerCase())),
+    }))
+    .filter((group) => group.options.length > 0);
+
+  const selectedSubjectLabel = selectedSubject === OTHER_SUBJECT_VALUE ? "Lainnya (isi manual)" : selectedSubject;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={mode === "edit" ? "Edit Ticket" : "Create New Ticket"} size="2xl">
@@ -96,13 +196,88 @@ export default function CreateTicketModal({ isOpen, onClose, onSubmit, initialDa
               <span className="material-symbols-outlined text-slate-400 text-sm">subject</span>
               Subject <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              value={formData.subject}
-              onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              placeholder="Brief description of the issue"
-              className={`w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none ${errors.subject ? "ring-2 ring-red-500" : ""}`}
-            />
+            <div ref={subjectDropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setIsSubjectOpen((prev) => !prev)}
+                className={`w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none text-left flex items-center justify-between ${errors.subject ? "ring-2 ring-red-500" : ""}`}
+              >
+                <span className={`${selectedSubject ? "text-slate-700" : "text-slate-400"}`}>{selectedSubject ? selectedSubjectLabel : "Pilih atau cari kategori masalah..."}</span>
+                <span className="flex items-center gap-1 text-slate-400">
+                  <span className="material-symbols-outlined text-sm">search</span>
+                  <span className={`material-symbols-outlined text-base transition-transform ${isSubjectOpen ? "rotate-180" : ""}`}>expand_more</span>
+                </span>
+              </button>
+
+              <div className={`absolute left-0 right-0 mt-2 z-50 transition-all duration-200 origin-top ${isSubjectOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-1 pointer-events-none"}`}>
+                <div className="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
+                  <div className="p-3 border-b border-slate-100">
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
+                      <input
+                        type="text"
+                        value={subjectSearch}
+                        onChange={(e) => setSubjectSearch(e.target.value)}
+                        placeholder="Cari kategori..."
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 rounded-lg border-none focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="max-h-72 overflow-y-auto">
+                    {filteredSubjectGroups.length === 0 ? (
+                      <p className="px-4 py-3 text-sm text-slate-400">Tidak ada kategori ditemukan</p>
+                    ) : (
+                      filteredSubjectGroups.map((group, groupIndex) => (
+                        <div key={group.label} className={groupIndex === 0 ? "" : "border-t border-slate-100"}>
+                          <p className="px-4 py-2 text-[11px] font-bold tracking-wider text-slate-500 uppercase">{group.label}</p>
+                          {group.options.map((option) => {
+                            const optionValue = option === "Lainnya (isi manual)" ? OTHER_SUBJECT_VALUE : option;
+                            const isSelected = selectedSubject === optionValue;
+
+                            return (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedSubject(optionValue);
+                                  if (optionValue === OTHER_SUBJECT_VALUE) {
+                                    setFormData({ ...formData, subject: customSubject });
+                                  } else {
+                                    setCustomSubject("");
+                                    setFormData({ ...formData, subject: optionValue });
+                                  }
+                                  setIsSubjectOpen(false);
+                                  setSubjectSearch("");
+                                }}
+                                className={`w-full px-4 py-3 text-left text-sm text-slate-700 flex items-center justify-between hover:bg-[#EB4C36]/5 transition-colors ${isSelected ? "bg-[#EB4C36]/10" : ""}`}
+                              >
+                                <span className="pl-3">{option}</span>
+                                {isSelected && <span className="material-symbols-outlined text-base text-[#EB4C36]">check</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={`transition-all duration-200 overflow-hidden ${selectedSubject === OTHER_SUBJECT_VALUE ? "max-h-28 opacity-100 translate-y-0 mt-2" : "max-h-0 opacity-0 -translate-y-1"}`}>
+              <input
+                type="text"
+                value={customSubject}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setCustomSubject(value);
+                  setFormData({ ...formData, subject: value });
+                }}
+                placeholder="Brief description of the issue"
+                className={`w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none ${errors.subject ? "ring-2 ring-red-500" : ""}`}
+              />
+            </div>
             {errors.subject && <p className="text-xs text-red-500 mt-1">{errors.subject}</p>}
           </div>
 
