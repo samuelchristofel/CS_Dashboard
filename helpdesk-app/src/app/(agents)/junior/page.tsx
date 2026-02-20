@@ -254,6 +254,30 @@ export default function JuniorDashboardPage() {
     return "slate";
   };
 
+  const detailStatusBadgeClass = () => {
+    if (isAvailableTicket) return "text-amber-600 bg-amber-50";
+    if (!selectedTicket) return "text-slate-600 bg-slate-100";
+
+    switch (selectedTicket.status) {
+      case "IN_PROGRESS":
+        return "text-blue-600 bg-blue-50 border border-blue-200";
+      case "OPEN":
+        return "text-slate-600 bg-slate-100";
+      case "TRIAGE":
+        return "text-purple-600 bg-purple-100";
+      case "RESOLVED":
+        return "text-green-600 bg-green-100";
+      case "CLOSED":
+        return "text-green-700 bg-green-100";
+      case "PENDING_REVIEW":
+        return "text-amber-700 bg-amber-100";
+      case "WITH_IT":
+        return "text-blue-700 bg-blue-100";
+      default:
+        return "text-slate-600 bg-slate-100";
+    }
+  };
+
   const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   // Determine which tickets to display based on active tab
@@ -317,7 +341,7 @@ export default function JuniorDashboardPage() {
                 className={`text-lg font-bold transition-colors ${activeTab === "my" ? "text-slate-900" : "text-slate-400 hover:text-slate-600"}`}
               >
                 My Tickets
-                {myTickets.length > 0 && <span className="ml-2 text-sm bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full">{myTickets.length}</span>}
+                {myTickets.length > 0 && <span className="ml-2 text-sm bg-[#EB4C36]/10 text-[#EB4C36] px-2 py-0.5 rounded-full">{myTickets.length}</span>}
               </button>
               <button
                 onClick={() => {
@@ -334,14 +358,14 @@ export default function JuniorDashboardPage() {
             <div className="max-h-[400px] overflow-y-auto space-y-3 p-1 junior-ticket-list" style={{ scrollbarWidth: "thin" }}>
               {isLoadingData ? (
                 <div className="flex items-center justify-center py-8">
-                  <span className="size-6 border-2 border-slate-200 border-t-emerald-500 rounded-full animate-spin" />
+                  <span className="size-6 border-2 border-slate-200 border-t-[#EB4C36] rounded-full animate-spin" />
                 </div>
               ) : displayTickets.length === 0 ? (
                 <div className="text-center py-8 text-slate-400">
                   <span className="material-symbols-outlined text-4xl mb-2">inbox</span>
                   <p>{activeTab === "my" ? "No tickets assigned to you" : "No tickets available to claim"}</p>
                   {activeTab === "my" && availableTickets.length > 0 && (
-                    <button onClick={() => setActiveTab("available")} className="mt-3 text-emerald-600 font-semibold hover:underline">
+                    <button onClick={() => setActiveTab("available")} className="mt-3 text-[#EB4C36] font-semibold hover:underline">
                       View {availableTickets.length} available ticket(s) →
                     </button>
                   )}
@@ -363,7 +387,7 @@ export default function JuniorDashboardPage() {
                       .slice(0, 2)}
                     timeAgo={formatTimeAgo(ticket.created_at)}
                     selected={selectedTicket?.id === ticket.id}
-                    accentColor={activeTab === "my" ? "#10B981" : "#F59E0B"}
+                    accentColor={activeTab === "my" ? "#EB4C36" : "#F59E0B"}
                     onClick={() => setSelectedTicket(ticket)}
                   />
                 ))
@@ -390,7 +414,7 @@ export default function JuniorDashboardPage() {
                       {selectedTicket.priority}
                     </span>
                   </div>
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${isAvailableTicket ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50"}`}>
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${detailStatusBadgeClass()}`}>
                     {isAvailableTicket ? "AVAILABLE" : selectedTicket.status.replace("_", " ")}
                   </span>
                 </div>

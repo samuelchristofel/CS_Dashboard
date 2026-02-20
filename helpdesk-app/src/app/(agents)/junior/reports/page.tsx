@@ -133,9 +133,9 @@ export default function JuniorReportsPage() {
           />
           {period === "custom" && (
             <div className="flex items-center gap-2">
-              <input type="date" value={customDateFrom} onChange={(e) => setCustomDateFrom(e.target.value)} className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              <input type="date" value={customDateFrom} onChange={(e) => setCustomDateFrom(e.target.value)} className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#EB4C36]" />
               <span className="text-slate-400">→</span>
-              <input type="date" value={customDateTo} onChange={(e) => setCustomDateTo(e.target.value)} className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              <input type="date" value={customDateTo} onChange={(e) => setCustomDateTo(e.target.value)} className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#EB4C36]" />
             </div>
           )}
           <ExportReportButton
@@ -166,7 +166,7 @@ export default function JuniorReportsPage() {
       {/* Bento Grid Layout */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <span className="size-8 border-2 border-slate-200 border-t-emerald-500 rounded-full animate-spin" />
+          <span className="size-8 border-2 border-slate-200 border-t-[#EB4C36] rounded-full animate-spin" />
         </div>
       ) : (
         <div className="flex-1 flex flex-col gap-6 overflow-auto no-scrollbar">

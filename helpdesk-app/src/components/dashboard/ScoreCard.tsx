@@ -11,7 +11,7 @@ interface ScoreCardProps {
 
 const gradients: Record<UserRole, string> = {
   senior: "from-[#EB4C36] to-[#d13a25]",
-  junior: "from-emerald-500 to-green-700",
+  junior: "from-[#EB4C36] to-[#d13a25]",
   it: "from-blue-500 to-blue-700",
   admin: "from-slate-800 to-slate-900",
 };

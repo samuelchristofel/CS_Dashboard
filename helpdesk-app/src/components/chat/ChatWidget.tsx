@@ -38,7 +38,7 @@ interface Message {
 
 const roleGradients: Record<UserRole | string, string> = {
   senior: "from-[#EB4C36] to-[#d13a25]",
-  junior: "from-emerald-500 to-green-600",
+  junior: "from-[#EB4C36] to-[#d13a25]",
   it: "from-blue-500 to-blue-700",
   admin: "from-slate-800 to-slate-900",
   default: "from-slate-500 to-slate-700",
@@ -46,7 +46,7 @@ const roleGradients: Record<UserRole | string, string> = {
 
 const buttonColors: Record<UserRole | string, string> = {
   senior: "bg-[#EB4C36] hover:bg-[#d13a25] shadow-[#EB4C36]/30",
-  junior: "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30",
+  junior: "bg-[#EB4C36] hover:bg-[#d13a25] shadow-[#EB4C36]/30",
   it: "bg-blue-500 hover:bg-blue-600 shadow-blue-500/30",
   admin: "bg-slate-800 hover:bg-slate-900 shadow-slate-800/30",
   default: "bg-slate-500",

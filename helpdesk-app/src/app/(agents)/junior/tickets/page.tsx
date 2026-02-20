@@ -117,7 +117,7 @@ export default function JuniorTicketsPage() {
                 <button
                     onClick={() => setCurrentTab('assigned')}
                     className={`px-5 py-2 rounded-full font-bold text-sm transition-all ${currentTab === 'assigned'
-                        ? 'bg-emerald-500 text-white'
+                        ? 'bg-[#EB4C36] text-white'
                         : 'text-slate-500 hover:bg-slate-100'
                         }`}
                 >
@@ -158,7 +158,7 @@ export default function JuniorTicketsPage() {
             {/* Ticket Table */}
             {isLoading ? (
                 <div className="flex-1 flex items-center justify-center">
-                    <span className="size-8 border-2 border-slate-200 border-t-emerald-500 rounded-full animate-spin" />
+                    <span className="size-8 border-2 border-slate-200 border-t-[#EB4C36] rounded-full animate-spin" />
                 </div>
             ) : (
                 <TicketTable

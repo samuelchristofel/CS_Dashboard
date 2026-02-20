@@ -48,7 +48,7 @@ const navItemsByRole: Record<UserRole, NavItem[]> = {
 
 const roleColors: Record<UserRole, string> = {
   senior: "bg-[#EB4C36] shadow-[#EB4C36]/30",
-  junior: "bg-emerald-500 shadow-emerald-500/30",
+  junior: "bg-[#EB4C36] shadow-[#EB4C36]/30",
   it: "bg-blue-500 shadow-blue-500/30",
   admin: "bg-slate-900 shadow-slate-900/30",
 };
