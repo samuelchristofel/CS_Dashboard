@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import dynamic from "next/dynamic";
@@ -43,9 +43,9 @@ interface Params {
   agentId: string;
 }
 
-export default function IndividualAgentReportPage({ params }: { params: Params }) {
+export default function IndividualAgentReportPage({ params }: { params: Promise<Params> }) {
   const router = useRouter();
-  const { agentId } = params;
+  const { agentId } = use(params);
 
   const [agent, setAgent] = useState<AgentMetrics | null>(null);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
@@ -61,13 +61,32 @@ export default function IndividualAgentReportPage({ params }: { params: Params }
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Fetch agent performance metrics
+      // First, fetch user info to validate agent exists
+      const userRes = await fetch(`/api/users/${agentId}`);
+      if (!userRes.ok) {
+        console.error("User not found with ID:", agentId);
+        setAgent(null);
+        setIsLoading(false);
+        return;
+      }
+      const userData = await userRes.json();
+
+      // Now fetch performance metrics for all agents
       const perfRes = await fetch(`/api/performance?period=${period}`);
       const perfData = await perfRes.json();
 
-      if (perfData.agents) {
-        const agentData = perfData.agents.find((a: AgentMetrics) => a.id === agentId);
+      if (perfData.agents && perfData.agents.length > 0) {
+        console.log("Looking for agent ID:", agentId);
+        console.log(
+          "Available agents:",
+          perfData.agents.map((a: any) => a.id),
+        );
+
+        // Find matching agent in performance data
+        let agentData = perfData.agents.find((a: AgentMetrics) => a.id === agentId);
+
         if (agentData) {
+          console.log("Found agent:", agentData);
           setAgent(agentData);
 
           // If agent is Senior, get their juniors
@@ -75,6 +94,21 @@ export default function IndividualAgentReportPage({ params }: { params: Params }
             const juniors = perfData.agents.filter((a: AgentMetrics) => a.role === "junior");
             setJuniorAgents(juniors);
           }
+        } else {
+          console.warn("Agent not found in performance data, but user exists");
+          // Create minimal agent object from user data if available
+          setAgent({
+            id: userData.user.id,
+            name: userData.user.name,
+            role: userData.user.role,
+            metrics: {
+              assigned: 0,
+              completed: 0,
+              avgHandlingTime: "-",
+              score: null,
+              rating: null,
+            },
+          });
         }
       }
 
@@ -128,10 +162,11 @@ export default function IndividualAgentReportPage({ params }: { params: Params }
             value={period}
             onChange={setPeriod}
             options={[
-              { value: "today", label: "Today" },
-              { value: "week", label: "Last Week" },
-              { value: "month", label: "Last Month" },
+              { value: "week", label: "This Week" },
+              { value: "month", label: "This Month" },
+              { value: "quarter", label: "This Quarter" },
               { value: "year", label: "This Year" },
+              { value: "all", label: "All Time" },
             ]}
             variant="filter"
           />

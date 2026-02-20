@@ -68,6 +68,55 @@ export default function AdminDashboardPage() {
       const ticketsData = await ticketsRes.json();
       const unassigned = (ticketsData.tickets || []).filter((t: any) => t.status !== "CLOSED" && t.status !== "RESOLVED").sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setUnassignedTickets(unassigned);
+
+      // Fetch top agent this week
+      try {
+        const perfRes = await fetch("/api/performance?period=week");
+        const perfData = await perfRes.json();
+        if (perfData.agents && perfData.agents.length > 0) {
+          const topAgentData = perfData.agents.reduce((max: any, agent: any) => ((agent.metrics?.completed || 0) > (max.metrics?.completed || 0) ? agent : max));
+          setTopAgent(topAgentData);
+        }
+      } catch (e) {
+        console.error("Error fetching top agent:", e);
+      }
+
+      // Fetch all tickets to analyze common issues this week
+      try {
+        const allTicketsRes = await fetch("/api/tickets");
+        const allTicketsData = await allTicketsRes.json();
+        const allTickets = allTicketsData.tickets || [];
+
+        // Filter tickets from this week
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        const weekTickets = allTickets.filter((t: any) => {
+          const created = new Date(t.created_at);
+          return created >= oneWeekAgo;
+        });
+
+        // Group by subject to find common issues
+        const issueCounts: Record<string, number> = {};
+        weekTickets.forEach((t: any) => {
+          const subject = t.subject || "Other";
+          issueCounts[subject] = (issueCounts[subject] || 0) + 1;
+        });
+
+        // Get top 3 issues
+        const top3Issues = Object.entries(issueCounts)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 3)
+          .map(([subject, count]) => ({
+            subject,
+            count,
+            percentage: weekTickets.length > 0 ? Math.round((count / weekTickets.length) * 100) : 0,
+          }));
+
+        setCommonIssues(top3Issues);
+      } catch (e) {
+        console.error("Error fetching common issues:", e);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -202,7 +251,74 @@ export default function AdminDashboardPage() {
             <StatCard value={stats.withIT} label="With IT" color="amber" />
           </div>
 
-          {/* Active Tickets Overview */}
+          {/* Weekly Insights Panel */}
+          <div className="bg-white rounded-lg shadow-soft p-6">
+            <h2 className="text-lg font-bold text-slate-900 mb-4">Weekly Insights</h2>
+            <div className="grid grid-cols-2 gap-6">
+              {/* Left: Top Agent This Week */}
+              <div className="border border-slate-100 rounded-lg p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">🏆</span>
+                  <p className="text-sm font-bold text-slate-700">Top Agent This Week</p>
+                </div>
+
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <span className="size-5 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+                  </div>
+                ) : topAgent ? (
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">{topAgent.name}</p>
+                      <p className="text-xs text-slate-500 capitalize">{getRoleLabel(topAgent.role)}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-slate-50 rounded-lg p-3 text-center">
+                        <p className="text-2xl font-extrabold text-slate-900">{topAgent.metrics?.completed || 0}</p>
+                        <p className="text-[10px] text-slate-500 uppercase mt-1">Completed</p>
+                      </div>
+                      <div className="bg-slate-50 rounded-lg p-3 text-center">
+                        <p className="text-2xl font-extrabold text-slate-900">{topAgent.metrics?.score || "-"}</p>
+                        <p className="text-[10px] text-slate-500 uppercase mt-1">Score</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-400 py-6 text-center">No activity this week</p>
+                )}
+              </div>
+
+              {/* Right: Common Issues This Week */}
+              <div className="border border-slate-100 rounded-lg p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">📊</span>
+                  <p className="text-sm font-bold text-slate-700">Common Issues This Week</p>
+                </div>
+
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <span className="size-5 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+                  </div>
+                ) : commonIssues.length > 0 ? (
+                  <div className="space-y-3">
+                    {commonIssues.map((issue, index) => (
+                      <div key={index}>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs font-medium text-slate-700 line-clamp-1">{issue.subject}</p>
+                          <p className="text-xs font-bold text-slate-600 flex-shrink-0 ml-2">{issue.percentage}%</p>
+                        </div>
+                        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                          <div className={`h-full rounded-full transition-all ${index === 0 ? "bg-red-500" : index === 1 ? "bg-amber-500" : "bg-blue-500"}`} style={{ width: `${issue.percentage}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-400 py-6 text-center">No issues this week</p>
+                )}
+              </div>
+            </div>
+          </div>
           <div className="flex-1 flex flex-col min-h-0">
             <h2 className="text-lg font-bold text-slate-900 mb-4">Unassigned Tickets</h2>
             <div className="flex-1 bg-white rounded-lg shadow-soft p-6 overflow-hidden">
