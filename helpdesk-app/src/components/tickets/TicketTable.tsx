@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import type { Priority, TicketStatus } from "@/types";
 
 interface TicketRow {
@@ -18,6 +19,11 @@ interface TicketRow {
     role?: string;
   };
   createdAt: string;
+  createdAtTimestamp?: number;
+  updatedAt?: string;
+  updatedAtTimestamp?: number;
+  lastUpdate?: string;
+  lastUpdateTimestamp?: number;
   onView?: () => void;
   onAssign?: () => void;
 }
@@ -55,23 +61,114 @@ const sourceColors = {
 };
 
 export default function TicketTable({ tickets, showAssignedTo = true, showSource = true, onViewTicket, onEditTicket, onAssignTicket }: TicketTableProps) {
+  const [sortField, setSortField] = useState<"created" | "lastUpdate" | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(null);
+
+  const parseDate = (value?: string) => {
+    if (!value) return 0;
+    const ts = new Date(value).getTime();
+    return Number.isNaN(ts) ? 0 : ts;
+  };
+
+  const getCreatedTs = (ticket: TicketRow) => ticket.createdAtTimestamp ?? parseDate(ticket.createdAt);
+
+  const getLastUpdateTs = (ticket: TicketRow) => {
+    const explicitTs = ticket.lastUpdateTimestamp ?? ticket.updatedAtTimestamp;
+    if (explicitTs && explicitTs > 0) return explicitTs;
+
+    const parsedTs = parseDate(ticket.lastUpdate) || parseDate(ticket.updatedAt);
+    return parsedTs || getCreatedTs(ticket);
+  };
+
+  const formatLastUpdate = (ticket: TicketRow) => {
+    const ts = getLastUpdateTs(ticket);
+    if (!ts) return ticket.createdAt;
+
+    const diffMs = Date.now() - ts;
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffHrs >= 0 && diffHrs < 24) {
+      return `${diffHrs}h ago`;
+    }
+
+    return new Date(ts).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
+
+  const sortedTickets = useMemo(() => {
+    if (!sortField || !sortDirection) return tickets;
+
+    const ordered = [...tickets].sort((a, b) => {
+      const aTs = sortField === "created" ? getCreatedTs(a) : getLastUpdateTs(a);
+      const bTs = sortField === "created" ? getCreatedTs(b) : getLastUpdateTs(b);
+      return sortDirection === "asc" ? aTs - bTs : bTs - aTs;
+    });
+
+    return ordered;
+  }, [tickets, sortField, sortDirection]);
+
+  const toggleSort = (field: "created" | "lastUpdate") => {
+    if (sortField !== field) {
+      setSortField(field);
+      setSortDirection("asc");
+      return;
+    }
+
+    if (sortDirection === "asc") {
+      setSortDirection("desc");
+      return;
+    }
+
+    if (sortDirection === "desc") {
+      setSortField(null);
+      setSortDirection(null);
+      return;
+    }
+
+    setSortDirection("asc");
+  };
+
+  const renderSortIcon = (field: "created" | "lastUpdate") => {
+    const isActive = sortField === field;
+    const upActive = isActive && sortDirection === "asc";
+    const downActive = isActive && sortDirection === "desc";
+
+    return (
+      <span className="flex flex-col -space-y-2 ml-1">
+        <span className={`material-symbols-outlined text-sm leading-none ${upActive ? "text-slate-700" : "text-slate-300"}`}>arrow_drop_up</span>
+        <span className={`material-symbols-outlined text-sm leading-none ${downActive ? "text-slate-700" : "text-slate-300"}`}>arrow_drop_down</span>
+      </span>
+    );
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-soft flex-1 overflow-hidden flex flex-col">
       {/* Header */}
       <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-4 text-xs font-bold text-slate-400 uppercase">
         <div className="w-20">Ticket</div>
-        <div className="flex-1">Subject</div>
+        <div className="flex-1 max-w-[280px]">Subject</div>
         <div className="w-20">Priority</div>
         <div className="w-28">Status</div>
         {showAssignedTo && <div className="w-28">Assigned To</div>}
         {showSource && <div className="w-20">Source</div>}
-        <div className="w-28">Created</div>
+        <button type="button" onClick={() => toggleSort("created")} className="w-28 flex items-center uppercase text-xs font-bold text-slate-400">
+          Created
+          {renderSortIcon("created")}
+        </button>
+        <button type="button" onClick={() => toggleSort("lastUpdate")} className="w-28 flex items-center uppercase text-xs font-bold text-slate-400">
+          Last Update
+          {renderSortIcon("lastUpdate")}
+        </button>
         <div className="w-24 text-right">Actions</div>
       </div>
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto no-scrollbar">
-        {tickets.map((ticket) => (
+        {sortedTickets.map((ticket) => (
           <div
             key={ticket.id}
             className={`px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors ${
@@ -79,9 +176,11 @@ export default function TicketTable({ tickets, showAssignedTo = true, showSource
             } ${ticket.status === "WITH_IT" ? "border-l-4 border-blue-500" : ""}`}
           >
             <div className="w-20 text-xs font-mono font-bold text-slate-400">#{ticket.ticketNumber}</div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-900">{ticket.subject}</p>
-              <p className="text-xs text-slate-400 mt-0.5">
+            <div className="flex-1 max-w-[280px] min-w-0">
+              <p className="text-sm font-semibold text-slate-900 truncate" title={ticket.subject}>
+                {ticket.subject}
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5 truncate" title={`${ticket.customerName}${ticket.customerPhone ? ` • ${ticket.customerPhone}` : ""}`}>
                 {ticket.customerName} {ticket.customerPhone && `• ${ticket.customerPhone}`}
               </p>
             </div>
@@ -102,10 +201,13 @@ export default function TicketTable({ tickets, showAssignedTo = true, showSource
                         {ticket.assignedTo.initials}
                       </div>
                     )}
-                    <span className="text-xs font-medium text-slate-600">{ticket.assignedTo.name}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-slate-600 leading-tight">{ticket.assignedTo.initials}</p>
+                      {ticket.assignedTo.role && <p className="text-[10px] text-slate-400 leading-tight">{ticket.assignedTo.role === "IT" ? "IT Support" : ticket.assignedTo.role}</p>}
+                    </div>
                   </div>
                 ) : (
-                  <span className="text-xs text-slate-400">Unassigned</span>
+                  <span className="text-xs text-slate-400">—</span>
                 )}
               </div>
             )}
@@ -115,6 +217,7 @@ export default function TicketTable({ tickets, showAssignedTo = true, showSource
               </div>
             )}
             <div className="w-28 text-xs text-slate-500">{ticket.createdAt}</div>
+            <div className="w-28 text-xs text-slate-500">{formatLastUpdate(ticket)}</div>
             <div className="w-24 flex justify-end gap-1">
               <button onClick={() => onViewTicket?.(ticket.id)} className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200" title="View">
                 <span className="material-symbols-outlined text-sm">visibility</span>
