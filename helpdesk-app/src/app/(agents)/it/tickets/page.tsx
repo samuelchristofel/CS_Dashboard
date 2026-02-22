@@ -9,7 +9,7 @@ import { toast } from 'react-hot-toast';
 export default function ITTicketsPage() {
     const [allTickets, setAllTickets] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentTab, setCurrentTab] = useState<'assigned' | 'pending' | 'all'>('assigned');
+    const [currentTab, setCurrentTab] = useState<'assigned' | 'pending' | 'all' | 'completed'>('assigned');
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('');
@@ -83,7 +83,8 @@ export default function ITTicketsPage() {
     const counts = {
         assigned: allTickets.filter(t => t.assignedToInt === userId && (t.status === 'WITH_IT' || t.status === 'IN_PROGRESS')).length,
         pending: allTickets.filter(t => t.assignedToInt === userId && t.status === 'RESOLVED').length,
-        all: allTickets.filter(t => t.status === 'WITH_IT').length
+        all: allTickets.filter(t => t.status === 'WITH_IT').length,
+        completed: allTickets.filter(t => t.assignedToInt === userId && (t.status === 'RESOLVED' || t.status === 'CLOSED')).length
     };
 
     // Filter tickets for current view
@@ -96,6 +97,8 @@ export default function ITTicketsPage() {
             matchesTab = t.assignedToInt === userId && t.status === 'RESOLVED';
         } else if (currentTab === 'all') {
             matchesTab = t.status === 'WITH_IT';
+        } else if (currentTab === 'completed') {
+            matchesTab = t.assignedToInt === userId && (t.status === 'RESOLVED' || t.status === 'CLOSED');
         }
 
         // 2. Search & Dropdown filters
@@ -165,12 +168,29 @@ export default function ITTicketsPage() {
                         {counts.all}
                     </span>
                 </button>
+                <button
+                    onClick={() => setCurrentTab('completed')}
+                    className={`px-5 py-2 rounded-full font-bold text-sm transition-all ${currentTab === 'completed'
+                        ? 'bg-blue-500 text-white'
+                        : 'text-slate-500 hover:bg-slate-100'
+                        }`}
+                >
+                    Completed
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs box-content ${currentTab === 'completed' ? 'bg-white/20' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                        {counts.completed}
+                    </span>
+                </button>
             </div>
 
             {/* Ticket Table */}
             {isLoading ? (
                 <div className="flex-1 flex items-center justify-center">
                     <span className="size-8 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
+                </div>
+            ) : currentTab === 'completed' && visibleTickets.length === 0 ? (
+                <div className="flex-1 flex items-center justify-center text-slate-400">
+                    Belum ada tiket yang diselesaikan
                 </div>
             ) : (
                 <TicketTable
