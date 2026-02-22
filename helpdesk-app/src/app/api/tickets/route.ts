@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { Priority, TicketStatus } from '@prisma/client';
+import { notifyNewTicketCreated } from '@/lib/notifications';
 
 // GET /api/tickets - List tickets with filters
 export async function GET(request: Request) {
@@ -66,6 +67,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
+        console.log('[tickets:post] payload received', {
+            has_subject: !!body?.subject,
+            has_customer_name: !!body?.customer_name,
+            source: body?.source,
+            created_by_id: body?.created_by_id || null,
+        });
         const {
             subject,
             description,
@@ -102,6 +109,16 @@ export async function POST(request: Request) {
         }
         const newNumber = (maxNumber + 1).toString();
 
+        // Validate creator id if provided (avoid FK failures)
+        let safeCreatedById: string | null = null;
+        if (created_by_id) {
+            const creator = await prisma.user.findUnique({
+                where: { id: created_by_id },
+                select: { id: true },
+            });
+            safeCreatedById = creator?.id || null;
+        }
+
         // Create ticket
         const ticket = await prisma.ticket.create({
             data: {
@@ -115,7 +132,7 @@ export async function POST(request: Request) {
                 customerEmail: customer_email || null,
                 customerPhone: customer_phone || null,
                 assignedToId: assigned_to_id || null,
-                createdById: created_by_id || null,
+                createdById: safeCreatedById,
             },
             include: {
                 assignedTo: {
@@ -128,15 +145,53 @@ export async function POST(request: Request) {
         });
 
         // Log activity
-        if (created_by_id) {
-            await prisma.activity.create({
-                data: {
-                    action: 'TICKET_CREATED',
-                    details: `Ticket #${newNumber} created`,
-                    userId: created_by_id,
-                    ticketId: ticket.id,
-                },
+        const creator = safeCreatedById
+            ? await prisma.user.findUnique({
+                  where: { id: safeCreatedById },
+                  select: { id: true, name: true },
+              })
+            : null;
+
+        let activityUserId = creator?.id || null;
+        if (!activityUserId) {
+            const fallbackUser = await prisma.user.findFirst({
+                where: { role: 'admin' },
+                select: { id: true, name: true },
             });
+            activityUserId = fallbackUser?.id || null;
+        }
+
+        if (activityUserId) {
+            const channel = ticket.source || 'Freshchat';
+            const createdDetails =
+                channel === 'Freshchat'
+                    ? `Ticket #${newNumber} created from Freshchat${creator?.name ? ` by ${creator.name}` : ' by System'}`
+                    : `Ticket #${newNumber} created manually via ${channel}${creator?.name ? ` by ${creator.name}` : ''}`;
+
+            try {
+                await prisma.activity.create({
+                    data: {
+                        action: 'TICKET_CREATED',
+                        details: createdDetails,
+                        userId: activityUserId,
+                        ticketId: ticket.id,
+                    },
+                });
+            } catch (activityError) {
+                console.error('Activity creation failed after ticket create:', activityError);
+            }
+        }
+
+        try {
+            await notifyNewTicketCreated({
+                id: ticket.id,
+                number: ticket.number,
+                subject: ticket.subject,
+                customerName: ticket.customerName,
+            });
+        } catch (notifError) {
+            console.error('Notification creation failed:', notifError);
+            // Do not block ticket creation on notification failures
         }
 
         // Transform response

@@ -1,5 +1,5 @@
-import HistoryContent from '@/components/history/HistoryContent';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
 
 export default function JuniorHistoryPage() {
-    return <HistoryContent />;
+    return <NotificationCenter />;
 }

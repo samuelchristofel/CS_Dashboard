@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { TicketStatus } from '@prisma/client';
+import {
+    notifyTicketAssigned,
+    notifyTicketEscalated,
+    notifyTicketFixed,
+    notifyTicketResolved,
+} from '@/lib/notifications';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -82,7 +88,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         // Get current ticket state for activity logging
         const currentTicket = await prisma.ticket.findUnique({
             where: { id },
-            select: { number: true, status: true, assignedToId: true },
+            select: { number: true, status: true, assignedToId: true, subject: true, createdById: true },
         });
 
         if (!currentTicket) {
@@ -157,6 +163,44 @@ export async function PATCH(request: Request, { params }: RouteParams) {
             });
         }
 
+        const statusChanged = !!status && status !== currentTicket.status;
+        const assignedChanged = assigned_to_id !== undefined && assigned_to_id !== currentTicket.assignedToId;
+
+        if (assignedChanged && ticket.assignedToId) {
+            await notifyTicketAssigned({
+                id: ticket.id,
+                number: ticket.number,
+                subject: ticket.subject,
+                assignedToId: ticket.assignedToId,
+            });
+        }
+
+        if (statusChanged && status === 'WITH_IT') {
+            await notifyTicketEscalated({
+                id: ticket.id,
+                number: ticket.number,
+                subject: ticket.subject,
+            });
+        }
+
+        if (statusChanged && status === 'RESOLVED') {
+            await notifyTicketResolved({
+                id: ticket.id,
+                number: ticket.number,
+                subject: ticket.subject,
+                assignedToId: ticket.assignedToId,
+            });
+
+            if (currentTicket.status === 'WITH_IT') {
+                await notifyTicketFixed({
+                    id: ticket.id,
+                    number: ticket.number,
+                    subject: ticket.subject,
+                    createdById: currentTicket.createdById,
+                });
+            }
+        }
+
         // Transform response
         const transformedTicket = {
             ...ticket,
@@ -188,10 +232,41 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 export async function DELETE(request: Request, { params }: RouteParams) {
     try {
         const { id } = await params;
+        let userId: string | null = null;
+
+        try {
+            const body = await request.json();
+            userId = body?.user_id || null;
+        } catch {
+            userId = null;
+        }
+
+        const existingTicket = await prisma.ticket.findUnique({
+            where: { id },
+            select: { number: true },
+        });
+
+        if (!existingTicket) {
+            return NextResponse.json(
+                { error: 'Ticket not found' },
+                { status: 404 }
+            );
+        }
 
         await prisma.ticket.delete({
             where: { id },
         });
+
+        if (userId) {
+            await prisma.activity.create({
+                data: {
+                    action: 'TICKET_DELETED',
+                    details: `Ticket #${existingTicket.number} deleted`,
+                    userId,
+                    ticketId: null,
+                },
+            });
+        }
 
         return NextResponse.json({ message: 'Ticket deleted' });
 

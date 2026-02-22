@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { useUnreadNotifications } from "@/components/providers/UnreadNotificationProvider";
 import type { UserRole } from "@/types";
 
 interface NavItem {
@@ -22,18 +24,18 @@ const navItemsByRole: Record<UserRole, NavItem[]> = {
     { label: "Dashboard", href: "/senior", icon: "grid_view" },
     { label: "Tickets", href: "/senior/tickets", icon: "confirmation_number" },
     { label: "Reports", href: "/senior/reports", icon: "bar_chart" },
-    { label: "History", href: "/senior/history", icon: "history" },
+    { label: "Notifikasi", href: "/senior/history", icon: "notifications" },
   ],
   junior: [
     { label: "Dashboard", href: "/junior", icon: "grid_view" },
     { label: "Tickets", href: "/junior/tickets", icon: "confirmation_number" },
     { label: "Reports", href: "/junior/reports", icon: "bar_chart" },
-    { label: "History", href: "/junior/history", icon: "history" },
+    { label: "Notifikasi", href: "/junior/history", icon: "notifications" },
   ],
   it: [
     { label: "Dashboard", href: "/it", icon: "grid_view" },
     { label: "Tickets", href: "/it/tickets", icon: "confirmation_number" },
-    { label: "History", href: "/it/history", icon: "history" },
+    { label: "Notifikasi", href: "/it/history", icon: "notifications" },
   ],
   admin: [
     { label: "Dashboard", href: "/admin", icon: "grid_view" },
@@ -57,10 +59,17 @@ export default function Sidebar({ role, userName, userTitle, userAvatar }: Sideb
   const pathname = usePathname();
   const navItems = navItemsByRole[role];
   const logoColor = roleColors[role];
+  const { unreadCount, refreshUnreadCount } = useUnreadNotifications();
+
+  useEffect(() => {
+    refreshUnreadCount();
+    const intervalId = setInterval(refreshUnreadCount, 15000);
+    return () => clearInterval(intervalId);
+  }, [refreshUnreadCount]);
 
   const isActive = (href: string, label: string) => {
     // For Dashboard and History, exact match only (not subpages)
-    if (label === "Dashboard" || label === "History") return pathname === href;
+    if (label === "Dashboard" || label === "History" || label === "Notifikasi") return pathname === href;
 
     // For other pages, use startsWith for nested routes
     return pathname.startsWith(href);
@@ -84,8 +93,15 @@ export default function Sidebar({ role, userName, userTitle, userAvatar }: Sideb
           const active = isActive(item.href, item.label);
           return (
             <Link key={item.href} href={item.href} className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all ${active ? "bg-white text-slate-900 shadow-soft" : "text-slate-500 hover:text-slate-900 hover:bg-white/50"}`}>
-              <span className={`material-symbols-outlined text-2xl ${active ? "text-[#EB4C36]" : ""}`} style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>
-                {item.icon}
+              <span className="relative inline-flex">
+                <span className={`material-symbols-outlined text-2xl ${active ? "text-[#EB4C36]" : ""}`} style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>
+                  {item.icon}
+                </span>
+                {item.label === "Notifikasi" && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
               </span>
               <span className={`text-base ${active ? "font-bold" : "font-semibold"}`}>{item.label}</span>
             </Link>

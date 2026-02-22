@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ToastProvider from "@/components/providers/ToastProvider";
+import { UnreadNotificationProvider } from "@/components/providers/UnreadNotificationProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,8 +22,10 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        {children}
-        <ToastProvider />
+        <UnreadNotificationProvider>
+          {children}
+          <ToastProvider />
+        </UnreadNotificationProvider>
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { notifyNoteAdded } from '@/lib/notifications';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -65,7 +66,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         // Verify ticket exists
         const ticket = await prisma.ticket.findUnique({
             where: { id },
-            select: { id: true, number: true },
+            select: { id: true, number: true, subject: true, assignedToId: true },
         });
 
         if (!ticket) {
@@ -90,6 +91,25 @@ export async function POST(request: Request, { params }: RouteParams) {
                 ticketId: id,
             },
         });
+
+        await prisma.activity.create({
+            data: {
+                action: 'NOTE_ADDED',
+                details: `Note added to ticket #${ticket.number}`,
+                userId: user_id,
+                ticketId: id,
+            },
+        });
+
+        await notifyNoteAdded(
+            {
+                id: ticket.id,
+                number: ticket.number,
+                subject: ticket.subject,
+                assignedToId: ticket.assignedToId,
+            },
+            user_id,
+        );
 
         // Transform to snake_case
         const transformedNote = {

@@ -20,7 +20,7 @@ export async function GET(request: Request) {
                     select: { id: true, name: true, role: true, avatar: true }
                 },
                 ticket: {
-                    select: { id: true, number: true, subject: true }
+                    select: { id: true, number: true, subject: true, source: true, customerName: true, priority: true, status: true }
                 },
             },
             orderBy: { createdAt: 'desc' },

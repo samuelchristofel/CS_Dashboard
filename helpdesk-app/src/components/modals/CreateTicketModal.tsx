@@ -37,44 +37,19 @@ const OTHER_SUBJECT_VALUE = "__OTHER__";
 const subjectGroups = [
   {
     label: "DEVICE ISSUES",
-    options: [
-      "Unit GPS offline / tidak mengirim sinyal",
-      "GPS tidak akurat / posisi melenceng",
-      "Tombol SOS tidak berfungsi",
-      "Layar/display unit rusak",
-      "Unit GPS mati / tidak menyala",
-      "Sensor tidak terbaca (suhu, bahan bakar, dll)",
-    ],
+    options: ["Unit GPS offline / tidak mengirim sinyal", "GPS tidak akurat / posisi melenceng", "Tombol SOS tidak berfungsi", "Layar/display unit rusak", "Unit GPS mati / tidak menyala", "Sensor tidak terbaca (suhu, bahan bakar, dll)"],
   },
   {
     label: "PLATFORM / DASHBOARD ISSUES",
-    options: [
-      "Tidak bisa login ke dashboard",
-      "Dashboard error / tidak bisa dibuka",
-      "Data kendaraan tidak muncul",
-      "Laporan tidak bisa didownload",
-      "Notifikasi/alert tidak masuk",
-      "Fitur geofence tidak berfungsi",
-    ],
+    options: ["Tidak bisa login ke dashboard", "Dashboard error / tidak bisa dibuka", "Data kendaraan tidak muncul", "Laporan tidak bisa didownload", "Notifikasi/alert tidak masuk", "Fitur geofence tidak berfungsi"],
   },
   {
     label: "INSTALLATION & HARDWARE",
-    options: [
-      "Request instalasi GPS baru",
-      "Permintaan penambahan unit",
-      "Request relokasi/pindah unit",
-      "Perangkat rusak / perlu penggantian",
-      "Kalibrasi sensor bahan bakar",
-    ],
+    options: ["Request instalasi GPS baru", "Permintaan penambahan unit", "Request relokasi/pindah unit", "Perangkat rusak / perlu penggantian", "Kalibrasi sensor bahan bakar"],
   },
   {
     label: "SUBSCRIPTION & BILLING",
-    options: [
-      "Perpanjangan kontrak/langganan",
-      "Perubahan paket layanan",
-      "Pertanyaan tagihan / invoice",
-      "Aktivasi unit baru",
-    ],
+    options: ["Perpanjangan kontrak/langganan", "Perubahan paket layanan", "Pertanyaan tagihan / invoice", "Aktivasi unit baru"],
   },
   {
     label: "TRAINING & ONBOARDING",
@@ -140,6 +115,12 @@ export default function CreateTicketModal({ isOpen, onClose, onSubmit, initialDa
     }
     if (!formData.customerEmail.trim()) {
       newErrors.customerEmail = "Customer email is required";
+    }
+    if (!formData.customerName.trim()) {
+      newErrors.customerName = "Customer name is required";
+    }
+    if (!formData.customerPhone.trim()) {
+      newErrors.customerPhone = "Phone number is required";
     }
 
     setErrors(newErrors);
@@ -351,29 +332,31 @@ export default function CreateTicketModal({ isOpen, onClose, onSubmit, initialDa
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1">
                 <span className="material-symbols-outlined text-slate-400 text-sm">badge</span>
-                Customer Name
+                Customer Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.customerName}
                 onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                 placeholder="Company or person name"
-                className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none"
+                className={`w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none ${errors.customerName ? "ring-2 ring-red-500" : ""}`}
               />
+              {errors.customerName && <p className="text-xs text-red-500 mt-1">{errors.customerName}</p>}
             </div>
 
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1">
                 <span className="material-symbols-outlined text-slate-400 text-sm">phone</span>
-                Phone Number
+                Phone Number <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 value={formData.customerPhone}
                 onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
                 placeholder="08xx-xxxx-xxxx"
-                className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none"
+                className={`w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-[#EB4C36]/20 focus:outline-none ${errors.customerPhone ? "ring-2 ring-red-500" : ""}`}
               />
+              {errors.customerPhone && <p className="text-xs text-red-500 mt-1">{errors.customerPhone}</p>}
             </div>
           </div>
         </div>
