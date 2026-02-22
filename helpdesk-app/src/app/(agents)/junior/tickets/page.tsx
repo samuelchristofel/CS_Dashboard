@@ -69,7 +69,7 @@ export default function JuniorTicketsPage() {
 
     // Calculate counts
     const counts = {
-        assigned: allTickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS' || t.status === 'TRIAGE').length,
+        assigned: allTickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length,
         pending: allTickets.filter(t => t.status === 'PENDING_REVIEW').length,
         completed: allTickets.filter(t => t.status === 'CLOSED' || t.status === 'RESOLVED').length
     };
@@ -79,7 +79,7 @@ export default function JuniorTicketsPage() {
         // 1. Tab filter
         let matchesTab = false;
         if (currentTab === 'assigned') {
-            matchesTab = t.status === 'OPEN' || t.status === 'IN_PROGRESS' || t.status === 'TRIAGE';
+            matchesTab = t.status === 'OPEN' || t.status === 'IN_PROGRESS';
         } else if (currentTab === 'pending') {
             matchesTab = t.status === 'PENDING_REVIEW';
         } else {

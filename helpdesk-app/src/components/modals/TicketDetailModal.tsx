@@ -48,7 +48,6 @@ const priorityColors = {
 
 const statusColors: Record<string, string> = {
   OPEN: "bg-slate-100 text-slate-600",
-  TRIAGE: "bg-purple-100 text-purple-600",
   IN_PROGRESS: "bg-blue-50 text-blue-600 border border-blue-200",
   RESOLVED: "bg-green-100 text-green-600",
   CLOSED: "bg-green-100 text-green-700",

@@ -18,7 +18,6 @@ export type Priority = 'LOW' | 'MEDIUM' | 'HIGH';
 // Ticket Status
 export type TicketStatus = 
   | 'OPEN' 
-  | 'TRIAGE' 
   | 'IN_PROGRESS' 
   | 'RESOLVED' 
   | 'CLOSED'

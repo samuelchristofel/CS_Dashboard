@@ -26,7 +26,6 @@ enum Priority {
 
 enum TicketStatus {
   OPEN
-  TRIAGE
   IN_PROGRESS
   RESOLVED
   CLOSED

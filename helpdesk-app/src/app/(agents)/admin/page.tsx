@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import StatCard from "@/components/dashboard/StatCard";
+import CustomSelect from "@/components/ui/CustomSelect";
 import AddUserModal from "@/components/modals/AddUserModal";
 import type { UserFormData } from "@/components/modals/AddUserModal";
 
@@ -38,7 +39,9 @@ export default function AdminDashboardPage() {
   const [topAgent, setTopAgent] = useState<any>(null);
   const [commonIssues, setCommonIssues] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [dateFilter, setDateFilter] = useState<"week" | "month" | "year">("week");
+  const [dateFilter, setDateFilter] = useState<"week" | "month" | "year">("month");
+  const [customDateFrom, setCustomDateFrom] = useState("");
+  const [customDateTo, setCustomDateTo] = useState("");
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -126,7 +129,7 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, dateFilter, customDateFrom, customDateTo]);
 
   const handleAddUser = async (data: UserFormData) => {
     try {
@@ -212,39 +215,44 @@ export default function AdminDashboardPage() {
           background: #9ca3af;
         }
       `}</style>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-          <p className="text-sm text-slate-500 mt-1">System overview and management</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-slate-500">{today}</span>
-        </div>
-      </div>
 
       {/* Main Content Area */}
       <div className="flex-1 flex gap-6 overflow-hidden">
         {/* Left Panel - Stats */}
         <div className="flex-[2] flex flex-col gap-6 min-w-0 h-full">
-          {/* System Stats */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-soft p-6 text-white">
-            <div className="flex items-start justify-between mb-4">
+          {/* System Stats with Period Dropdown */}
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-soft p-4 text-white">
+            <div className="flex items-start justify-between mb-3">
               <div>
                 <p className="text-sm font-semibold opacity-90">System Overview</p>
-                <p className="text-xs opacity-70">Current statistics</p>
               </div>
-              <span className="text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full">{new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</span>
+              <CustomSelect
+                value={dateFilter}
+                onChange={(val) => setDateFilter(val as "week" | "month" | "year")}
+                options={[
+                  { value: "week", label: "This Week" },
+                  { value: "month", label: "This Month" },
+                  { value: "year", label: "This Year" },
+                ]}
+                variant="filter"
+              />
             </div>
-            <div className="flex items-end gap-3">
-              <span className="text-5xl font-extrabold">{isLoading ? "..." : stats.total}</span>
-              <span className="text-2xl font-bold opacity-70 mb-1">tickets</span>
+            {dateFilter === "custom" && (
+              <div className="flex items-center gap-2 mb-3">
+                <input type="date" value={customDateFrom} onChange={(e) => setCustomDateFrom(e.target.value)} className="px-2 py-1 border border-white/30 rounded text-xs text-slate-900" />
+                <span className="text-white/50">→</span>
+                <input type="date" value={customDateTo} onChange={(e) => setCustomDateTo(e.target.value)} className="px-2 py-1 border border-white/30 rounded text-xs text-slate-900" />
+              </div>
+            )}
+            <div className="flex items-end gap-2">
+              <span className="text-4xl font-extrabold">{isLoading ? "..." : stats.total}</span>
+              <span className="text-lg font-bold opacity-70 mb-0.5">tickets</span>
             </div>
-            <p className="text-sm opacity-80 mt-2">📊 Total tickets in system</p>
+            <p className="text-xs opacity-80 mt-1.5">📊 Total tickets in system</p>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-3">
             <StatCard value={stats.open} label="Open Tickets" color="primary" bordered />
             <StatCard value={stats.inProgress} label="In Progress" color="blue" />
             <StatCard value={stats.resolved} label="Resolved" color="green" />
@@ -252,98 +260,98 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Weekly Insights Panel */}
-          <div className="bg-white rounded-lg shadow-soft p-6">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Weekly Insights</h2>
-            <div className="grid grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg shadow-soft p-4">
+            <h2 className="text-base font-bold text-slate-900 mb-3">Weekly Insights</h2>
+            <div className="grid grid-cols-2 gap-4">
               {/* Left: Top Agent This Week */}
-              <div className="border border-slate-100 rounded-lg p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">🏆</span>
-                  <p className="text-sm font-bold text-slate-700">Top Agent This Week</p>
+              <div className="border border-slate-100 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">🏆</span>
+                  <p className="text-xs font-bold text-slate-700">Top Agent This Week</p>
                 </div>
 
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-6">
-                    <span className="size-5 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+                  <div className="flex items-center justify-center py-4">
+                    <span className="size-4 border border-slate-200 border-t-slate-800 rounded-full animate-spin" />
                   </div>
                 ) : topAgent ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div>
-                      <p className="text-sm font-bold text-slate-900">{topAgent.name}</p>
-                      <p className="text-xs text-slate-500 capitalize">{getRoleLabel(topAgent.role)}</p>
+                      <p className="text-xs font-bold text-slate-900">{topAgent.name}</p>
+                      <p className="text-[11px] text-slate-500 capitalize">{getRoleLabel(topAgent.role)}</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-slate-50 rounded-lg p-3 text-center">
-                        <p className="text-2xl font-extrabold text-slate-900">{topAgent.metrics?.completed || 0}</p>
-                        <p className="text-[10px] text-slate-500 uppercase mt-1">Completed</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-slate-50 rounded p-2 text-center">
+                        <p className="text-lg font-extrabold text-slate-900">{topAgent.metrics?.completed || 0}</p>
+                        <p className="text-[9px] text-slate-500 uppercase mt-0.5">Completed</p>
                       </div>
-                      <div className="bg-slate-50 rounded-lg p-3 text-center">
-                        <p className="text-2xl font-extrabold text-slate-900">{topAgent.metrics?.score || "-"}</p>
-                        <p className="text-[10px] text-slate-500 uppercase mt-1">Score</p>
+                      <div className="bg-slate-50 rounded p-2 text-center">
+                        <p className="text-lg font-extrabold text-slate-900">{topAgent.metrics?.score || "-"}</p>
+                        <p className="text-[9px] text-slate-500 uppercase mt-0.5">Score</p>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-400 py-6 text-center">No activity this week</p>
+                  <p className="text-xs text-slate-400 py-4 text-center">No activity this week</p>
                 )}
               </div>
 
               {/* Right: Common Issues This Week */}
-              <div className="border border-slate-100 rounded-lg p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">📊</span>
-                  <p className="text-sm font-bold text-slate-700">Common Issues This Week</p>
+              <div className="border border-slate-100 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">📊</span>
+                  <p className="text-xs font-bold text-slate-700">Common Issues This Week</p>
                 </div>
 
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-6">
-                    <span className="size-5 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+                  <div className="flex items-center justify-center py-4">
+                    <span className="size-4 border border-slate-200 border-t-slate-800 rounded-full animate-spin" />
                   </div>
                 ) : commonIssues.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {commonIssues.map((issue, index) => (
                       <div key={index}>
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-xs font-medium text-slate-700 line-clamp-1">{issue.subject}</p>
-                          <p className="text-xs font-bold text-slate-600 flex-shrink-0 ml-2">{issue.percentage}%</p>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <p className="text-[11px] font-medium text-slate-700 line-clamp-1">{issue.subject}</p>
+                          <p className="text-[11px] font-bold text-slate-600 flex-shrink-0 ml-2">{issue.percentage}%</p>
                         </div>
-                        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                           <div className={`h-full rounded-full transition-all ${index === 0 ? "bg-red-500" : index === 1 ? "bg-amber-500" : "bg-blue-500"}`} style={{ width: `${issue.percentage}%` }} />
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-400 py-6 text-center">No issues this week</p>
+                  <p className="text-xs text-slate-400 py-4 text-center">No issues this week</p>
                 )}
               </div>
             </div>
           </div>
           <div className="flex-1 flex flex-col min-h-0">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Unassigned Tickets</h2>
-            <div className="flex-1 bg-white rounded-lg shadow-soft p-6 overflow-hidden">
-              <div className="max-h-[400px] overflow-y-auto space-y-3 admin-ticket-list" style={{ scrollbarWidth: "thin" }}>
+            <h2 className="text-base font-bold text-slate-900 mb-2">Unassigned Tickets</h2>
+            <div className="flex-1 bg-white rounded-lg shadow-soft p-4 overflow-hidden">
+              <div className="max-h-[400px] overflow-y-auto space-y-2 admin-ticket-list" style={{ scrollbarWidth: "thin" }}>
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <span className="size-6 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+                  <div className="flex items-center justify-center py-4">
+                    <span className="size-4 border border-slate-200 border-t-slate-800 rounded-full animate-spin" />
                   </div>
                 ) : unassignedTickets.length === 0 ? (
-                  <div className="text-center text-slate-400 py-8">
-                    <span className="material-symbols-outlined text-4xl mb-2 block">check_circle</span>
-                    <p className="text-sm">All tickets have been assigned</p>
+                  <div className="text-center text-slate-400 py-4">
+                    <span className="material-symbols-outlined text-3xl mb-1 block">check_circle</span>
+                    <p className="text-xs">All tickets have been assigned</p>
                   </div>
                 ) : (
                   unassignedTickets.map((ticket) => (
-                    <div key={ticket.id} className="bg-slate-50 hover:bg-slate-100 p-4 rounded-lg border border-slate-100 transition-colors cursor-pointer">
-                      <div className="flex items-start justify-between gap-3 mb-2">
+                    <div key={ticket.id} className="bg-slate-50 hover:bg-slate-100 p-2.5 rounded border border-slate-100 transition-colors cursor-pointer">
+                      <div className="flex items-start justify-between gap-2 mb-1">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-slate-900 text-sm">
+                          <p className="font-semibold text-slate-900 text-xs">
                             #{ticket.number} - {ticket.subject}
                           </p>
-                          <p className="text-xs text-slate-500 mt-1 line-clamp-2">{ticket.description || "No description"}</p>
+                          <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">{ticket.description || "No description"}</p>
                         </div>
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase whitespace-nowrap flex-shrink-0 ${
+                          className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap flex-shrink-0 ${
                             ticket.priority === "HIGH" ? "bg-red-50 text-red-600" : ticket.priority === "MEDIUM" ? "bg-amber-50 text-amber-600" : "bg-green-50 text-green-600"
                           }`}
                         >
@@ -363,12 +371,12 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Right Panel */}
-        <div className="w-[450px] flex flex-col gap-4 min-w-0 h-full overflow-hidden">
+        <div className="w-[360px] flex flex-col gap-3 min-w-0 h-full overflow-hidden">
           {/* System Activity */}
           <div className="flex-1 bg-white rounded-lg shadow-soft flex flex-col overflow-hidden min-h-0">
-            <div className="p-6 pb-4 bg-white sticky top-0 z-10">
+            <div className="p-4 pb-3 bg-white sticky top-0 z-10">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
-                <span className="material-symbols-outlined text-slate-400 text-lg">history</span>
+                <span className="material-symbols-outlined text-slate-400 text-base">history</span>
                 System Activity
               </div>
             </div>

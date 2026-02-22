@@ -263,8 +263,6 @@ export default function JuniorDashboardPage() {
         return "text-blue-600 bg-blue-50 border border-blue-200";
       case "OPEN":
         return "text-slate-600 bg-slate-100";
-      case "TRIAGE":
-        return "text-purple-600 bg-purple-100";
       case "RESOLVED":
         return "text-green-600 bg-green-100";
       case "CLOSED":

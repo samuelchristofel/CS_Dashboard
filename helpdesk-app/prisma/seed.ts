@@ -185,7 +185,7 @@ async function main() {
             subject: 'Alarm SOS tidak berfungsi',
             description: 'Tombol SOS pada unit GPS tidak mengirim notifikasi ke dashboard. Sudah dicoba berkali-kali tapi tidak ada alert masuk.',
             priority: 'HIGH',
-            status: 'TRIAGE',
+            status: 'OPEN',
             source: 'WhatsApp',
             customerName: 'PT. Keamanan Armada',
             customerEmail: 'security@keamananarmada.id',
