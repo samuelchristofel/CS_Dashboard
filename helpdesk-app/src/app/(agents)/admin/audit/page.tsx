@@ -58,10 +58,11 @@ export default function AdminAuditPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [actionFilter, setActionFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("today");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchActivities();
-  }, [actionFilter, dateFilter]);
+  }, [actionFilter, dateFilter, searchQuery]);
 
   const fetchActivities = async () => {
     setIsLoading(true);
@@ -96,6 +97,26 @@ export default function AdminAuditPage() {
           }
         }
 
+        // Search filter
+        const query = searchQuery.trim().toLowerCase();
+        if (query) {
+          filtered = filtered.filter((a: Activity) => {
+            const actionText = (actionLabels[a.action] || a.action || "").toLowerCase();
+            const userName = (a.user?.name || "System").toLowerCase();
+            const roleText = (a.user ? roleLabels[a.user.role] || a.user.role : "API").toLowerCase();
+            const detailsText = (a.details || (a.ticket ? `Ticket #${a.ticket.number}` : "-")).toLowerCase();
+            const timestampText = formatTimestamp(a.created_at).toLowerCase();
+
+            return (
+              actionText.includes(query) ||
+              userName.includes(query) ||
+              roleText.includes(query) ||
+              detailsText.includes(query) ||
+              timestampText.includes(query)
+            );
+          });
+        }
+
         setActivities(filtered);
       }
     } catch (error) {
@@ -126,6 +147,16 @@ export default function AdminAuditPage() {
           <p className="text-sm text-slate-500 mt-1">System activity and security logs</p>
         </div>
         <div className="flex items-center gap-3">
+          <div className="relative flex-1 min-w-[280px]">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari log..."
+              className="w-full pl-10 pr-4 py-2.5 bg-white rounded-full border border-slate-200 shadow-soft text-sm focus:ring-2 focus:ring-slate-800/20 focus:outline-none"
+            />
+          </div>
           <CustomSelect
             value={actionFilter}
             onChange={setActionFilter}
@@ -173,7 +204,7 @@ export default function AdminAuditPage() {
               <span className="size-8 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
             </div>
           ) : activities.length === 0 ? (
-            <div className="flex items-center justify-center py-12 text-slate-400">No activity logs found</div>
+            <div className="flex items-center justify-center py-12 text-slate-400">Tidak ada log yang cocok</div>
           ) : (
             activities.map((activity) => (
               <div key={activity.id} className="px-6 py-4 border-b border-slate-50 flex items-center gap-4 hover:bg-slate-50">
