@@ -15,7 +15,7 @@ interface CustomSelectProps {
     label?: string;
     icon?: string;
     required?: boolean;
-    variant?: 'form' | 'filter';
+    variant?: 'form' | 'filter' | 'filter-overlay';
 }
 
 export default function CustomSelect({
@@ -57,11 +57,13 @@ export default function CustomSelect({
 
     const baseButtonStyles = "w-full text-left flex items-center justify-between transition-all";
     const variantStyles = variant === 'filter'
-        ? `px-4 py-2.5 bg-white rounded-full shadow-soft ${isOpen ? 'ring-2 ring-[#EB4C36]/20' : ''}`
-        : `px-4 py-3 bg-slate-50 rounded-xl ${isOpen ? 'ring-2 ring-[#EB4C36]/20' : 'hover:bg-slate-100'}`;
+        ? `px-3 py-1.5 bg-white rounded-lg shadow-soft ${isOpen ? 'ring-2 ring-[#EB4C36]/20' : ''}`
+        : variant === 'filter-overlay'
+            ? `px-3 py-1.5 bg-white/20 rounded-lg ${isOpen ? 'ring-2 ring-white/40' : ''}`
+            : `px-4 py-3 bg-slate-50 rounded-xl ${isOpen ? 'ring-2 ring-[#EB4C36]/20' : 'hover:bg-slate-100'}`;
 
     return (
-        <div className={`relative ${variant === 'filter' ? 'min-w-[150px]' : ''}`} ref={dropdownRef}>
+        <div className={`relative ${variant === 'filter' || variant === 'filter-overlay' ? 'min-w-[150px]' : ''}`} ref={dropdownRef}>
             {label && (
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
                     {icon && (
@@ -76,12 +78,12 @@ export default function CustomSelect({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`${baseButtonStyles} ${variantStyles} ${!selectedOption ? 'text-slate-500' : 'text-slate-900'}`}
+                className={`${baseButtonStyles} ${variantStyles} ${variant === 'filter-overlay' ? (!selectedOption ? 'text-white/80' : 'text-white') : (!selectedOption ? 'text-slate-500' : 'text-slate-900')}`}
             >
-                <span className="text-sm font-medium">
+                <span className={`${variant === 'filter' || variant === 'filter-overlay' ? 'text-xs' : 'text-sm'} font-medium`}>
                     {selectedOption?.label || placeholder}
                 </span>
-                <span className={`material-symbols-outlined text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                <span className={`material-symbols-outlined ${variant === 'filter' || variant === 'filter-overlay' ? 'text-sm' : ''} ${variant === 'filter-overlay' ? 'text-white' : 'text-slate-400'} transition-transform ${isOpen ? 'rotate-180' : ''}`}>
                     expand_more
                 </span>
             </button>

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import ScoreCard from "@/components/dashboard/ScoreCard";
-import StatCard from "@/components/dashboard/StatCard";
 import TicketCard from "@/components/dashboard/TicketCard";
 import NotesPanel from "@/components/dashboard/NotesPanel";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -25,12 +24,6 @@ interface Ticket {
 
 // Activity interface removed - using NotesPanel instead
 
-interface Stats {
-  high: number;
-  medium: number;
-  low: number;
-}
-
 interface UserStats {
   score: number;
   assigned: number;
@@ -41,12 +34,13 @@ interface UserStats {
 export default function SeniorDashboardPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   // activities state removed - using NotesPanel instead
-  const [stats, setStats] = useState<Stats>({ high: 0, medium: 0, low: 0 });
+  const [summaryStats, setSummaryStats] = useState({ assigned: 0, available: 0, resolved: 0 });
   const [userStats, setUserStats] = useState<UserStats>({ score: 0, assigned: 0, active: 0, closed: 0 });
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [periodFilter, setPeriodFilter] = useState<"week" | "month" | "year">("month");
 
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showAddNoteForm, setShowAddNoteForm] = useState(false);
@@ -83,17 +77,15 @@ export default function SeniorDashboardPage() {
       setTickets(activeTickets.slice(0, 5)); // Show top 5
 
       // Fetch stats
-      const statsRes = await fetch(`/api/stats?user_id=${userId}`);
+      const statsRes = await fetch(`/api/stats?user_id=${userId}&role=senior&period=${periodFilter}`);
       const statsData = await statsRes.json();
-      if (statsData.stats) {
-        setStats({
-          high: statsData.stats.high,
-          medium: statsData.stats.medium,
-          low: statsData.stats.low,
-        });
-      }
       if (statsData.userStats) {
         setUserStats(statsData.userStats);
+        setSummaryStats({
+          assigned: statsData.userStats.assigned,
+          available: statsData.stats?.open || 0,
+          resolved: statsData.userStats.closed,
+        });
       }
 
       // Activities fetch removed - using NotesPanel instead
@@ -102,7 +94,7 @@ export default function SeniorDashboardPage() {
     } finally {
       setIsLoadingData(false);
     }
-  }, [userId]);
+  }, [userId, periodFilter]);
 
   // Initial load
   useEffect(() => {
@@ -238,14 +230,20 @@ export default function SeniorDashboardPage() {
         {/* Left Panel */}
         <div className="flex-[2] flex flex-col gap-6 min-w-0 h-full">
           {/* Score Card */}
-          <ScoreCard role="senior" userName={userName} score={userStats.score} message={userStats.score >= 80 ? "🎯 Great job! You're on track this month." : "📈 Keep going! You're making progress."} />
-
-          {/* Stats Row */}
-          <div className="flex gap-4">
-            <StatCard value={stats.high} label="High Priority" color="red" bordered />
-            <StatCard value={stats.medium} label="Medium" color="amber" />
-            <StatCard value={stats.low} label="Low" color="blue" />
-          </div>
+          <ScoreCard
+            role="senior"
+            userName={userName}
+            score={userStats.score}
+            message={userStats.score >= 80 ? "🎯 Great job! You're on track this month." : "📈 Keep going! You're making progress."}
+            periodFilter={periodFilter}
+            onPeriodChange={setPeriodFilter}
+            compactStats={[
+              { label: "ASSIGNED TO ME", value: summaryStats.assigned },
+              { label: "AVAILABLE", value: summaryStats.available },
+              { label: "RESOLVED", value: summaryStats.resolved },
+            ]}
+            compactStatsVariant="overlay"
+          />
 
           {/* Active Tickets */}
           <div className="flex-1 flex flex-col min-h-0">

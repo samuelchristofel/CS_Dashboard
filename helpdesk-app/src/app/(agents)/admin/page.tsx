@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import StatCard from "@/components/dashboard/StatCard";
 import CustomSelect from "@/components/ui/CustomSelect";
 import AddUserModal from "@/components/modals/AddUserModal";
 import type { UserFormData } from "@/components/modals/AddUserModal";
@@ -234,7 +233,7 @@ export default function AdminDashboardPage() {
                   { value: "month", label: "This Month" },
                   { value: "year", label: "This Year" },
                 ]}
-                variant="filter"
+                variant="filter-overlay"
               />
             </div>
             {dateFilter === "custom" && (
@@ -249,14 +248,24 @@ export default function AdminDashboardPage() {
               <span className="text-lg font-bold opacity-70 mb-0.5">tickets</span>
             </div>
             <p className="text-xs opacity-80 mt-1.5">📊 Total tickets in system</p>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-4 gap-3">
-            <StatCard value={stats.open} label="Open Tickets" color="primary" bordered />
-            <StatCard value={stats.inProgress} label="In Progress" color="blue" />
-            <StatCard value={stats.resolved} label="Resolved" color="green" />
-            <StatCard value={stats.withIT} label="With IT" color="amber" />
+            <div className="grid grid-cols-4 gap-2 mt-4">
+              <div className="bg-white/15 rounded-lg px-3 py-2">
+                <p className="text-lg font-extrabold leading-none">{isLoading ? "..." : stats.open}</p>
+                <p className="text-[10px] uppercase tracking-wide opacity-80 mt-1">Open Tickets</p>
+              </div>
+              <div className="bg-white/15 rounded-lg px-3 py-2">
+                <p className="text-lg font-extrabold leading-none">{isLoading ? "..." : stats.inProgress}</p>
+                <p className="text-[10px] uppercase tracking-wide opacity-80 mt-1">In Progress</p>
+              </div>
+              <div className="bg-white/15 rounded-lg px-3 py-2">
+                <p className="text-lg font-extrabold leading-none">{isLoading ? "..." : stats.resolved}</p>
+                <p className="text-[10px] uppercase tracking-wide opacity-80 mt-1">Resolved</p>
+              </div>
+              <div className="bg-white/15 rounded-lg px-3 py-2">
+                <p className="text-lg font-extrabold leading-none">{isLoading ? "..." : stats.withIT}</p>
+                <p className="text-[10px] uppercase tracking-wide opacity-80 mt-1">With IT</p>
+              </div>
+            </div>
           </div>
 
           {/* Weekly Insights Panel */}
@@ -330,7 +339,7 @@ export default function AdminDashboardPage() {
           <div className="flex-1 flex flex-col min-h-0">
             <h2 className="text-base font-bold text-slate-900 mb-2">Unassigned Tickets</h2>
             <div className="flex-1 bg-white rounded-lg shadow-soft p-4 overflow-hidden">
-              <div className="max-h-[400px] overflow-y-auto space-y-2 admin-ticket-list" style={{ scrollbarWidth: "thin" }}>
+              <div className="h-full overflow-y-auto space-y-2 admin-ticket-list" style={{ scrollbarWidth: "thin" }}>
                 {isLoading ? (
                   <div className="flex items-center justify-center py-4">
                     <span className="size-4 border border-slate-200 border-t-slate-800 rounded-full animate-spin" />

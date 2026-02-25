@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import ScoreCard from "@/components/dashboard/ScoreCard";
-import StatCard from "@/components/dashboard/StatCard";
 import TicketCard from "@/components/dashboard/TicketCard";
 import AddNoteModal from "@/components/modals/AddNoteModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -42,6 +41,7 @@ export default function ITDashboardPage() {
   const [userId, setUserId] = useState("");
   const [stats, setStats] = useState({ assigned: 0, pending: 0, resolved: 0 });
   const [userScore, setUserScore] = useState(0);
+  const [periodFilter, setPeriodFilter] = useState<"week" | "month" | "year">("month");
 
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [ticketActivities, setTicketActivities] = useState<Activity[]>([]);
@@ -75,7 +75,7 @@ export default function ITDashboardPage() {
       const myTickets = (ticketsData.tickets || []).filter((t: { assigned_to_id?: string; status: string }) => t.assigned_to_id === userId || t.status === "WITH_IT");
       setTickets(myTickets);
 
-      const statsRes = await fetch(`/api/stats?user_id=${userId}`);
+      const statsRes = await fetch(`/api/stats?user_id=${userId}&role=it&period=${periodFilter}`);
       const statsData = await statsRes.json();
       if (statsData.userStats) {
         setUserScore(statsData.userStats.closed);
@@ -90,7 +90,7 @@ export default function ITDashboardPage() {
     } finally {
       setIsLoadingData(false);
     }
-  }, [userId]);
+  }, [userId, periodFilter]);
 
   useEffect(() => {
     if (userId) fetchData();
@@ -229,13 +229,20 @@ export default function ITDashboardPage() {
 
       <div className="flex-1 flex gap-6 overflow-hidden">
         <div className="flex-[1.2] flex flex-col gap-6 overflow-hidden">
-          <ScoreCard role="it" userName={userName} score={userScore} message="🔧 Technical tickets resolved this month" />
-
-          <div className="flex gap-4">
-            <StatCard value={stats.assigned} label="Assigned to Me" color="primary" bordered />
-            <StatCard value={stats.pending} label="Pending" color="amber" />
-            <StatCard value={stats.resolved} label="Fixed This Month" color="green" />
-          </div>
+          <ScoreCard
+            role="it"
+            userName={userName}
+            score={userScore}
+            message="🔧 Technical tickets resolved this month"
+            periodFilter={periodFilter}
+            onPeriodChange={setPeriodFilter}
+            compactStats={[
+              { label: "Assigned to Me", value: stats.assigned },
+              { label: "Pending", value: stats.pending },
+              { label: "Fixed This Month", value: stats.resolved },
+            ]}
+            compactStatsVariant="overlay"
+          />
 
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center justify-between mb-4">

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import ScoreCard from "@/components/dashboard/ScoreCard";
-import StatCard from "@/components/dashboard/StatCard";
 import TicketCard from "@/components/dashboard/TicketCard";
 import AddNoteModal from "@/components/modals/AddNoteModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -42,6 +41,7 @@ export default function JuniorDashboardPage() {
   const [userId, setUserId] = useState("");
   const [stats, setStats] = useState({ open: 0, resolved: 0, total: 0, available: 0 });
   const [userScore, setUserScore] = useState(0);
+  const [periodFilter, setPeriodFilter] = useState<"week" | "month" | "year">("month");
 
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showNoteModal, setShowNoteModal] = useState(false);
@@ -78,7 +78,7 @@ export default function JuniorDashboardPage() {
       setAvailableTickets(availableLowMedium);
 
       // Update stats
-      const statsRes = await fetch(`/api/stats?user_id=${userId}`);
+      const statsRes = await fetch(`/api/stats?user_id=${userId}&role=junior&period=${periodFilter}`);
       const statsData = await statsRes.json();
       if (statsData.userStats) {
         setUserScore(statsData.userStats.score);
@@ -101,7 +101,7 @@ export default function JuniorDashboardPage() {
     } finally {
       setIsLoadingData(false);
     }
-  }, [userId]);
+  }, [userId, periodFilter]);
 
   useEffect(() => {
     if (userId) fetchData();
@@ -319,13 +319,20 @@ export default function JuniorDashboardPage() {
 
       <div className="flex-1 flex gap-6 overflow-hidden">
         <div className="flex-[1.2] flex flex-col gap-6 overflow-hidden">
-          <ScoreCard role="junior" userName={userName} score={userScore} message={userScore >= 70 ? "✨ Good progress! Keep it up!" : "⚠️ Need improvement - keep working on tickets."} />
-
-          <div className="flex gap-4">
-            <StatCard value={stats.open} label="My Active" color="primary" bordered />
-            <StatCard value={stats.resolved} label="Resolved" color="green" />
-            <StatCard value={stats.available} label="Available" color="amber" />
-          </div>
+          <ScoreCard
+            role="junior"
+            userName={userName}
+            score={userScore}
+            message={userScore >= 70 ? "✨ Good progress! Keep it up!" : "⚠️ Need improvement - keep working on tickets."}
+            periodFilter={periodFilter}
+            onPeriodChange={setPeriodFilter}
+            compactStats={[
+              { label: "ASSIGNED TO ME", value: stats.total },
+              { label: "AVAILABLE", value: stats.available },
+              { label: "RESOLVED", value: stats.resolved },
+            ]}
+            compactStatsVariant="overlay"
+          />
 
           {/* Tickets Section with Tabs */}
           <div className="flex-1 flex flex-col min-h-0">
