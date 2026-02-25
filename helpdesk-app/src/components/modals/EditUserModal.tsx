@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import Modal from '../ui/Modal';
 import CustomSelect from '../ui/CustomSelect';
 
@@ -36,6 +37,9 @@ export default function EditUserModal({ isOpen, onClose, onSubmit, user }: EditU
         avatar: '',
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [errors, setErrors] = useState<Partial<Record<keyof EditUserFormData, string>>>({});
 
     useEffect(() => {
@@ -47,6 +51,12 @@ export default function EditUserModal({ isOpen, onClose, onSubmit, user }: EditU
                 role: user.role,
                 avatar: user.avatar || '',
             });
+            // Set preview if avatar exists
+            if (user.avatar) {
+                setAvatarPreview(user.avatar);
+            } else {
+                setAvatarPreview(null);
+            }
         }
     }, [user]);
 
@@ -69,6 +79,54 @@ export default function EditUserModal({ isOpen, onClose, onSubmit, user }: EditU
         return Object.keys(newErrors).length === 0;
     };
 
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            setAvatarPreview(event.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+
+        // Upload to server
+        setIsUploadingAvatar(true);
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: uploadFormData,
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setFormData({ ...formData, avatar: data.avatar });
+                toast.success('Avatar uploaded!');
+            } else {
+                const error = await res.json();
+                toast.error(error.error || 'Failed to upload avatar');
+                setAvatarPreview(user?.avatar || null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            toast.error('Network error');
+            setAvatarPreview(user?.avatar || null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        } finally {
+            setIsUploadingAvatar(false);
+        }
+    };
+
+    const handleRemoveAvatar = () => {
+        setFormData({ ...formData, avatar: '' });
+        setAvatarPreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -87,6 +145,8 @@ export default function EditUserModal({ isOpen, onClose, onSubmit, user }: EditU
 
     const handleClose = () => {
         setErrors({});
+        setAvatarPreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         onClose();
     };
 
@@ -155,19 +215,44 @@ export default function EditUserModal({ isOpen, onClose, onSubmit, user }: EditU
                     ]}
                 />
 
-                {/* Avatar URL */}
+                {/* Avatar Upload */}
                 <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1">
                         <span className="material-symbols-outlined text-slate-400 text-sm">image</span>
-                        Avatar URL <span className="text-slate-400">(optional)</span>
+                        Avatar <span className="text-slate-400">(optional)</span>
                     </label>
+                    
+                    {/* Avatar Preview */}
+                    {avatarPreview && (
+                        <div className="mb-3 relative w-24 h-24">
+                            <img
+                                src={avatarPreview}
+                                alt="Avatar preview"
+                                className="w-24 h-24 rounded-lg object-cover border-2 border-slate-200"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleRemoveAvatar}
+                                disabled={isUploadingAvatar}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    )}
+
+                    {/* File Input */}
                     <input
-                        type="url"
-                        value={formData.avatar}
-                        onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                        placeholder="https://example.com/avatar.jpg"
-                        className="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-slate-800/20 focus:outline-none"
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={handleAvatarChange}
+                        disabled={isUploadingAvatar}
+                        className="w-full px-4 py-3 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 hover:border-slate-400 focus:ring-2 focus:ring-slate-800/20 focus:outline-none cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     />
+                    <p className="text-xs text-slate-500 mt-2">
+                        {isUploadingAvatar ? '⏳ Uploading...' : '📁 Supported: JPEG, PNG, WebP, GIF (Max 5MB)'}
+                    </p>
                 </div>
 
                 {/* Buttons */}
