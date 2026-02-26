@@ -1,11 +1,13 @@
 # Project Documentation: Vastel Helpdesk Application
 
 ## 1. Executive Summary
+
 The **Vastel Helpdesk Application** is a modern, role-based ticketing system designed to streamline customer support operations. It features a hierarchical workflow where tickets move through specific stages handled by different agent roles (Senior, Junior, IT). The application is built as a monolithic Next.js application, utilizing the App Router for frontend views and API Routes for backend logic.
 
 ## 2. Technology Stack
 
 ### Frontend
+
 - **Framework**: Next.js 16.1.1 (App Router)
 - **Library**: React 19.2.3
 - **Styling**: Tailwind CSS 4
@@ -14,17 +16,20 @@ The **Vastel Helpdesk Application** is a modern, role-based ticketing system des
 - **Form Handling**: Native React controlled components.
 
 ### Backend
+
 - **Runtime**: Node.js (via Next.js Edge/Node Runtimes).
 - **API Framework**: Next.js API Routes (`src/app/api/**`).
 - **Database ORM**: Prisma (`@prisma/client` ^5.22.0).
 
 ### Database
+
 - **System**: MySQL.
 - **Schema**: Relational model centered around `User` and `Ticket` entities.
 
 ## 3. Architecture Overview
 
 ### 3.1 Frontend Architecture
+
 The frontend uses a **Role-Based Routing** strategy implemented via Next.js Route Groups.
 
 - **Route Structure**:
@@ -41,6 +46,7 @@ The frontend uses a **Role-Based Routing** strategy implemented via Next.js Rout
   - **Security Note**: This is a prototype-level implementation. Production would require server-side session cookies (JWT/NextAuth) to prevent bypassing client checks.
 
 ### 3.2 Backend Architecture
+
 The backend is exposed as valid REST endpoints within the same Next.js application.
 
 - **Endpoints**: Located in `src/app/api/`.
@@ -57,10 +63,12 @@ The backend is exposed as valid REST endpoints within the same Next.js applicati
 The system defines four distinct roles with specific permissions (`src/types` & `schema.prisma`):
 
 ### 👮 Administrator
+
 - **Scope**: System-wide.
 - **Capabilities**: User management, global analytics/reports, system configuration.
 
 ### 👨‍💼 Senior CS Agent (Supervisor)
+
 - **Scope**: Ticket management and team oversight.
 - **Workflow**:
   1.  **Create**: Logs new tickets from customers.
@@ -71,6 +79,7 @@ The system defines four distinct roles with specific permissions (`src/types` & 
 - **KPIs**: Review turnaround time, accurate assignment rate.
 
 ### 👩‍💻 Junior CS Agent (Executor)
+
 - **Scope**: Handling standard tickets.
 - **Workflow**:
   1.  **Work**: Addresses assigned tickets (Status: `IN_PROGRESS`).
@@ -79,6 +88,7 @@ The system defines four distinct roles with specific permissions (`src/types` & 
 - **KPIs**: Resolution speed, quality score (low rejection rate).
 
 ### 🔧 IT Support (Technical)
+
 - **Scope**: Specialized technical escalations.
 - **Workflow**:
   1.  **Receive**: Gets tickets with `WITH_IT` status.
@@ -88,18 +98,22 @@ The system defines four distinct roles with specific permissions (`src/types` & 
 ## 5. Data Model (Key Entities)
 
 ### `User`
+
 - **Fields**: `name`, `email`, `role`, `avatar`.
 - **Purpose**: Identity and permission scoping.
 
 ### `Ticket`
+
 - **Fields**: `status`, `priority`, `assignedTo`, `createdBy`.
 - **Status Enum**: `OPEN`, `TRIAGE`, `IN_PROGRESS`, `RESOLVED`, `CLOSED`, `PENDING_REVIEW`, `WITH_IT`.
 - **Lifecycle**: Tracks the journey from creation to closure.
 
 ### `Activity` & `Note`
+
 - **Purpose**: Audit logging and internal communication on specific tickets.
 
 ## 6. Current Implementation Status
+
 - **Core Flows**: Authentication and basic Ticket CRUD are functional.
 - **UI/UX**: Responsive dashboards using Tailwind. Components are modular (e.g., `CustomSelect`, `ChatWidget`).
 - **Pending Features**:
@@ -110,36 +124,44 @@ The system defines four distinct roles with specific permissions (`src/types` & 
 ## 7. Detailed Feature Specifications
 
 ### 7.1 User Management
+
 **API Endpoint**: `/api/users`
+
 - **GET**: Lists all users.
-  - *Response*: JSON array of users (passwords excluded). Dates formatted as ISO strings.
+  - _Response_: JSON array of users (passwords excluded). Dates formatted as ISO strings.
 - **POST**: Creates a new user.
-  - *Validation*: Requires `name`, `email`, `password`.
-  - *Constraint*: Checks for unique email.
-  - *Security*: Currently stores passwords in plain text (Demo Mode).
+  - _Validation_: Requires `name`, `email`, `password`.
+  - _Constraint_: Checks for unique email.
+  - _Security_: Currently stores passwords in plain text (Demo Mode).
 
 **Frontend Implementation**:
+
 - **Admin Layout**: Admin users have exclusive access to user management UI.
 - **Role Assignment**: Roles (`senior`, `junior`, `it`) are assigned at creation and determine dashboard access.
 
 ### 7.2 Ticket Lifecycle System
+
 **API Endpoint**: `/api/tickets`
+
 - **GET Options**:
   - Filtering by `status`, `priority`, `assigned_to`.
   - Pagination via `limit` and `offset`.
   - `unassigned=true` filter for queue management.
 - **POST (Creation)**:
-  - *Validation*: Mandatory `subject` and `customer_name`.
-  - *Automation*: Auto-generates sequential Ticket ID (e.g., #10001) by finding the max existing ID.
-  - *Side Effect*: Logs `TICKET_CREATED` activity.
+  - _Validation_: Mandatory `subject` and `customer_name`.
+  - _Automation_: Auto-generates sequential Ticket ID (e.g., #10001) by finding the max existing ID.
+  - _Side Effect_: Logs `TICKET_CREATED` activity.
 
 **Key Logic**:
+
 - **Status Flow**: `OPEN` -> `TRIAGE` -> `IN_PROGRESS` -> `RESOLVED` / `CLOSED`.
 - **Assignment**: Tickets link to a `User`.
 - **Activity Logging**: Critical actions (creation, status change) are recorded in the `Activity` table for audit trails.
 
 ### 7.3 Real-time Chat Widget
+
 **Component**: `ChatWidget.tsx`
+
 - **Architecture**: Client-side polling (Interval: 3000ms).
 - **UI**: Draggable window using `react-rnd`.
 - **Features**:
@@ -152,11 +174,13 @@ The system defines four distinct roles with specific permissions (`src/types` & 
   3. Send Message (`/api/chat/messages`).
 
 ### 7.4 Analytics & KPI System
+
 **API Endpoint**: `/api/stats`
+
 - **Trend Analysis**:
   - `period=today/week`: Calculates hourly/daily ticket volume and handling time.
   - `period=month/year`: Aggregates by month.
-  - *Logic*: Uses `closedAt` timestamp to determine inclusion in trend.
+  - _Logic_: Uses `closedAt` timestamp to determine inclusion in trend.
 - **Scoring Engine (User Stats)**:
   - **Base Score (60%)**: Based on volume of keys closed vs target (35).
   - **Speed Bonus (25%)**:
@@ -166,6 +190,7 @@ The system defines four distinct roles with specific permissions (`src/types` & 
   - **Role Exclusions**: IT Support role is excluded from this scoring logic.
 
 ### 7.5 Database Enums & Types
+
 - **Roles**: `senior`, `junior`, `it`, `admin`.
 - **Ticket Statuses**: `OPEN`, `TRIAGE`, `IN_PROGRESS`, `RESOLVED`, `CLOSED`, `PENDING_REVIEW`, `WITH_IT`.
 - **Priorities**: `HIGH`, `MEDIUM`, `LOW`.
@@ -173,6 +198,7 @@ The system defines four distinct roles with specific permissions (`src/types` & 
 ## 8. Role Workflows (Flowcharts)
 
 ### 8.1 Senior Agent Workflow
+
 ```mermaid
 graph TD
     A[Start] --> B{View Dashboard}
@@ -189,6 +215,7 @@ graph TD
 ```
 
 ### 8.2 Junior Agent Workflow
+
 ```mermaid
 graph TD
     A[Start] --> B[View Dashboard]
@@ -207,6 +234,7 @@ graph TD
 ```
 
 ### 8.3 IT Support Workflow
+
 ```mermaid
 graph TD
     A[Start] --> B[View Dashboard]
@@ -218,6 +246,7 @@ graph TD
 ```
 
 ### 8.4 Admin Workflow
+
 ```mermaid
 graph TD
     A[Start] --> B[View Dashboard]
@@ -228,3 +257,20 @@ graph TD
     E --> G(View Reports)
     E --> H(View Audit Logs)
 ```
+
+/// Profile Picture Upload
+Cara Kerja:
+User pilih file di modal
+File langsung di-upload ke /api/upload
+Server convert ke Base64 → return sebagai data URL
+State terupdate dengan data URL
+Saat submit form, Base64 avatar disimpan ke database
+Avatar tampil di UI sebagai image langsung tanpa external link
+
+Fitur:
+✅ Preview image sebelum submit
+✅ Validasi file type & size
+✅ Loading state saat upload
+✅ Remove avatar button
+✅ Toast feedback
+✅ Responsif & user-friendly
